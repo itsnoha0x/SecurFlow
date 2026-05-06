@@ -1,0 +1,32 @@
+# CTI Pipeline Dependencies
+
+# Core Python libraries
+pyyaml>=6.0
+requests>=2.31.0
+jsonschema>=4.19.0
+
+# Security scanning
+# Note: trivy and grype are external tools, install separately:
+# - Trivy: https://github.com/aquasecurity/trivy
+# - Grype: https://github.com/anchore/grype
+safety>=2.3.0
+
+# AI/ML integration
+openai>=1.3.0
+anthropic>=0.7.0
+
+# Data processing
+pandas>=2.1.0
+numpy>=1.24.0
+
+# Database
+sqlite3
+
+# Web framework (for dashboard)
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Development tools
+pytest>=7.4.0
+black>=23.7.0
+flake8>=6.0.0

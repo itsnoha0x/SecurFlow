@@ -1,0 +1,6 @@
+high_context_components:
+  - sqlalchemy
+  - psycopg2
+  - mongoose
+  - sequelize
+  - typeorm

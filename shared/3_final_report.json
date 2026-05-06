@@ -1,0 +1,60 @@
+{
+  "decision_metadata": {
+    "timestamp": "2026-05-06T15:07:24.485366Z",
+    "engine_version": "1.0.0",
+    "config_used": {
+      "high_context_components": [
+        "mongoose",
+        "typeorm",
+        "sqlalchemy",
+        "psycopg2",
+        "sequelize"
+      ]
+    },
+    "total_processed": 4,
+    "decisions": {
+      "BLOQUER": 3,
+      "ALERTER": 0,
+      "PASSER": 1
+    },
+    "average_srp": 7.8
+  },
+  "vulnerability_decisions": [
+    {
+      "cve_id": "CVE-2023-4911",
+      "package": "glibc",
+      "srp_score": 9.8,
+      "decision": "BLOQUER",
+      "ai_explanation": "CRITICAL: CVE-2023-4911 in glibc présente un risque élevé avec score SRP de 1e+01. Cette vulnérabilité est activement exploitée selon les données CISA KEV et OTX. Bloquer immédiatement le déploiement et appliquer les correctifs.",
+      "ai_fix": "URGENT: Mettre à jour glibc vers la version 2.35-0ubuntu3.6 et redémarrer les services affectés. Surveiller les logs d'intrusion pour les 72 prochaines heures.",
+      "timestamp": "2026-05-06T15:07:24.484157Z"
+    },
+    {
+      "cve_id": "CVE-2023-23397",
+      "package": "outlook",
+      "srp_score": 8.7,
+      "decision": "BLOQUER",
+      "ai_explanation": "CRITICAL: CVE-2023-23397 in outlook présente un risque élevé avec score SRP de 9e+00. Cette vulnérabilité est activement exploitée selon les données CISA KEV et OTX. Bloquer immédiatement le déploiement et appliquer les correctifs.",
+      "ai_fix": "URGENT: Mettre à jour outlook vers la version 16.0.5276.1000 et redémarrer les services affectés. Surveiller les logs d'intrusion pour les 72 prochaines heures.",
+      "timestamp": "2026-05-06T15:07:24.484157Z"
+    },
+    {
+      "cve_id": "CVE-2022-22965",
+      "package": "spring-framework",
+      "srp_score": 9.4,
+      "decision": "BLOQUER",
+      "ai_explanation": "CRITICAL: CVE-2022-22965 in spring-framework présente un risque élevé avec score SRP de 9e+00. Cette vulnérabilité est activement exploitée selon les données CISA KEV et OTX. Bloquer immédiatement le déploiement et appliquer les correctifs.",
+      "ai_fix": "URGENT: Mettre à jour spring-framework vers la version 5.3.21 et redémarrer les services affectés. Surveiller les logs d'intrusion pour les 72 prochaines heures.",
+      "timestamp": "2026-05-06T15:07:24.485366Z"
+    },
+    {
+      "cve_id": "CVE-2023-29357",
+      "package": "microsoft-sharepoint",
+      "srp_score": 3.3,
+      "decision": "PASSER",
+      "ai_explanation": "FAIBLE: CVE-2023-29357 dans microsoft-sharepoint présente un faible risque avec score SRP de 3e+00. Pas d'exploitation connue, peut être traitée selon le cycle de maintenance normal.",
+      "ai_fix": "ROUTINE: Inclure la mise à jour de microsoft-sharepoint dans le prochain cycle de patch mensuel. Aucune action immédiate requise.",
+      "timestamp": "2026-05-06T15:07:24.485366Z"
+    }
+  ]
+}
