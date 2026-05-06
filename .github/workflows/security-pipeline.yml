@@ -1,0 +1,123 @@
+name: SecurFlow — CTI Security Pipeline
+
+on:
+  push:
+    branches: ["main", "develop", "khaoula"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  security-pipeline:
+    name: CTI Security Gate
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update && sudo apt-get install -y trivy
+
+      - name: "P1 — Scan vulnerabilities (Trivy + Grype)"
+        run: |
+          echo "Lancement du scan CVE..."
+          python src/p1_scanner/scanner.py
+          echo "Scan termine — shared/1_raw_results.json genere"
+
+      - name: "P2 — CTI Enrichment (CISA KEV + NVD + OSV + OTX)"
+        env:
+          OTX_API_KEY: ${{ secrets.OTX_API_KEY }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          echo "Enrichissement CTI en cours..."
+          python src/p2_enricher/enricher.py
+          echo "Enrichissement termine — shared/2_enriched.json genere"
+
+      - name: "P3 — AI Decision Engine"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "Analyse IA et moteur de decision..."
+          python src/p3_decision_engine/decision_engine.py
+          echo "Decision terminee — shared/3_final_report.json genere"
+
+      - name: "P4 — Copy report to dashboard"
+        run: |
+          cp shared/3_final_report.json src/p4_dashboard/report.json
+          echo "Rapport copie vers le dashboard"
+
+      - name: "P4 — Enforce security gate decision"
+        id: decision
+        run: |
+          DECISION=$(python -c "
+          import json
+          with open('shared/3_final_report.json') as f:
+              d = json.load(f)
+          meta = d.get('decision_metadata', {})
+          decisions = meta.get('decisions', {})
+          bloquer = decisions.get('BLOQUER', 0)
+          print('BLOCK' if bloquer > 0 else 'OK')
+          ")
+
+          echo "PIPELINE_DECISION=$DECISION" >> $GITHUB_ENV
+
+          if [ "$DECISION" = "BLOCK" ]; then
+            echo ""
+            echo "DEPLOIEMENT BLOQUE — FAILLES CRITIQUES DETECTEES"
+            echo "Consultez le rapport : https://itsnoha0x.github.io/SecurFlow/dashboard"
+            echo ""
+            exit 1
+          else
+            echo "PIPELINE OK — DEPLOIEMENT AUTORISE"
+          fi
+
+      - name: "P4 — Upload dashboard artifact"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: securflow-dashboard
+          path: src/p4_dashboard/
+          retention-days: 30
+
+      - name: "P4 — Write job summary"
+        if: always()
+        run: |
+          python -c "
+          import json, os
+          with open('shared/3_final_report.json') as f:
+              d = json.load(f)
+          meta = d.get('decision_metadata', {})
+          dec  = meta.get('decisions', {})
+          vulns = d.get('vulnerability_decisions', [])
+          lines = [
+            '## SecurFlow CTI Security Report',
+            '',
+            '| Metrique | Valeur |',
+            '| --- | --- |',
+            f\"| Total CVE | {meta.get('total_processed', 0)} |\",
+            f\"| BLOQUER | {dec.get('BLOQUER', 0)} |\",
+            f\"| ALERTER | {dec.get('ALERTER', 0)} |\",
+            f\"| PASSER  | {dec.get('PASSER', 0)} |\",
+            f\"| SRP moyen | {meta.get('average_srp', 0)} / 10 |\",
+            '',
+            '| CVE ID | Package | SRP | Decision |',
+            '| --- | --- | --- | --- |',
+          ]
+          for v in sorted(vulns, key=lambda x: -x.get('srp_score', 0)):
+              lines.append(f\"| {v['cve_id']} | {v['package']} | {v['srp_score']} | {v['decision']} |\")
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+              f.write('\n'.join(lines))
+          "
