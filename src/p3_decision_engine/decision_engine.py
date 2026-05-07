@@ -23,14 +23,19 @@ class DecisionEngine:
         self.config = self.load_config(config_path)
         self.high_context_components = set(self.config.get("high_context_components", []))
         
-        # AI Configuration
+        # AI Configuration from config file
+        ai_config = self.config.get("ai_config", {})
         featherless_api_key = os.environ.get("FEATHERLESS_API_KEY", "")
         self.ai_client = OpenAI(
-            base_url="https://api.featherless.ai/v1",
+            base_url=ai_config.get("base_url", "https://api.featherless.ai/v1"),
             api_key=featherless_api_key
         ) if featherless_api_key else None
-        # DeepSeek est choisi pour sa fiabilité sur le JSON et sa grande fenêtre de contexte
-        self.model_name = "deepseek-ai/DeepSeek-V4-Flash"
+        # Model name from config with fallback
+        self.model_name = ai_config.get("model_name", "deepseek-ai/DeepSeek-V4-Flash")
+        self.temperature = ai_config.get("temperature", 0.1)
+        self.max_tokens = ai_config.get("max_tokens", 4000)
+        self.timeout_seconds = ai_config.get("timeout_seconds", 30)
+        self.retry_attempts = ai_config.get("retry_attempts", 3)
         
     def load_config(self, config_path):
         """Load configuration from YAML file."""
@@ -96,9 +101,14 @@ class DecisionEngine:
         - SRP entre 4.0 et 7.0 -> "ALERTER"  
         - SRP < 4.0 -> "PASSER"
         """
-        if srp_score > 7.0:
+        # Get thresholds from config
+        decision_config = self.config.get("decision_thresholds", {})
+        block_threshold = decision_config.get("block_threshold", 7.0)
+        alert_threshold = decision_config.get("alert_threshold", 4.0)
+        
+        if srp_score > block_threshold:
             return "BLOQUER"
-        elif srp_score >= 4.0:
+        elif srp_score >= alert_threshold:
             return "ALERTER"
         else:
             return "PASSER"
@@ -124,7 +134,7 @@ class DecisionEngine:
 
         system_prompt = """Tu es un expert DevSecOps impartial et précis.
 Ton but est d'expliquer une vulnérabilité à un développeur pour justifier le blocage ou l'alerte de son pipeline CI/CD.
-Tu dois être très concis (2 phrases maximum pour l'explication). Pas de bla-bla.
+Tu dois être très concis (3 phrases maximum pour l'explication). Utilise un ton professionnel mais alarmiste si la décision est BLOQUER, et pédagogique si c'est ALERTER.
 Tu dois répondre UNIQUEMENT avec un objet JSON valide contenant exactement ces deux clés :
 - "ai_explanation": L'explication du risque intégrant le contexte CTI (Threat Actors, CISA).
 - "ai_fix": L'action exacte de remédiation (quelle version installer)."""
@@ -195,10 +205,14 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
         enriched_vulns = enriched_data.get("enriched_vulnerabilities", [])
         final_report = []
         
-        print(f"[*] Processing {len(enriched_vulns)} vulnerabilities with 4 parallel threads...")
+        # Get performance config
+        perf_config = self.config.get("performance", {})
+        max_workers = perf_config.get("max_workers", 4)
         
-        # Use ThreadPoolExecutor for parallel processing (max 4 workers for Premium subscription)
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        print(f"[*] Processing {len(enriched_vulns)} vulnerabilities with {max_workers} parallel threads...")
+        
+        # Use ThreadPoolExecutor for parallel processing (configurable workers)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Submit all vulnerabilities for processing
             future_to_vuln = {
                 executor.submit(self._process_single_vuln, vuln): vuln 

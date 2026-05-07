@@ -87,9 +87,18 @@ jobs:
       id: summary
       run: |
         if [ -f "../../shared/1_raw_results.json" ]; then
-          CRITICAL_COUNT=$(jq -r '.summary.by_severity.CRITICAL // 0' ../../shared/1_raw_results.json)
-          echo "critical-count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
-          echo "summary={\"critical\": $CRITICAL_COUNT}" >> $GITHUB_OUTPUT
+          # Check if file has content
+          if [ -s "../../shared/1_raw_results.json" ]; then
+            CRITICAL_COUNT=$(jq -r '.summary.by_severity.CRITICAL // 0' ../../shared/1_raw_results.json 2>/dev/null || echo "0")
+            echo "critical-count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
+            echo "summary={\"critical\": $CRITICAL_COUNT}" >> $GITHUB_OUTPUT
+          else
+            echo "critical-count=0" >> $GITHUB_OUTPUT
+            echo "summary={\"critical\": 0}" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "critical-count=0" >> $GITHUB_OUTPUT
+          echo "summary={\"critical\": 0}" >> $GITHUB_OUTPUT
         fi
         
     - name: Upload scan results
@@ -302,7 +311,7 @@ jobs:
         
     - name: Deploy to GitHub Pages
       id: deploy
-      uses: peaceiris/actions/github-pages@v3
+      uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./src/p4_dashboard/dist
@@ -311,7 +320,7 @@ jobs:
         
     - name: Deploy preview
       id: deploy-preview
-      uses: peaceiris/actions/github-pages@v3
+      uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./src/p4_dashboard/dist
