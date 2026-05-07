@@ -182,9 +182,24 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
             raw_content = raw_content.replace('\u0000', '')  # Caractères nuls
             raw_content = raw_content.replace('\u200b', '')  # Zero-width spaces
             
-            # 3. Vérification et parsing avec fallback
+            # 3. Nettoyage avancé et reconstruction JSON
             try:
+                # Vérifie si le JSON commence correctement
+                raw_content = raw_content.strip()
+                
+                # Si pas d'accolade ouvrante, ajoute-la
+                if not raw_content.startswith('{'):
+                    if 'ai_explanation' in raw_content:
+                        raw_content = '{' + raw_content
+                    elif 'ai_fix' in raw_content:
+                        raw_content = '{"ai_fix": ' + raw_content.split('ai_fix')[1].strip()
+                
+                # Vérifie si le JSON se termine correctement
+                if not raw_content.endswith('}'):
+                    raw_content = raw_content + '}'
+                
                 result = json.loads(raw_content)
+                
             except json.JSONDecodeError as e:
                 print(f"    [!] JSON parsing error: {e}")
                 print(f"    [!] Raw content: {repr(raw_content[:200])}")
