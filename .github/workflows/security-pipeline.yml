@@ -230,12 +230,12 @@ jobs:
           echo "pipeline-blocked=$PIPELINE_BLOCKED" >> $GITHUB_OUTPUT
         fi
         
-    - name: Upload final report
+    - name: Upload Final Report
+      if: always()  # <-- OBLIGATOIRE si tu laisses en rouge
       uses: actions/upload-artifact@v4
       with:
-        name: final-report
+        name: securflow-final-report
         path: shared/3_final_report.json
-        retention-days: 30
         
     - name: Generate security summary
       id: security-summary
