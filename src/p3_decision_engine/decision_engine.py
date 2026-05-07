@@ -193,9 +193,9 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
                     # 'ai_explanation": "texte..." → {"ai_explanation": "texte...", "ai_fix": "..."}
                     parts = raw_content.split('"ai_fix":')
                     if len(parts) > 1:
-                        raw_content = '{"ai_explanation":' + parts[0].replace("'ai_explanation": ", "") + '"ai_fix":' + parts[1]
+                        raw_content = '{"ai_explanation":' + parts[0].replace("'ai_explanation\": ", "") + '"ai_fix":' + parts[1]
                     else:
-                        raw_content = '{"ai_explanation":' + raw_content.replace("'ai_explanation": ", "") + '}'
+                        raw_content = '{"ai_explanation":' + raw_content.replace("'ai_explanation\": ", "") + '}'
                 
                 # Cas 2: JSON commence par autre chose
                 elif not raw_content.startswith('{'):
