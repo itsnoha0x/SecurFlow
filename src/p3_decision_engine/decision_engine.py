@@ -165,40 +165,46 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
             )
             
             raw_content = response.choices[0].message.content.strip()
-            # On affiche EXACTEMENT ce que l'IA a dit pour pouvoir débugger
             print(f"    [DEBUG RAW] {repr(raw_content)}")
             
-            # --- L'EXTRACTEUR UNIVERSEL ---
-            # On cherche les limites mathématiques du JSON
-            start_idx = raw_content.find('{')
-            end_idx = raw_content.rfind('}')
+            # --- LE BLINDAGE ABSOLU ---
             
-            if start_idx != -1 and end_idx != -1:
-                # On coupe tout ce qui n'est pas dans les accolades
+            # 1. Si l'IA a oublié l'accolade ouvrante, on la rajoute !
+            if not raw_content.startswith('{'):
+                # On enlève les guillemets ou apostrophes parasites au tout début
+                raw_content = raw_content.lstrip("'")
+                if raw_content.startswith('"ai_explanation"'):
+                    raw_content = '{' + raw_content
+                else:
+                    raw_content = '{"ai_explanation": "' + raw_content
+                    
+            # 2. Si l'IA a oublié l'accolade fermante
+            if not raw_content.endswith('}'):
+                raw_content = raw_content + '}'
+                
+            # 3. Nettoyage des vieilles hallucinations
+            raw_content = raw_content.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
+            raw_content = raw_content.replace('"ai_fix": ai_fix":', '"ai_fix":')
+
+            try:
+                # On essaie de lire le JSON réparé
+                start_idx = raw_content.find('{')
+                end_idx = raw_content.rfind('}')
                 clean_json = raw_content[start_idx:end_idx+1]
                 
-                # Double sécurité contre la duplication de clés de DeepSeek
-                clean_json = clean_json.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
-                clean_json = clean_json.replace('"ai_fix": ai_fix":', '"ai_fix":')
-                clean_json = clean_json.replace('\'', '"') # Au cas où il utilise des simples quotes
+                result = json.loads(clean_json)
                 
-                try:
-                    result = json.loads(clean_json)
-                except json.JSONDecodeError as e:
-                    print(f"    [!] Le JSON nettoyé est toujours invalide : {e}")
-                    # Mode survie regex de dernier recours
-                    import re
-                    exp_match = re.search(r'"ai_explanation"\s*:\s*"([^"]+)"', clean_json)
-                    fix_match = re.search(r'"ai_fix"\s*:\s*"([^"]+)"', clean_json)
-                    result = {
-                        "ai_explanation": exp_match.group(1) if exp_match else "Erreur d'extraction IA.",
-                        "ai_fix": fix_match.group(1) if fix_match else "Appliquer les patchs de sécurité."
-                    }
-            else:
-                print("    [!] Aucune accolade trouvée dans la réponse de l'IA.")
+            except Exception as e:
+                # 4. MODE SURVIE ULTIME : Le Regex
+                print(f"    [!] Le JSON est toujours rebelle, passage au Regex : {e}")
+                import re
+                # On cherche tout ce qui est entre les guillemets après la clé
+                exp_match = re.search(r'"ai_explanation"\s*:\s*"(.*?)"\s*,', raw_content, re.DOTALL)
+                fix_match = re.search(r'"ai_fix"\s*:\s*"(.*?)"\s*}', raw_content, re.DOTALL)
+                
                 result = {
-                    "ai_explanation": "L'IA n'a pas retourné de format structuré.",
-                    "ai_fix": "Vérification manuelle requise."
+                    "ai_explanation": exp_match.group(1).strip() if exp_match else "Alerte CTI critique détectée.",
+                    "ai_fix": fix_match.group(1).strip() if fix_match else "Mise à jour immédiate requise."
                 }
 
             print(f"    [IA] Analyse terminée pour {cve_id}.")
