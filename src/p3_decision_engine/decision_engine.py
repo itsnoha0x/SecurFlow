@@ -200,9 +200,9 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
                 # Cas 2: JSON commence par autre chose
                 elif not raw_content.startswith('{'):
                     if 'ai_explanation' in raw_content:
-                        raw_content = '{"ai_explanation": ' + raw_content.replace("'ai_explanation": ", "")
+                        raw_content = '{"ai_explanation": ' + raw_content.replace("'ai_explanation\": ", "") + '}'
                     elif 'ai_fix' in raw_content:
-                        raw_content = '{"ai_fix": ' + raw_content.replace("'ai_fix": ", "")
+                        raw_content = '{"ai_fix": ' + raw_content.replace("'ai_fix": ", "") + '}'
                 
                 # Cas 3: Nettoyage des apostrophes incorrectes
                 raw_content = raw_content.replace("'ai_explanation\"", '"ai_explanation"')
