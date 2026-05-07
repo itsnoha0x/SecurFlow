@@ -1,0 +1,356 @@
+name: CTI Security Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*' ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      severity_filter:
+        description: 'Severity levels to scan (CRITICAL,HIGH,MEDIUM,LOW)'
+        required: false
+        default: 'CRITICAL,HIGH,MEDIUM'
+      target_path:
+        description: 'Target path to scan'
+        required: false
+        default: 'target_app'
+      force_full_scan:
+        description: 'Force full pipeline run'
+        type: boolean
+        required: false
+        default: false
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # P1: Security Scanner Phase
+  scan:
+    name: P1 - Security Scanning
+    runs-on: ubuntu-latest
+    outputs:
+      scan-results-path: ${{ steps.scan.outputs.results-path }}
+      scan-summary: ${{ steps.scan.outputs.summary }}
+      critical-count: ${{ steps.scan.outputs.critical-count }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install external tools
+      run: |
+        # Install Trivy
+        sudo apt-get update
+        sudo apt-get install wget apt-transport-https gnupg lsb-release
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update
+        sudo apt-get install trivy
+        
+        # Install Grype
+        curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+        
+    - name: Run P1 Scanner
+      id: scan
+      run: |
+        cd src/p1_scanner
+        python scanner.py \
+          --target "../../target_app" \
+          --severity "${{ github.event.inputs.severity_filter || 'CRITICAL,HIGH,MEDIUM' }}" \
+          --output "../../shared/1_raw_results.json"
+      continue-on-error: true
+        
+    - name: Extract scan summary
+      id: summary
+      run: |
+        if [ -f "../../shared/1_raw_results.json" ]; then
+          CRITICAL_COUNT=$(jq -r '.summary.by_severity.CRITICAL // 0' ../../shared/1_raw_results.json)
+          echo "critical-count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
+          echo "summary={\"critical\": $CRITICAL_COUNT}" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Upload scan results
+      uses: actions/upload-artifact@v3
+      with:
+        name: scan-results
+        path: shared/1_raw_results.json
+        retention-days: 30
+        
+    - name: Upload scan report
+      uses: actions/upload-artifact@v3
+      with:
+        name: scan-report
+        path: results/*_report.txt
+        retention-days: 30
+
+  # P2: Threat Intelligence Enrichment
+  enrich:
+    name: P2 - Threat Intelligence Enrichment
+    runs-on: ubuntu-latest
+    needs: scan
+    if: needs.scan.result == 'success' || github.event.inputs.force_full_scan == 'true'
+    outputs:
+      enrich-results-path: ${{ steps.enrich.outputs.results-path }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Download scan results
+      uses: actions/download-artifact@v3
+      with:
+        name: scan-results
+        path: shared/
+        
+    - name: Run P2 Enricher
+      id: enrich
+      run: |
+        cd src/p2_enricher
+        python enricher.py \
+          --input "../../shared/1_raw_results.json" \
+          --output "../../shared/2_enriched.json"
+      env:
+        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        OTX_API_KEY: ${{ secrets.OTX_API_KEY }}
+        CISA_API_KEY: ${{ secrets.CISA_API_KEY }}
+        
+    - name: Upload enriched results
+      uses: actions/upload-artifact@v3
+      with:
+        name: enriched-results
+        path: shared/2_enriched.json
+        retention-days: 30
+
+  # P3: AI Decision Engine
+  decide:
+    name: P3 - AI Decision Engine
+    runs-on: ubuntu-latest
+    needs: enrich
+    if: needs.enrich.result == 'success' || github.event.inputs.force_full_scan == 'true'
+    outputs:
+      decision-results-path: ${{ steps.decide.outputs.results-path }}
+      critical-decisions: ${{ steps.decide.outputs.critical-decisions }}
+      pipeline-blocked: ${{ steps.decide.outputs.pipeline-blocked }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Download enriched results
+      uses: actions/download-artifact@v3
+      with:
+        name: enriched-results
+        path: shared/
+        
+    - name: Run P3 Decision Engine
+      id: decide
+      run: |
+        cd src/p3_decision_engine
+        python decision_engine.py \
+          --input "../../shared/2_enriched.json" \
+          --output "../../shared/3_final_report.json"
+      env:
+        FEATHERLESS_API_KEY: ${{ secrets.FEATHERLESS_API_KEY }}
+        
+    - name: Extract decision summary
+      id: summary
+      run: |
+        if [ -f "../../shared/3_final_report.json" ]; then
+          CRITICAL_DECISIONS=$(jq -r '.decision_metadata.decisions.BLOQUER // 0' ../../shared/3_final_report.json)
+          PIPELINE_BLOCKED=$(jq -r '.decision_metadata.decisions.BLOQUER > 0' ../../shared/3_final_report.json)
+          echo "critical-decisions=$CRITICAL_DECISIONS" >> $GITHUB_OUTPUT
+          echo "pipeline-blocked=$PIPELINE_BLOCKED" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Upload final report
+      uses: actions/upload-artifact@v3
+      with:
+        name: final-report
+        path: shared/3_final_report.json
+        retention-days: 30
+        
+    - name: Generate security summary
+      id: security-summary
+      run: |
+        if [ -f "../../shared/3_final_report.json" ]; then
+          TOTAL_VULNS=$(jq -r '.decision_metadata.total_processed' ../../shared/3_final_report.json)
+          CRITICAL_COUNT=$(jq -r '.decision_metadata.decisions.BLOQUER // 0' ../../shared/3_final_report.json)
+          HIGH_COUNT=$(jq -r '.decision_metadata.decisions.ALERTER // 0' ../../shared/3_final_report.json)
+          AVG_SRP=$(jq -r '.decision_metadata.average_srp' ../../shared/3_final_report.json)
+          
+          echo "## 🔍 Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Vulnerabilities | $TOTAL_VULNS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Critical Decisions | $CRITICAL_COUNT |" >> $GITHUB_STEP_SUMMARY
+          echo "| High Priority | $HIGH_COUNT |" >> $GITHUB_STEP_SUMMARY
+          echo "| Average SRP Score | $AVG_SRP/10.0 |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$CRITICAL_COUNT" -gt 0 ]; then
+            echo "## 🚨 CRITICAL ISSUES DETECTED" >> $GITHUB_STEP_SUMMARY
+            echo "Pipeline **BLOCKED** due to $CRITICAL_COUNT critical vulnerabilities requiring immediate attention." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ✅ Pipeline Passed" >> $GITHUB_STEP_SUMMARY
+            echo "No critical security issues detected. Pipeline can proceed safely." >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+
+  # P4: Dashboard Deployment (Optional)
+  deploy-dashboard:
+    name: P4 - Security Dashboard
+    runs-on: ubuntu-latest
+    needs: decide
+    if: |
+      needs.decide.result == 'success' && 
+      (github.ref == 'refs/heads/main' || github.event.inputs.force_full_scan == 'true')
+    outputs:
+      dashboard-url: ${{ steps.deploy.outputs.url }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: Cache Node dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
+    - name: Install dashboard dependencies
+      run: |
+        cd src/p4_dashboard
+        npm ci
+        
+    - name: Download final report
+      uses: actions/download-artifact@v3
+      with:
+        name: final-report
+        path: shared/
+        
+    - name: Build dashboard
+      run: |
+        cd src/p4_dashboard
+        npm run build
+        
+    - name: Deploy to GitHub Pages
+      id: deploy
+      uses: peaceiris/actions/github-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./src/p4_dashboard/dist
+        destination_dir: security-dashboard
+      if: github.ref == 'refs/heads/main'
+        
+    - name: Deploy preview
+      id: deploy-preview
+      uses: peaceiris/actions/github-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./src/p4_dashboard/dist
+        destination_dir: security-dashboard-preview
+      if: github.ref != 'refs/heads/main'
+        
+    - name: Get dashboard URL
+      id: url
+      run: |
+        if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          echo "url=https://${{ github.repository_owner }}.github.io/${{ github.repository }}/security-dashboard/" >> $GITHUB_OUTPUT
+        else
+          echo "url=https://${{ github.repository_owner }}.github.io/${{ github.repository }}/security-dashboard-preview/" >> $GITHUB_OUTPUT
+        fi
+
+# Global failure notification
+  notify:
+    name: Pipeline Notification
+    runs-on: ubuntu-latest
+    needs: [scan, enrich, decide]
+    if: always()
+    
+    steps:
+    - name: Notify on success
+      if: needs.decide.result == 'success'
+      run: |
+        echo "## ✅ CTI Pipeline Completed Successfully" >> $GITHUB_STEP_SUMMARY
+        echo "Security analysis completed with AI-powered decision making." >> $GITHUB_STEP_SUMMARY
+        echo "View detailed results in the Actions artifacts." >> $GITHUB_STEP_SUMMARY
+        
+    - name: Notify on failure
+      if: needs.decide.result == 'failure'
+      run: |
+        echo "## ❌ CTI Pipeline Failed" >> $GITHUB_STEP_SUMMARY
+        echo "Security pipeline encountered errors. Please check the logs." >> $GITHUB_STEP_SUMMARY
+        
+    - name: Critical alert notification
+      if: needs.decide.outputs.pipeline-blocked == 'true'
+      run: |
+        echo "## 🚨 CRITICAL SECURITY ALERT" >> $GITHUB_STEP_SUMMARY
+        echo "Critical vulnerabilities detected requiring immediate attention!" >> $GITHUB_STEP_SUMMARY
+        echo "Pipeline has been **BLOCKED** for security reasons." >> $GITHUB_STEP_SUMMARY

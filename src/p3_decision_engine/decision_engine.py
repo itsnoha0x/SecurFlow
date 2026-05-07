@@ -13,6 +13,8 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
+from openai import OpenAI
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class DecisionEngine:
@@ -20,6 +22,15 @@ class DecisionEngine:
         """Initialize the decision engine with configuration."""
         self.config = self.load_config(config_path)
         self.high_context_components = set(self.config.get("high_context_components", []))
+        
+        # AI Configuration
+        featherless_api_key = os.environ.get("FEATHERLESS_API_KEY", "")
+        self.ai_client = OpenAI(
+            base_url="https://api.featherless.ai/v1",
+            api_key=featherless_api_key
+        ) if featherless_api_key else None
+        # DeepSeek est choisi pour sa fiabilité sur le JSON et sa grande fenêtre de contexte
+        self.model_name = "deepseek-ai/DeepSeek-V4-Flash"
         
     def load_config(self, config_path):
         """Load configuration from YAML file."""
@@ -93,65 +104,118 @@ class DecisionEngine:
             return "PASSER"
     
     def get_ai_analysis(self, vulnerability, srp_score, decision):
-        """
-        Mock AI analysis function.
-        Returns AI-generated explanation and fix recommendations.
-        """
+        """Appelle Featherless AI pour générer une explication DevSecOps."""
         cve_id = vulnerability.get("cve_id", "Unknown")
         package = vulnerability.get("package", "Unknown")
         
-        # Mock AI explanations based on decision and vulnerability characteristics
-        if decision == "BLOQUER":
-            ai_explanation = f"CRITICAL: {cve_id} in {package} présente un risque élevé avec score SRP de {srp_score:.1}. Cette vulnérabilité est activement exploitée selon les données CISA KEV et OTX. Bloquer immédiatement le déploiement et appliquer les correctifs."
-            ai_fix = f"URGENT: Mettre à jour {package} vers la version {vulnerability.get('version_fixed', 'latest')} et redémarrer les services affectés. Surveiller les logs d'intrusion pour les 72 prochaines heures."
+        # Fast-path: Pas d'appel IA pour les failles mineures
+        if decision == "PASSER" or not self.ai_client:
+            return {
+                "ai_explanation": f"Vulnérabilité mineure ({cve_id}) avec SRP de {srp_score:.1f}. Risque faible.",
+                "ai_fix": f"Planifier la mise à jour de {package} lors d'un prochain sprint."
+            }
+
+        cisa_notes = vulnerability.get("cisa_kev", {}).get("notes", "Non listé dans le KEV")
+        otx_data = vulnerability.get("otx_indicators", [])
+        threat_actors = [pulse.get("name") for indicator in otx_data for pulse in indicator.get("pulses", [])]
+        actors_str = ", ".join(threat_actors) if threat_actors else "Aucun acteur spécifique identifié"
+        # Contexte complet (32K tokens dispos, pas de troncature)
+        desc = vulnerability.get("description", "") 
+
+        system_prompt = """Tu es un expert DevSecOps impartial et précis.
+Ton but est d'expliquer une vulnérabilité à un développeur pour justifier le blocage ou l'alerte de son pipeline CI/CD.
+Tu dois être très concis (2 phrases maximum pour l'explication). Pas de bla-bla.
+Tu dois répondre UNIQUEMENT avec un objet JSON valide contenant exactement ces deux clés :
+- "ai_explanation": L'explication du risque intégrant le contexte CTI (Threat Actors, CISA).
+- "ai_fix": L'action exacte de remédiation (quelle version installer)."""
+
+        user_prompt = f"""
+Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
+- CVE : {cve_id}
+- Package : {package}
+- Description : {desc}
+- CISA KEV : {cisa_notes}
+- Threat Actors : {actors_str}"""
+
+        try:
+            print(f"    [IA] Début de l'analyse pour {cve_id}...")
+            response = self.ai_client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.1,
+                response_format={ "type": "json_object" }
+            )
+            result = json.loads(response.choices[0].message.content)
+            print(f"    [IA] Analyse terminée pour {cve_id}.")
+            return {
+                "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
+                "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")
+            }
+        except Exception as e:
+            print(f"    [!] Erreur IA pour {cve_id}: {e}")
+            return {
+                "ai_explanation": f"Alerte CTI de niveau {decision}. (Analyse IA indisponible).",
+                "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
+            }
+    
+    def _process_single_vuln(self, vuln):
+        """Process a single vulnerability with SRP calculation and AI analysis."""
+        cve_id = vuln.get('cve_id', 'Unknown')
+        print(f"[*] Processing vulnerability: {cve_id}")
         
-        elif decision == "ALERTER":
-            ai_explanation = f"MODÉRÉ: {cve_id} dans {package} a un score SRP de {srp_score:.1}. Bien que non critique, cette vulnérabilité mérite une attention particulière. Planifier la correction dans les prochains jours."
-            ai_fix = f"PLANIFIÉ: Mettre à jour {package} vers la version {vulnerability.get('version_fixed', 'latest')} lors de la prochaine fenêtre de maintenance. Documenter la procédure de contournement si nécessaire."
+        # Calculate SRP score
+        srp_score = self.calculate_srp(vuln)
         
-        else:  # PASSER
-            ai_explanation = f"FAIBLE: {cve_id} dans {package} présente un faible risque avec score SRP de {srp_score:.1}. Pas d'exploitation connue, peut être traitée selon le cycle de maintenance normal."
-            ai_fix = f"ROUTINE: Inclure la mise à jour de {package} dans le prochain cycle de patch mensuel. Aucune action immédiate requise."
+        # Make decision
+        decision = self.make_decision(srp_score)
         
-        return {
-            "ai_explanation": ai_explanation,
-            "ai_fix": ai_fix
+        # Get AI analysis
+        ai_analysis = self.get_ai_analysis(vuln, srp_score, decision)
+        
+        # Build final report entry
+        report_entry = {
+            "cve_id": vuln.get("cve_id", ""),
+            "package": vuln.get("package", ""),
+            "srp_score": round(srp_score, 1),
+            "decision": decision,
+            "ai_explanation": ai_analysis["ai_explanation"],
+            "ai_fix": ai_analysis["ai_fix"],
+            "timestamp": datetime.utcnow().isoformat() + "Z"
         }
+        
+        # Print progress
+        print(f"    SRP: {srp_score:.1f} -> {decision}")
+        return report_entry
     
     def process_vulnerabilities(self, enriched_data):
-        """Process all vulnerabilities and generate final report."""
+        """Process all vulnerabilities with multithreading and generate final report."""
         enriched_vulns = enriched_data.get("enriched_vulnerabilities", [])
         final_report = []
         
-        print(f"[*] Processing {len(enriched_vulns)} vulnerabilities...")
+        print(f"[*] Processing {len(enriched_vulns)} vulnerabilities with 4 parallel threads...")
         
-        for i, vuln in enumerate(enriched_vulns, 1):
-            print(f"[*] Processing vulnerability {i}/{len(enriched_vulns)}: {vuln.get('cve_id', 'Unknown')}")
-            
-            # Calculate SRP score
-            srp_score = self.calculate_srp(vuln)
-            
-            # Make decision
-            decision = self.make_decision(srp_score)
-            
-            # Get AI analysis
-            ai_analysis = self.get_ai_analysis(vuln, srp_score, decision)
-            
-            # Build final report entry
-            report_entry = {
-                "cve_id": vuln.get("cve_id", ""),
-                "package": vuln.get("package", ""),
-                "srp_score": round(srp_score, 1),
-                "decision": decision,
-                "ai_explanation": ai_analysis["ai_explanation"],
-                "ai_fix": ai_analysis["ai_fix"],
-                "timestamp": datetime.utcnow().isoformat() + "Z"
+        # Use ThreadPoolExecutor for parallel processing (max 4 workers for Premium subscription)
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            # Submit all vulnerabilities for processing
+            future_to_vuln = {
+                executor.submit(self._process_single_vuln, vuln): vuln 
+                for vuln in enriched_vulns
             }
             
-            final_report.append(report_entry)
-            
-            # Print progress
-            print(f"    SRP: {srp_score:.1f} -> {decision}")
+            # Collect results as they complete
+            for future in as_completed(future_to_vuln):
+                try:
+                    result = future.result()
+                    final_report.append(result)
+                except Exception as e:
+                    vuln = future_to_vuln[future]
+                    print(f"[!] Error processing {vuln.get('cve_id', 'Unknown')}: {e}")
+        
+        # Sort final report by SRP score descending
+        final_report.sort(key=lambda x: x["srp_score"], reverse=True)
         
         return final_report
     
