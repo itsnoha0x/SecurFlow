@@ -159,7 +159,16 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
                 max_tokens=self.max_tokens,
                 temperature=self.temperature
             )
-            result = json.loads(response.choices[0].message.content)
+            # --- NOUVEAU CODE DE NETTOYAGE JSON ---
+            raw_content = response.choices[0].message.content.strip()
+            # Supprime les balises markdown si l'IA en a rajouté
+            if raw_content.startswith("```json"):
+                raw_content = raw_content[7:-3].strip()
+            elif raw_content.startswith("```"):
+                raw_content = raw_content[3:-3].strip()
+                
+            result = json.loads(raw_content)
+            # --------------------------------------
             print(f"    [IA] Analyse terminée pour {cve_id}.")
             return {
                 "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
