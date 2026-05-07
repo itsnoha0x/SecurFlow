@@ -161,13 +161,29 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
             )
             # --- NOUVEAU CODE DE NETTOYAGE JSON ---
             raw_content = response.choices[0].message.content.strip()
-            # Supprime les balises markdown si l'IA en a rajouté
+            
+            # Nettoyage complet du contenu JSON
+            # 1. Supprime les balises markdown
             if raw_content.startswith("```json"):
                 raw_content = raw_content[7:-3].strip()
             elif raw_content.startswith("```"):
                 raw_content = raw_content[3:-3].strip()
-                
-            result = json.loads(raw_content)
+            
+            # 2. Nettoyage des caractères problématiques
+            raw_content = raw_content.replace('\u0000', '')  # Caractères nuls
+            raw_content = raw_content.replace('\u200b', '')  # Zero-width spaces
+            
+            # 3. Vérification et parsing avec fallback
+            try:
+                result = json.loads(raw_content)
+            except json.JSONDecodeError as e:
+                print(f"    [!] JSON parsing error: {e}")
+                print(f"    [!] Raw content: {repr(raw_content[:200])}")
+                # Fallback sur réponse par défaut
+                result = {
+                    "ai_explanation": f"Alerte CTI de niveau {decision}. (Erreur parsing JSON).",
+                    "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
+                }
             # --------------------------------------
             print(f"    [IA] Analyse terminée pour {cve_id}.")
             return {
