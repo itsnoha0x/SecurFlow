@@ -11,6 +11,7 @@ import json
 import yaml
 import os
 import sys
+import re
 from datetime import datetime
 from pathlib import Path
 from openai import OpenAI
@@ -118,7 +119,6 @@ class DecisionEngine:
         cve_id = vulnerability.get("cve_id", "Unknown")
         package = vulnerability.get("package", "Unknown")
         
-        # Fast-path: Pas d'appel IA pour les failles mineures
         if decision == "PASSER" or not self.ai_client:
             return {
                 "ai_explanation": f"Vulnérabilité mineure ({cve_id}) avec SRP de {srp_score:.1f}. Risque faible.",
@@ -129,24 +129,19 @@ class DecisionEngine:
         otx_data = vulnerability.get("otx_indicators", [])
         threat_actors = [pulse.get("name") for indicator in otx_data for pulse in indicator.get("pulses", [])]
         actors_str = ", ".join(threat_actors) if threat_actors else "Aucun acteur spécifique identifié"
-        # Contexte complet (32K tokens dispos, pas de troncature)
         desc = vulnerability.get("description", "") 
 
-        system_prompt = """Tu es un expert DevSecOps impartial et précis.
-Ton but est d'expliquer une vulnérabilité à un développeur pour justifier le blocage ou l'alerte de son pipeline CI/CD.
-Tu dois être très concis (3 phrases maximum pour l'explication). Utilise un ton professionnel mais alarmiste si la décision est BLOQUER, et pédagogique si c'est ALERTER.
+        # --- LE NOUVEAU PROMPT : On utilise un template strict ---
+        system_prompt = """Tu es un expert DevSecOps impartial. Ton but est d'expliquer une vulnérabilité à un développeur de manière très concise.
 
 RÈGLES CRUCIALES:
-1. Réponds UNIQUEMENT avec un objet JSON valide
-2. L'objet doit contenir EXACTEMENT ces deux clés:
-   - "ai_explanation": L'explication du risque intégrant le contexte CTI (max 200 caractères)
-   - "ai_fix": L'action de remédiation (max 150 caractères)
-3. NE JAMAIS tronquer les réponses
-4. Vérifie que le JSON est complet avant de répondre
-5. Pas de texte avant ou après le JSON
-
-Exemple de format attendu:
-{"ai_explanation": "Risque critique avec exploitation active confirmée.", "ai_fix": "Mettre à jour glibc vers 2.35-0ubuntu3.6 immédiatement."}"""
+1. Tu dois répondre UNIQUEMENT avec un objet JSON valide.
+2. Utilise EXACTEMENT ce modèle JSON (ne change pas les clés) :
+{
+  "ai_explanation": "Explication du risque avec contexte CTI (max 3 phrases)",
+  "ai_fix": "Action de remédiation exacte (max 2 phrases)"
+}
+3. Ne rajoute aucun texte avant ou après le JSON. Ne duplique pas les guillemets."""
 
         user_prompt = f"""
 Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
@@ -168,76 +163,42 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
                 max_tokens=self.max_tokens,
                 temperature=self.temperature
             )
-            # --- NOUVEAU CODE DE NETTOYAGE JSON ---
+            
             raw_content = response.choices[0].message.content.strip()
             
-            # Nettoyage complet du contenu JSON
-            # 1. Supprime les balises markdown
-            if raw_content.startswith("```json"):
-                raw_content = raw_content[7:-3].strip()
-            elif raw_content.startswith("```"):
-                raw_content = raw_content[3:-3].strip()
+            # --- NETTOYAGE SIMPLIFIÉ ET ROBUSTE ---
+            # 1. Enlever les balises markdown
+            raw_content = re.sub(r"^```json\s*", "", raw_content)
+            raw_content = re.sub(r"^```\s*", "", raw_content)
+            raw_content = re.sub(r"```\s*$", "", raw_content).strip()
             
-            # 2. Nettoyage des caractères problématiques
-            raw_content = raw_content.replace('\u0000', '')  # Caractères nuls
-            raw_content = raw_content.replace('\u200b', '')  # Zero-width spaces
-            
-            # 3. Nettoyage avancé et reconstruction JSON
+            # 2. Correction express de l'hallucination connue de DeepSeek
+            raw_content = raw_content.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
+            raw_content = raw_content.replace('"ai_fix": ai_fix":', '"ai_fix":')
+
             try:
-                # Vérifie si le JSON commence correctement
-                raw_content = raw_content.strip()
-                
-                # Reconstruction JSON robuste
-                # Cas 1: JSON commence par 'ai_explanation" (correction double clé)
-                if raw_content.startswith("'ai_explanation"):
-                    # 'ai_explanation": ai_explanation": "texte..." → {"ai_explanation": "texte...", "ai_fix": "..."}
-                    # Supprime le premier 'ai_explanation": incorrect
-                    cleaned = raw_content.replace("'ai_explanation\": ", "")
-                    # Si la clé ai_explanation apparaît encore, la supprimer
-                    if cleaned.startswith("ai_explanation\":"):
-                        cleaned = cleaned.replace("ai_explanation\": ", "")
-                    
-                    parts = cleaned.split('"ai_fix":')
-                    if len(parts) > 1:
-                        raw_content = '{"ai_explanation":' + parts[0] + '"ai_fix":' + parts[1]
-                    else:
-                        raw_content = '{"ai_explanation":' + cleaned + ', "ai_fix": ""}'
-                
-                # Cas 2: JSON commence par autre chose
-                elif not raw_content.startswith('{'):
-                    if 'ai_explanation' in raw_content:
-                        raw_content = '{"ai_explanation": ' + raw_content.replace("'ai_explanation\": ", "") + ', "ai_fix": ""}'
-                    elif 'ai_fix' in raw_content:
-                        raw_content = '{"ai_fix": ' + raw_content.replace("'ai_fix\": ", "") + ', "ai_explanation": ""}'
-                
-                # Cas 3: Nettoyage des apostrophes incorrectes
-                raw_content = raw_content.replace("'ai_explanation\"", '"ai_explanation"')
-                raw_content = raw_content.replace("'ai_fix\"", '"ai_fix"')
-                
-                # Vérifie si le JSON se termine correctement
-                if not raw_content.endswith('}'):
-                    raw_content = raw_content + '}'
-                
                 result = json.loads(raw_content)
-                
             except json.JSONDecodeError as e:
-                print(f"    [!] JSON parsing error: {e}")
-                print(f"    [!] Raw content: {repr(raw_content[:200])}")
-                # Fallback sur réponse par défaut
+                # 3. Mode Survie : Extraction par Regex si le JSON est toujours cassé
+                print(f"    [!] JSON cassé, tentative d'extraction Regex... ({e})")
+                exp_match = re.search(r'"ai_explanation"\s*:\s*"([^"]+)"', raw_content)
+                fix_match = re.search(r'"ai_fix"\s*:\s*"([^"]+)"', raw_content)
+                
                 result = {
-                    "ai_explanation": f"Alerte CTI de niveau {decision}. (Erreur parsing JSON).",
-                    "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
+                    "ai_explanation": exp_match.group(1) if exp_match else f"Alerte CTI critique détectée pour {cve_id}.",
+                    "ai_fix": fix_match.group(1) if fix_match else "Mettre à jour le composant."
                 }
-            # --------------------------------------
+
             print(f"    [IA] Analyse terminée pour {cve_id}.")
             return {
                 "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
                 "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")
             }
+            
         except Exception as e:
-            print(f"    [!] Erreur IA pour {cve_id}: {e}")
+            print(f"    [!] Erreur IA critique pour {cve_id}: {e}")
             return {
-                "ai_explanation": f"Alerte CTI de niveau {decision}. (Analyse IA indisponible).",
+                "ai_explanation": f"Alerte CTI de niveau {decision}. (Erreur API IA).",
                 "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
             }
     
