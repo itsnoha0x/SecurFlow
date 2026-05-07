@@ -165,28 +165,40 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
             )
             
             raw_content = response.choices[0].message.content.strip()
+            # On affiche EXACTEMENT ce que l'IA a dit pour pouvoir débugger
+            print(f"    [DEBUG RAW] {repr(raw_content)}")
             
-            # --- NETTOYAGE SIMPLIFIÉ ET ROBUSTE ---
-            # 1. Enlever les balises markdown
-            raw_content = re.sub(r"^```json\s*", "", raw_content)
-            raw_content = re.sub(r"^```\s*", "", raw_content)
-            raw_content = re.sub(r"```\s*$", "", raw_content).strip()
+            # --- L'EXTRACTEUR UNIVERSEL ---
+            # On cherche les limites mathématiques du JSON
+            start_idx = raw_content.find('{')
+            end_idx = raw_content.rfind('}')
             
-            # 2. Correction express de l'hallucination connue de DeepSeek
-            raw_content = raw_content.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
-            raw_content = raw_content.replace('"ai_fix": ai_fix":', '"ai_fix":')
-
-            try:
-                result = json.loads(raw_content)
-            except json.JSONDecodeError as e:
-                # 3. Mode Survie : Extraction par Regex si le JSON est toujours cassé
-                print(f"    [!] JSON cassé, tentative d'extraction Regex... ({e})")
-                exp_match = re.search(r'"ai_explanation"\s*:\s*"([^"]+)"', raw_content)
-                fix_match = re.search(r'"ai_fix"\s*:\s*"([^"]+)"', raw_content)
+            if start_idx != -1 and end_idx != -1:
+                # On coupe tout ce qui n'est pas dans les accolades
+                clean_json = raw_content[start_idx:end_idx+1]
                 
+                # Double sécurité contre la duplication de clés de DeepSeek
+                clean_json = clean_json.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
+                clean_json = clean_json.replace('"ai_fix": ai_fix":', '"ai_fix":')
+                clean_json = clean_json.replace('\'', '"') # Au cas où il utilise des simples quotes
+                
+                try:
+                    result = json.loads(clean_json)
+                except json.JSONDecodeError as e:
+                    print(f"    [!] Le JSON nettoyé est toujours invalide : {e}")
+                    # Mode survie regex de dernier recours
+                    import re
+                    exp_match = re.search(r'"ai_explanation"\s*:\s*"([^"]+)"', clean_json)
+                    fix_match = re.search(r'"ai_fix"\s*:\s*"([^"]+)"', clean_json)
+                    result = {
+                        "ai_explanation": exp_match.group(1) if exp_match else "Erreur d'extraction IA.",
+                        "ai_fix": fix_match.group(1) if fix_match else "Appliquer les patchs de sécurité."
+                    }
+            else:
+                print("    [!] Aucune accolade trouvée dans la réponse de l'IA.")
                 result = {
-                    "ai_explanation": exp_match.group(1) if exp_match else f"Alerte CTI critique détectée pour {cve_id}.",
-                    "ai_fix": fix_match.group(1) if fix_match else "Mettre à jour le composant."
+                    "ai_explanation": "L'IA n'a pas retourné de format structuré.",
+                    "ai_fix": "Vérification manuelle requise."
                 }
 
             print(f"    [IA] Analyse terminée pour {cve_id}.")
