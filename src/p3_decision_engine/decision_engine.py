@@ -135,9 +135,18 @@ class DecisionEngine:
         system_prompt = """Tu es un expert DevSecOps impartial et précis.
 Ton but est d'expliquer une vulnérabilité à un développeur pour justifier le blocage ou l'alerte de son pipeline CI/CD.
 Tu dois être très concis (3 phrases maximum pour l'explication). Utilise un ton professionnel mais alarmiste si la décision est BLOQUER, et pédagogique si c'est ALERTER.
-Tu dois répondre UNIQUEMENT avec un objet JSON valide contenant exactement ces deux clés :
-- "ai_explanation": L'explication du risque intégrant le contexte CTI (Threat Actors, CISA).
-- "ai_fix": L'action exacte de remédiation (quelle version installer)."""
+
+RÈGLES CRUCIALES:
+1. Réponds UNIQUEMENT avec un objet JSON valide
+2. L'objet doit contenir EXACTEMENT ces deux clés:
+   - "ai_explanation": L'explication du risque intégrant le contexte CTI (max 200 caractères)
+   - "ai_fix": L'action de remédiation (max 150 caractères)
+3. NE JAMAIS tronquer les réponses
+4. Vérifie que le JSON est complet avant de répondre
+5. Pas de texte avant ou après le JSON
+
+Exemple de format attendu:
+{"ai_explanation": "Risque critique avec exploitation active confirmée.", "ai_fix": "Mettre à jour glibc vers 2.35-0ubuntu3.6 immédiatement."}"""
 
         user_prompt = f"""
 Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
