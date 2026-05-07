@@ -342,9 +342,19 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
         # Exit with appropriate code based on critical decisions
         if report_data['decision_metadata']['decisions']['BLOQUER'] > 0:
             print("[!] Critical vulnerabilities detected - pipeline should be blocked!")
+            # Conclusion et affichage du lien pour le jury
+            print(f"\n{'='*60}")
+            print(" 🔍 ANALYSE SECURFLOW TERMINÉE")
+            print(f" 🌐 Dashboard : https://itsnoha0x.github.io/SecurFlow/security-dashboard/")
+            print(f"{'='*60}\n")
             sys.exit(1)
         
         print("[✓] No critical decisions - pipeline can continue")
+        # Conclusion et affichage du lien pour le jury
+        print(f"\n{'='*60}")
+        print(" 🔍 ANALYSE SECURFLOW TERMINÉE")
+        print(f" 🌐 Dashboard : https://itsnoha0x.github.io/SecurFlow/security-dashboard/")
+        print(f"{'='*60}\n")
         return report_data
 
 

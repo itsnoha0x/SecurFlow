@@ -309,23 +309,30 @@ jobs:
         cd src/p4_dashboard
         npm run build
         
+    - name: Copy final report to dashboard
+      run: |
+        # Copie le rapport JSON dans le dossier de build pour que le JS puisse le lire
+        cp shared/3_final_report.json src/p4_dashboard/dist/
+        
     - name: Deploy to GitHub Pages
       id: deploy
-      uses: peaceiris/actions-gh-pages@v3
+      if: always() && github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        # On publie le dossier du dashboard (le JSON est déjà copié dedans)
         publish_dir: ./src/p4_dashboard/dist
         destination_dir: security-dashboard
-      if: github.ref == 'refs/heads/main'
         
     - name: Deploy preview
       id: deploy-preview
-      uses: peaceiris/actions-gh-pages@v3
+      if: always() && github.ref != 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        # On publie le dossier du dashboard (le JSON est déjà copié dedans)
         publish_dir: ./src/p4_dashboard/dist
         destination_dir: security-dashboard-preview
-      if: github.ref != 'refs/heads/main'
         
     - name: Get dashboard URL
       id: url
