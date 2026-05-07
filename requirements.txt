@@ -17,10 +17,10 @@ anthropic>=0.7.0
 
 # Data processing
 pandas>=2.1.0
-numpy>=1.24.0
+numpy>=1.21.0
 
 # Database
-sqlite3
+# sqlite3 is included in Python standard library
 
 # Web framework (for dashboard)
 flask>=2.3.0
