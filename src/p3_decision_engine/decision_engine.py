@@ -155,8 +155,9 @@ Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.1,
-                response_format={ "type": "json_object" }
+                response_format={"type": "json_object"},
+                max_tokens=self.max_tokens,
+                temperature=self.temperature
             )
             result = json.loads(response.choices[0].message.content)
             print(f"    [IA] Analyse terminée pour {cve_id}.")
