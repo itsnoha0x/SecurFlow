@@ -2,9 +2,13 @@ name: SecurFlow — CTI Security Pipeline
 
 on:
   push:
-    branches: ["main", "develop", "khaoula"]
+    branches:
+      - main
+      - 'feature/dashboard&pipeline'
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
+      - 'feature/dashboard&pipeline'
 
 jobs:
   security-pipeline:

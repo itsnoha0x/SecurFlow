@@ -20,7 +20,6 @@ pandas>=2.1.0
 numpy>=1.24.0
 
 # Database
-sqlite3
 
 # Web framework (for dashboard)
 flask>=2.3.0
