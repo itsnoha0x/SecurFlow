@@ -1,1 +1,95 @@
-{}
+{
+    "scan_metadata": {
+        "tool": "trivy",
+        "version": "0.45.0",
+        "target": "../../target_app",
+        "timestamp": "2026-05-06T14:30:00Z",
+        "severity_filter": [
+            "CRITICAL",
+            "HIGH",
+            "MEDIUM"
+        ]
+    },
+    "summary": {
+        "total_found": 6,
+        "total_ignored": 1,
+        "duplicates_removed": 0,
+        "by_severity": {
+            "CRITICAL": 2,
+            "HIGH": 2,
+            "MEDIUM": 1,
+            "LOW": 1,
+            "UNKNOWN": 0
+        }
+    },
+    "vulnerabilities": [
+        {
+            "cve_id": "CVE-2023-4911",
+            "package": "glibc",
+            "version_installed": "2.31-0ubuntu9.9",
+            "version_fixed": "2.35-0ubuntu3.6",
+            "severity": "CRITICAL",
+            "cvss_score": 9.8,
+            "description": "Heap-based buffer overflow in glibc...",
+            "target_file": "lib/x86_64-linux-gnu/libc.so.6",
+            "ecosystem": "os",
+            "epss_score": 0.9456,
+            "epss_percentile": 98.7,
+            "references": [
+                "https://nvd.nist.gov/vuln/detail/CVE-2023-4911"
+            ],
+            "source": "trivy"
+        },
+        {
+            "cve_id": "CVE-2023-23397",
+            "package": "outlook",
+            "version_installed": "16.0.5268.1000",
+            "version_fixed": "16.0.5276.1000",
+            "severity": "HIGH",
+            "cvss_score": 8.8,
+            "description": "Microsoft Outlook NTLM hash disclosure...",
+            "target_file": "outlook.exe",
+            "ecosystem": "windows",
+            "epss_score": 0.7234,
+            "epss_percentile": 89.2,
+            "references": [
+                "https://nvd.nist.gov/vuln/detail/CVE-2023-23397"
+            ],
+            "source": "trivy"
+        },
+        {
+            "cve_id": "CVE-2022-22965",
+            "package": "spring-framework",
+            "version_installed": "5.3.18",
+            "version_fixed": "5.3.21",
+            "severity": "CRITICAL",
+            "cvss_score": 9.8,
+            "description": "Spring Framework RCE via data binding...",
+            "target_file": "spring-webmvc-5.3.18.jar",
+            "ecosystem": "java",
+            "epss_score": 0.8234,
+            "epss_percentile": 92.1,
+            "references": [
+                "https://nvd.nist.gov/vuln/detail/CVE-2022-22965"
+            ],
+            "source": "trivy"
+        },
+        {
+            "cve_id": "CVE-2023-29357",
+            "package": "microsoft-sharepoint",
+            "version_installed": "16.0.10337.12109",
+            "version_fixed": "16.0.10343.20001",
+            "severity": "MEDIUM",
+            "cvss_score": 6.5,
+            "description": "Microsoft SharePoint privilege escalation...",
+            "target_file": "microsoft.sharepoint.dll",
+            "ecosystem": "windows",
+            "epss_score": 0.2345,
+            "epss_percentile": 65.2,
+            "references": [
+                "https://nvd.nist.gov/vuln/detail/CVE-2023-29357"
+            ],
+            "source": "trivy"
+        }
+    ]
+}
