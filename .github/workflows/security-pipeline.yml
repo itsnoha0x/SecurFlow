@@ -265,7 +265,7 @@ jobs:
           fi
         fi
 
-  # P4: Dashboard Deployment (Optional)
+  # P4: Dashboard Deployment 
   deploy-dashboard:
     name: P4 - Security Dashboard
     runs-on: ubuntu-latest
