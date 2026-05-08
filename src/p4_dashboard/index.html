@@ -295,11 +295,11 @@
 // ── CHARGEMENT ────────────────────────────────────────────────────
 async function load() {
   const paths = [
-    '../../shared/3_final_report.json',
-    '../../../shared/3_final_report.json',
-    './3_final_report.json',
-    './report.json'
-  ];
+  './report.json',
+  './3_final_report.json',
+  '../../shared/3_final_report.json',
+  '../../../shared/3_final_report.json'
+];
   for (const p of paths) {
     try { 
       const r = await fetch(p); 

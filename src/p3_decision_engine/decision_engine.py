@@ -11,8 +11,11 @@ import json
 import yaml
 import os
 import sys
+import re
 from datetime import datetime
 from pathlib import Path
+from openai import OpenAI
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class DecisionEngine:
@@ -20,6 +23,20 @@ class DecisionEngine:
         """Initialize the decision engine with configuration."""
         self.config = self.load_config(config_path)
         self.high_context_components = set(self.config.get("high_context_components", []))
+        
+        # AI Configuration from config file
+        ai_config = self.config.get("ai_config", {})
+        featherless_api_key = os.environ.get("FEATHERLESS_API_KEY", "")
+        self.ai_client = OpenAI(
+            base_url=ai_config.get("base_url", "https://api.featherless.ai/v1"),
+            api_key=featherless_api_key
+        ) if featherless_api_key else None
+        # Model name from config with fallback
+        self.model_name = ai_config.get("model_name", "deepseek-ai/DeepSeek-V4-Flash")
+        self.temperature = ai_config.get("temperature", 0.1)
+        self.max_tokens = ai_config.get("max_tokens", 4000)
+        self.timeout_seconds = ai_config.get("timeout_seconds", 30)
+        self.retry_attempts = ai_config.get("retry_attempts", 3)
         
     def load_config(self, config_path):
         """Load configuration from YAML file."""
@@ -85,73 +102,183 @@ class DecisionEngine:
         - SRP entre 4.0 et 7.0 -> "ALERTER"  
         - SRP < 4.0 -> "PASSER"
         """
-        if srp_score > 7.0:
+        # Get thresholds from config
+        decision_config = self.config.get("decision_thresholds", {})
+        block_threshold = decision_config.get("block_threshold", 7.0)
+        alert_threshold = decision_config.get("alert_threshold", 4.0)
+        
+        if srp_score > block_threshold:
             return "BLOQUER"
-        elif srp_score >= 4.0:
+        elif srp_score >= alert_threshold:
             return "ALERTER"
         else:
             return "PASSER"
     
     def get_ai_analysis(self, vulnerability, srp_score, decision):
-        """
-        Mock AI analysis function.
-        Returns AI-generated explanation and fix recommendations.
-        """
+        """Appelle Featherless AI pour générer une explication DevSecOps."""
         cve_id = vulnerability.get("cve_id", "Unknown")
         package = vulnerability.get("package", "Unknown")
         
-        # Mock AI explanations based on decision and vulnerability characteristics
-        if decision == "BLOQUER":
-            ai_explanation = f"CRITICAL: {cve_id} in {package} présente un risque élevé avec score SRP de {srp_score:.1}. Cette vulnérabilité est activement exploitée selon les données CISA KEV et OTX. Bloquer immédiatement le déploiement et appliquer les correctifs."
-            ai_fix = f"URGENT: Mettre à jour {package} vers la version {vulnerability.get('version_fixed', 'latest')} et redémarrer les services affectés. Surveiller les logs d'intrusion pour les 72 prochaines heures."
+        if decision == "PASSER" or not self.ai_client:
+            return {
+                "ai_explanation": f"Vulnérabilité mineure ({cve_id}) avec SRP de {srp_score:.1f}. Risque faible.",
+                "ai_fix": f"Planifier la mise à jour de {package} lors d'un prochain sprint."
+            }
+
+        cisa_notes = vulnerability.get("cisa_kev", {}).get("notes", "Non listé dans le KEV")
+        otx_data = vulnerability.get("otx_indicators", [])
+        threat_actors = [pulse.get("name") for indicator in otx_data for pulse in indicator.get("pulses", [])]
+        actors_str = ", ".join(threat_actors) if threat_actors else "Aucun acteur spécifique identifié"
+        desc = vulnerability.get("description", "") 
+
+        # --- LE NOUVEAU PROMPT : On utilise un template strict ---
+        system_prompt = """Tu es un expert DevSecOps impartial. Ton but est d'expliquer une vulnérabilité à un développeur de manière très concise.
+
+RÈGLES CRUCIALES:
+1. Tu dois répondre UNIQUEMENT avec un objet JSON valide.
+2. Utilise EXACTEMENT ce modèle JSON (ne change pas les clés) :
+{
+  "ai_explanation": "Explication du risque avec contexte CTI (max 3 phrases)",
+  "ai_fix": "Action de remédiation exacte (max 2 phrases)"
+}
+3. Ne rajoute aucun texte avant ou après le JSON. Ne duplique pas les guillemets."""
+
+        user_prompt = f"""
+Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
+- CVE : {cve_id}
+- Package : {package}
+- Description : {desc}
+- CISA KEV : {cisa_notes}
+- Threat Actors : {actors_str}"""
+
+        try:
+            print(f"    [IA] Début de l'analyse pour {cve_id}...")
+            response = self.ai_client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                response_format={"type": "json_object"},
+                max_tokens=self.max_tokens,
+                temperature=self.temperature
+            )
+            
+            raw_content = response.choices[0].message.content.strip()
+            print(f"    [DEBUG RAW] {repr(raw_content)}")
+            
+            # --- LE BLINDAGE ABSOLU ---
+            
+            # 1. Si l'IA a oublié l'accolade ouvrante, on la rajoute !
+            if not raw_content.startswith('{'):
+                # On enlève les guillemets ou apostrophes parasites au tout début
+                raw_content = raw_content.lstrip("'")
+                if raw_content.startswith('"ai_explanation"'):
+                    raw_content = '{' + raw_content
+                else:
+                    raw_content = '{"ai_explanation": "' + raw_content
+                    
+            # 2. Si l'IA a oublié l'accolade fermante
+            if not raw_content.endswith('}'):
+                raw_content = raw_content + '}'
+                
+            # 3. Nettoyage des vieilles hallucinations
+            raw_content = raw_content.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
+            raw_content = raw_content.replace('"ai_fix": ai_fix":', '"ai_fix":')
+
+            try:
+                # On essaie de lire le JSON réparé
+                start_idx = raw_content.find('{')
+                end_idx = raw_content.rfind('}')
+                clean_json = raw_content[start_idx:end_idx+1]
+                
+                result = json.loads(clean_json)
+                
+            except Exception as e:
+                # 4. MODE SURVIE ULTIME : Le Regex
+                print(f"    [!] Le JSON est toujours rebelle, passage au Regex : {e}")
+                import re
+                # On cherche tout ce qui est entre les guillemets après la clé
+                exp_match = re.search(r'"ai_explanation"\s*:\s*"(.*?)"\s*,', raw_content, re.DOTALL)
+                fix_match = re.search(r'"ai_fix"\s*:\s*"(.*?)"\s*}', raw_content, re.DOTALL)
+                
+                result = {
+                    "ai_explanation": exp_match.group(1).strip() if exp_match else "Alerte CTI critique détectée.",
+                    "ai_fix": fix_match.group(1).strip() if fix_match else "Mise à jour immédiate requise."
+                }
+
+            print(f"    [IA] Analyse terminée pour {cve_id}.")
+            return {
+                "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
+                "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")
+            }
+            
+        except Exception as e:
+            print(f"    [!] Erreur IA critique pour {cve_id}: {e}")
+            return {
+                "ai_explanation": f"Alerte CTI de niveau {decision}. (Erreur API IA).",
+                "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
+            }
+    
+    def _process_single_vuln(self, vuln):
+        """Process a single vulnerability with SRP calculation and AI analysis."""
+        cve_id = vuln.get('cve_id', 'Unknown')
+        print(f"[*] Processing vulnerability: {cve_id}")
         
-        elif decision == "ALERTER":
-            ai_explanation = f"MODÉRÉ: {cve_id} dans {package} a un score SRP de {srp_score:.1}. Bien que non critique, cette vulnérabilité mérite une attention particulière. Planifier la correction dans les prochains jours."
-            ai_fix = f"PLANIFIÉ: Mettre à jour {package} vers la version {vulnerability.get('version_fixed', 'latest')} lors de la prochaine fenêtre de maintenance. Documenter la procédure de contournement si nécessaire."
+        # Calculate SRP score
+        srp_score = self.calculate_srp(vuln)
         
-        else:  # PASSER
-            ai_explanation = f"FAIBLE: {cve_id} dans {package} présente un faible risque avec score SRP de {srp_score:.1}. Pas d'exploitation connue, peut être traitée selon le cycle de maintenance normal."
-            ai_fix = f"ROUTINE: Inclure la mise à jour de {package} dans le prochain cycle de patch mensuel. Aucune action immédiate requise."
+        # Make decision
+        decision = self.make_decision(srp_score)
         
-        return {
-            "ai_explanation": ai_explanation,
-            "ai_fix": ai_fix
+        # Get AI analysis
+        ai_analysis = self.get_ai_analysis(vuln, srp_score, decision)
+        
+        # Build final report entry
+        report_entry = {
+            "cve_id": vuln.get("cve_id", ""),
+            "package": vuln.get("package", ""),
+            "srp_score": round(srp_score, 1),
+            "decision": decision,
+            "ai_explanation": ai_analysis["ai_explanation"],
+            "ai_fix": ai_analysis["ai_fix"],
+            "timestamp": datetime.utcnow().isoformat() + "Z"
         }
+        
+        # Print progress
+        print(f"    SRP: {srp_score:.1f} -> {decision}")
+        return report_entry
     
     def process_vulnerabilities(self, enriched_data):
-        """Process all vulnerabilities and generate final report."""
+        """Process all vulnerabilities with multithreading and generate final report."""
         enriched_vulns = enriched_data.get("enriched_vulnerabilities", [])
         final_report = []
         
-        print(f"[*] Processing {len(enriched_vulns)} vulnerabilities...")
+        # Get performance config
+        perf_config = self.config.get("performance", {})
+        max_workers = perf_config.get("max_workers", 4)
         
-        for i, vuln in enumerate(enriched_vulns, 1):
-            print(f"[*] Processing vulnerability {i}/{len(enriched_vulns)}: {vuln.get('cve_id', 'Unknown')}")
-            
-            # Calculate SRP score
-            srp_score = self.calculate_srp(vuln)
-            
-            # Make decision
-            decision = self.make_decision(srp_score)
-            
-            # Get AI analysis
-            ai_analysis = self.get_ai_analysis(vuln, srp_score, decision)
-            
-            # Build final report entry
-            report_entry = {
-                "cve_id": vuln.get("cve_id", ""),
-                "package": vuln.get("package", ""),
-                "srp_score": round(srp_score, 1),
-                "decision": decision,
-                "ai_explanation": ai_analysis["ai_explanation"],
-                "ai_fix": ai_analysis["ai_fix"],
-                "timestamp": datetime.utcnow().isoformat() + "Z"
+        print(f"[*] Processing {len(enriched_vulns)} vulnerabilities with {max_workers} parallel threads...")
+        
+        # Use ThreadPoolExecutor for parallel processing (configurable workers)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all vulnerabilities for processing
+            future_to_vuln = {
+                executor.submit(self._process_single_vuln, vuln): vuln 
+                for vuln in enriched_vulns
             }
             
-            final_report.append(report_entry)
-            
-            # Print progress
-            print(f"    SRP: {srp_score:.1f} -> {decision}")
+            # Collect results as they complete
+            for future in as_completed(future_to_vuln):
+                try:
+                    result = future.result()
+                    final_report.append(result)
+                except Exception as e:
+                    vuln = future_to_vuln[future]
+                    print(f"[!] Error processing {vuln.get('cve_id', 'Unknown')}: {e}")
+        
+        # Sort final report by SRP score descending
+        final_report.sort(key=lambda x: x["srp_score"], reverse=True)
         
         return final_report
     
@@ -215,9 +342,19 @@ class DecisionEngine:
         # Exit with appropriate code based on critical decisions
         if report_data['decision_metadata']['decisions']['BLOQUER'] > 0:
             print("[!] Critical vulnerabilities detected - pipeline should be blocked!")
+            # Conclusion et affichage du lien pour le jury
+            print(f"\n{'='*60}")
+            print(" 🔍 ANALYSE SECURFLOW TERMINÉE")
+            print(f" 🌐 Dashboard : https://itsnoha0x.github.io/SecurFlow/security-dashboard/")
+            print(f"{'='*60}\n")
             sys.exit(1)
         
         print("[✓] No critical decisions - pipeline can continue")
+        # Conclusion et affichage du lien pour le jury
+        print(f"\n{'='*60}")
+        print(" 🔍 ANALYSE SECURFLOW TERMINÉE")
+        print(f" 🌐 Dashboard : https://itsnoha0x.github.io/SecurFlow/security-dashboard/")
+        print(f"{'='*60}\n")
         return report_data
 
 
