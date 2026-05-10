@@ -131,25 +131,25 @@ class DecisionEngine:
         actors_str = ", ".join(threat_actors) if threat_actors else "Aucun acteur spécifique identifié"
         desc = vulnerability.get("description", "") 
 
-        # --- LE NOUVEAU PROMPT : On utilise un template strict ---
-        system_prompt = """Tu es un expert DevSecOps impartial. Ton but est d'expliquer une vulnérabilité à un développeur de manière très concise.
-
-RÈGLES CRUCIALES:
-1. Tu dois répondre UNIQUEMENT avec un objet JSON valide.
-2. Utilise EXACTEMENT ce modèle JSON (ne change pas les clés) :
-{
-  "ai_explanation": "Explication du risque avec contexte CTI (max 3 phrases)",
-  "ai_fix": "Action de remédiation exacte (max 2 phrases)"
-}
-3. Ne rajoute aucun texte avant ou après le JSON. Ne duplique pas les guillemets."""
-
-        user_prompt = f"""
-Analyse cette vulnérabilité ({decision} - Score SRP: {srp_score:.1f}/10) :
-- CVE : {cve_id}
-- Package : {package}
-- Description : {desc}
-- CISA KEV : {cisa_notes}
-- Threat Actors : {actors_str}"""
+        # --- CHARGEMENT DES PROMPTS DEPUIS LES FICHIERS ---
+        # Charger le system prompt depuis le fichier
+        with open('prompts/system_prompt.txt', 'r', encoding='utf-8') as f:
+            system_prompt = f.read()
+        
+        # Charger le template de user prompt depuis le fichier
+        with open('prompts/user_prompt_template.txt', 'r', encoding='utf-8') as f:
+            user_template = f.read()
+        
+        # Formater le user prompt avec les variables
+        user_prompt = user_template.format(
+            decision=decision,
+            srp_score=srp_score,
+            cve_id=cve_id,
+            package=package,
+            desc=desc,
+            cisa_notes=cisa_notes,
+            actors_str=actors_str
+        )
 
         try:
             print(f"    [IA] Début de l'analyse pour {cve_id}...")
