@@ -330,7 +330,9 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./src/p4_dashboard
-        destination_dir: .  # Deploy to root directory
+        destination_dir: .
+        external_repository: itsnoha0x/nohawrites.com
+        personal_token: ${{ secrets.GH_PAT }}
 
     - name: Deploy preview (autres branches)
       id: deploy-preview
