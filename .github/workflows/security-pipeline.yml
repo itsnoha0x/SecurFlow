@@ -315,12 +315,9 @@ jobs:
           echo "PIPELINE OK — aucune faille critique"
         fi
 
-    - name: Copy dashboard files to root
+    - name: Copy final report to root
       run: |
-        # Copier les fichiers du dashboard à la racine pour GitHub Pages
-        cp src/p4_dashboard/index.html ./
-        cp src/p4_dashboard/style.css ./
-        cp src/p4_dashboard/main.js ./
+        # Copier seulement le rapport JSON (les autres fichiers sont déjà à la racine)
         cp shared/3_final_report.json ./report.json
 
     - name: Upload dashboard artifact
