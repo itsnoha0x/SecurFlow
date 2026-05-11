@@ -288,8 +288,8 @@ jobs:
 
     - name: Copy final report into dashboard folder
       run: |
-        cp shared/3_final_report.json src/p4_dashboard/report.json
-        echo "report.json copie dans src/p4_dashboard/"
+        cp shared/3_final_report.json report.json
+        echo "report.json copie à la racine"
 
     - name: Enforce security gate decision
       run: |
@@ -315,7 +315,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: securflow-dashboard
-        path: src/p4_dashboard/
+        path: ./
         retention-days: 30
 
     - name: Deploy to GitHub Pages
@@ -324,7 +324,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./src/p4_dashboard
+        publish_dir: ./
         destination_dir: security-dashboard
 
     - name: Deploy preview (autres branches)
@@ -333,7 +333,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./src/p4_dashboard
+        publish_dir: ./
         destination_dir: security-dashboard-preview
 
     - name: Get dashboard URL
