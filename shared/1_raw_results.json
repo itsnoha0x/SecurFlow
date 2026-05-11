@@ -1,1 +1,22 @@
-{}
+{
+  "scan_metadata": {
+    "timestamp": "2026-05-11T15:00:00Z",
+    "scanner_version": "1.0.0",
+    "target_path": "target_app",
+    "total_found": 0,
+    "summary": {
+      "by_severity": {
+        "CRITICAL": 0,
+        "HIGH": 0,
+        "MEDIUM": 0,
+        "LOW": 0
+      },
+      "by_type": {
+        "dependency": 0,
+        "container": 0,
+        "code": 0
+      }
+    }
+  },
+  "vulnerabilities": []
+}

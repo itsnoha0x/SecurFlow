@@ -1,1 +1,23 @@
-{}
+{
+  "decision_metadata": {
+    "timestamp": "2026-05-11T15:00:00Z",
+    "decision_engine_version": "1.0.0",
+    "total_processed": 0,
+    "decisions": {
+      "BLOQUER": 0,
+      "ALERTER": 0,
+      "PASSER": 0
+    },
+    "average_srp": 0.0,
+    "ai_model": "featherless-ai",
+    "pipeline_status": "completed"
+  },
+  "vulnerability_decisions": [],
+  "summary": {
+    "critical_count": 0,
+    "high_count": 0,
+    "medium_count": 0,
+    "low_count": 0,
+    "recommendations": []
+  }
+}

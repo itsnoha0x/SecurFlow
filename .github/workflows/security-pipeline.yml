@@ -24,6 +24,11 @@ on:
         required: false
         default: false
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 env:
   PYTHON_VERSION: '3.11'
   NODE_VERSION: '18'
@@ -310,6 +315,11 @@ jobs:
           echo "PIPELINE OK — aucune faille critique"
         fi
 
+    - name: Copy final report to root
+      run: |
+        # Copier seulement le rapport JSON (les autres fichiers sont déjà à la racine)
+        cp shared/3_final_report.json ./report.json
+
     - name: Upload dashboard artifact
       if: always()
       uses: actions/upload-artifact@v4
@@ -323,7 +333,7 @@ jobs:
       if: always() && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./
         destination_dir: security-dashboard
 
