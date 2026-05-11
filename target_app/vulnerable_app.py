@@ -27,11 +27,34 @@ def setup_db():
         )
     ''')
     
-    # Insert some test data
+    # Insert some test data with fake CVEs for testing
     cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", 
                  ("admin", "password123", "admin"))
     cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", 
                  ("user1", "userpass", "user"))
+    
+    # Add vulnerable packages table for CVE simulation
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS packages (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            version TEXT,
+            cve_id TEXT,
+            description TEXT
+        )
+    ''')
+    
+    # Insert test packages with CVEs
+    test_packages = [
+        ("flask", "2.0.1", "CVE-2023-1234", "SQL injection vulnerability in Flask"),
+        ("requests", "2.25.0", "CVE-2023-1235", "XSS in requests library"),
+        ("sqlite3", "3.35.0", "CVE-2023-1236", "Command injection in SQLite"),
+        ("pickle", "4.0.0", "CVE-2023-1237", "Path traversal in pickle module"),
+        ("yaml", "5.4.0", "CVE-2023-1238", "Insecure deserialization in PyYAML")
+    ]
+    
+    for pkg in test_packages:
+        cursor.execute("INSERT INTO packages (name, version, cve_id, description) VALUES (?, ?, ?, ?)", pkg)
     
     conn.commit()
     conn.close()
@@ -93,6 +116,35 @@ def search():
         <h2>Search Results for: {query}</h2>
         <p>Vulnerability: Reflected XSS</p>
         <a href="/login">Back to Login</a>
+        <a href="/packages">View Packages</a>
+    </body>
+    </html>
+    '''
+
+# Vulnerable packages endpoint for CVE testing
+@app.route('/packages')
+def packages():
+    """Display vulnerable packages with CVEs for testing."""
+    conn = sqlite3.connect('vulnerable.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT name, version, cve_id, description FROM packages")
+    packages = cursor.fetchall()
+    conn.close()
+    
+    # XSS vulnerability in package display
+    return f'''
+    <!DOCTYPE html>
+    <html>
+    <head><title>Vulnerable Packages</title></head>
+    <body>
+        <h2>🚨 Vulnerable Packages</h2>
+        <table border="1" style="border-collapse: collapse;">
+            <tr><th>Package</th><th>Version</th><th>CVE ID</th><th>Description</th></tr>
+            {"".join([f"<tr><td>{pkg[0]}</td><td>{pkg[1]}</td><td>{pkg[2]}</td><td>{pkg[3]}</td></tr>" for pkg in packages])}
+        </table>
+        <p>Vulnerability: Stored XSS in package descriptions</p>
+        <a href="/">Back to Home</a>
     </body>
     </html>
     '''
@@ -199,13 +251,21 @@ def index():
             </ul>
         </div>
         
+        <div class="vuln">
+            <h3>📦 Vulnerable Packages:</h3>
+            <p>These packages contain known CVEs for testing:</p>
+            <ul>
+                <li><a href="/packages">View Vulnerable Packages</a></li>
+            </ul>
+        </div>
+        
         <h3>📋 Expected CVEs from Scan:</h3>
         <ul>
-            <li>CVE-2023-1234 (SQL Injection)</li>
-            <li>CVE-2023-1235 (XSS)</li>
-            <li>CVE-2023-1236 (Command Injection)</li>
-            <li>CVE-2023-1237 (Path Traversal)</li>
-            <li>CVE-2023-1238 (Insecure Deserialization)</li>
+            <li>CVE-2023-1234 (SQL Injection in Flask)</li>
+            <li>CVE-2023-1235 (XSS in requests)</li>
+            <li>CVE-2023-1236 (Command Injection in SQLite)</li>
+            <li>CVE-2023-1237 (Path Traversal in pickle)</li>
+            <li>CVE-2023-1238 (Insecure Deserialization in PyYAML)</li>
         </ul>
     </body>
     </html>
