@@ -315,12 +315,20 @@ jobs:
           echo "PIPELINE OK — aucune faille critique"
         fi
 
+    - name: Copy dashboard files to root
+      run: |
+        # Copier les fichiers du dashboard à la racine pour GitHub Pages
+        cp src/p4_dashboard/index.html ./
+        cp src/p4_dashboard/style.css ./
+        cp src/p4_dashboard/main.js ./
+        cp shared/3_final_report.json ./report.json
+
     - name: Upload dashboard artifact
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: securflow-dashboard
-        path: src/p4_dashboard/
+        path: ./
         retention-days: 30
 
     - name: Deploy to GitHub Pages
@@ -329,7 +337,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v4
       with:
         personal_token: ${{ secrets.GH_PAT }}
-        publish_dir: ./src/p4_dashboard
+        publish_dir: ./
         destination_dir: .
         external_repository: itsnoha0x/nohawrites.com
 
