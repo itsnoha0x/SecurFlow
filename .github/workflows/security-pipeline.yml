@@ -328,11 +328,10 @@ jobs:
       if: always() && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        personal_token: ${{ secrets.GH_PAT }}
         publish_dir: ./src/p4_dashboard
         destination_dir: .
         external_repository: itsnoha0x/nohawrites.com
-        personal_token: ${{ secrets.GH_PAT }}
 
     - name: Deploy preview (autres branches)
       id: deploy-preview
