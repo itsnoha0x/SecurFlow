@@ -24,6 +24,11 @@ on:
         required: false
         default: false
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 env:
   PYTHON_VERSION: '3.11'
   NODE_VERSION: '18'
