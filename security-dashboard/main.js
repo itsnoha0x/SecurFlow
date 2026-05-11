@@ -24,19 +24,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Load report data from JSON file
 async function loadReportData() {
-    try {
-        const response = await fetch('./report.json');
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    const paths = [
+        './shared/3_final_report.json',
+        '../shared/3_final_report.json',
+        './3_final_report.json'
+    ];
+    
+    for (const path of paths) {
+        try {
+            const response = await fetch(path);
+            if (response.ok) {
+                reportData = await response.json();
+                console.log('📊 Report data loaded from:', path, reportData);
+                return;
+            }
+        } catch (error) {
+            console.log('⚠️ Failed to load from:', path, error);
         }
-        reportData = await response.json();
-        console.log('📊 Report data loaded:', reportData);
-    } catch (error) {
-        console.error('❌ Error loading report data:', error);
-        showErrorMessage('Impossible de charger les données du pipeline');
-        // Use dummy data for demo
-        reportData = getDummyData();
     }
+    
+    console.error('❌ All paths failed, using dummy data');
+    showErrorMessage('Impossible de charger les données du pipeline');
+    // Use dummy data for demo
+    reportData = getDummyData();
 }
 
 // Initialize UI components
