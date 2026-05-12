@@ -269,6 +269,17 @@ jobs:
             echo "No critical security issues detected. Pipeline can proceed safely." >> $GITHUB_STEP_SUMMARY
           fi
         fi
+        
+    - name: 💾 Sauvegarder le rapport dans le dépôt
+      run: |
+        # Vérifier que le fichier existe
+        if [ -f shared/3_final_report.json ]; then
+          echo "✅ Rapport trouvé, sauvegarde en cours..."
+          cat shared/3_final_report.json | head -20
+        else
+          echo "❌ Rapport non trouvé !"
+          exit 1
+        fi
 
   # P4: Dashboard Deployment 
   deploy-dashboard:
@@ -391,3 +402,33 @@ jobs:
         echo "## 🚨 CRITICAL SECURITY ALERT" >> $GITHUB_STEP_SUMMARY
         echo "Critical vulnerabilities detected requiring immediate attention!" >> $GITHUB_STEP_SUMMARY
         echo "Pipeline has been **BLOCKED** for security reasons." >> $GITHUB_STEP_SUMMARY
+
+  commit-report:
+    runs-on: ubuntu-latest
+    needs: [scan, enrich, decide, deploy-dashboard]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Télécharger l'artéfact du rapport
+        uses: actions/download-artifact@v4
+        with:
+          name: securflow-final-report
+          path: ./shared/
+      
+      - name: Configurer git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Commiter et pousser le rapport sur la branche
+        run: |
+          if [ -f shared/3_final_report.json ] && [ -s shared/3_final_report.json ]; then
+            echo "✅ Rapport trouvé, sauvegarde en cours..."
+            git add shared/3_final_report.json
+            git diff --staged --quiet || git commit -m "🤖 mise à jour automatique du rapport CTI [skip ci]"
+            git push
+            echo "✅ Rapport poussé avec succès"
+          else
+            echo "⚠️ Aucun rapport valide à committer"
+          fi
