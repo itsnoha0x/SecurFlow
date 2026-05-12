@@ -1,2 +1,4 @@
-Flask==2.3.3
-sqlite3
+Flask==0.12.2
+requests==2.18.0
+Jinja2==2.9.6
+PyYAML==3.12

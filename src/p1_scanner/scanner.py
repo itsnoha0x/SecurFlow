@@ -303,8 +303,8 @@ def main():
     config = load_config(args.config)
 
     # Les arguments CLI ont priorité sur config.yaml
-    target = args.target or config.get("target_path", ".")
-    output_file = args.output or config.get("output_file", "results/results.json")
+    target = args.target or config.get("target_path", "target_app")
+    output_file = args.output or config.get("output_file", "../../shared/1_raw_results.json")
 
     if args.severity:
         severity_filter = [s.strip() for s in args.severity.split(",")]
