@@ -24,19 +24,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Load report data from JSON file
 async function loadReportData() {
-    const paths = [
-        'report.json',
+    // Try report.json first (highest priority)
+    try {
+        const response = await fetch('report.json');
+        if (response.ok) {
+            reportData = await response.json();
+            console.log('📊 Report data loaded from report.json:', reportData);
+            return;
+        }
+    } catch (error) {
+        console.log('⚠️ report.json not found, trying fallbacks...');
+    }
+    
+    // Fallback paths
+    const fallbackPaths = [
         './shared/3_final_report.json',
         '../shared/3_final_report.json',
         './3_final_report.json'
     ];
     
-    for (const path of paths) {
+    for (const path of fallbackPaths) {
         try {
             const response = await fetch(path);
             if (response.ok) {
                 reportData = await response.json();
-                console.log('📊 Report data loaded from:', path, reportData);
+                console.log('📊 Report data loaded from fallback:', path, reportData);
                 return;
             }
         } catch (error) {
@@ -44,10 +56,10 @@ async function loadReportData() {
         }
     }
     
-    console.error('❌ All paths failed, using dummy data');
-    showErrorMessage('Impossible de charger les données du pipeline');
-    // Use dummy data for demo
-    reportData = getDummyData();
+    console.error('❌ All paths failed - dashboard will show error state');
+    showErrorMessage('Impossible de charger les données du pipeline - vérifiez le déploiement');
+    // Keep reportData as null to show error state
+    reportData = null;
 }
 
 // Initialize UI components

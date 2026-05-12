@@ -1,12 +1,12 @@
 {
   "decision_metadata": {
-    "timestamp": "2026-05-12T11:23:17.635410Z",
+    "timestamp": "2026-05-12T11:48:48.520815Z",
     "engine_version": "1.0.0",
     "config_used": {
       "high_context_components": [
+        "mongoose",
         "sequelize",
         "typeorm",
-        "mongoose",
         "sqlalchemy",
         "psycopg2"
       ]
@@ -25,18 +25,18 @@
       "package": "PyYAML",
       "srp_score": 4.3,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via des fichiers YAML malveillants, exploitant la fonction `full_load` ou le loader `FullLoader`. Bien qu'aucun acteur spécifique ne soit identifié, le score SRP de 4.3/10 indique un risque modéré, car l'exploitation nécessite un accès à des entrées non fiables. Les attaquants pourraient cibler des applications traitant des fichiers YAML externes pour compromettre le système.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou ultérieure. Remplacez `full_load` par `safe_load` pour les entrées non fiables, ou utilisez `yaml.load(data, Loader=yaml.SafeLoader)` pour limiter les risques d'exécution de code.",
-      "timestamp": "2026-05-12T11:23:17.635100Z"
+      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via des fichiers YAML malveillants, exploitant la fonction `full_load` ou le `FullLoader`. Bien qu'aucun acteur spécifique ne soit identifié, le risque est accru pour les applications exposant des entrées non fiables, car des attaquants pourraient injecter des payloads pour compromettre le système.",
+      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou ultérieure. Remplacez `yaml.full_load()` par `yaml.safe_load()` pour les entrées non fiables, et évitez d'utiliser `FullLoader` sauf si nécessaire.",
+      "timestamp": "2026-05-12T11:48:48.520525Z"
     },
     {
       "cve_id": "CVE-2017-18342",
       "package": "PyYAML",
       "srp_score": 4.1,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via la fonction yaml.load() sur des données non fiables, exposant l'application à des attaques de désérialisation. Bien qu'aucun acteur spécifique ne soit ciblé, des scripts automatisés scannent les endpoints YAML pour exploiter cette faille. Le risque est modéré car PyYAML 5.1 a introduit des correctifs, mais les versions antérieures restent vulnérables.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.1 ou ultérieure. Remplacez yaml.load() par yaml.safe_load() pour les données non fiables, ou utilisez yaml.load() avec l'argument Loader=yaml.SafeLoader.",
-      "timestamp": "2026-05-12T11:23:09.637818Z"
+      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via la fonction yaml.load() sur des données non fiables, exposant l'application à des attaques de désérialisation malveillante. Bien qu'aucun acteur spécifique ne soit ciblé, des attaques automatisées exploitent couramment ce type de faille dans les environnements exposés. Le risque est accru si l'application traite des fichiers YAML provenant de sources externes.",
+      "ai_fix": "Remplacez yaml.load() par yaml.safe_load() pour désactiver les constructeurs arbitraires. Mettez à jour PyYAML vers la version 5.1 ou ultérieure pour bénéficier des correctifs de sécurité.",
+      "timestamp": "2026-05-12T11:48:41.970342Z"
     },
     {
       "cve_id": "CVE-2019-10906",
@@ -45,7 +45,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-10906) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:01.917415Z"
+      "timestamp": "2026-05-12T11:48:34.154018Z"
     },
     {
       "cve_id": "CVE-2025-27516",
@@ -54,7 +54,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-27516) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:01.917493Z"
+      "timestamp": "2026-05-12T11:48:34.154124Z"
     },
     {
       "cve_id": "CVE-2018-1000656",
@@ -63,7 +63,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-1000656) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:01.917135Z"
+      "timestamp": "2026-05-12T11:48:34.153650Z"
     },
     {
       "cve_id": "CVE-2019-1010083",
@@ -72,7 +72,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-1010083) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:01.917369Z"
+      "timestamp": "2026-05-12T11:48:34.153929Z"
     },
     {
       "cve_id": "CVE-2023-30861",
@@ -81,7 +81,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-30861) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:01.917399Z"
+      "timestamp": "2026-05-12T11:48:34.153994Z"
     },
     {
       "cve_id": "CVE-2018-18074",
@@ -90,7 +90,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-18074) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:17.635166Z"
+      "timestamp": "2026-05-12T11:48:48.520579Z"
     },
     {
       "cve_id": "CVE-2023-32681",
@@ -99,7 +99,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-32681) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:17.635185Z"
+      "timestamp": "2026-05-12T11:48:48.520595Z"
     },
     {
       "cve_id": "CVE-2024-56326",
@@ -108,7 +108,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-56326) avec SRP de 2.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:01.917478Z"
+      "timestamp": "2026-05-12T11:48:34.154106Z"
     },
     {
       "cve_id": "CVE-2024-22195",
@@ -117,7 +117,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-22195) avec SRP de 2.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:01.917443Z"
+      "timestamp": "2026-05-12T11:48:34.154060Z"
     },
     {
       "cve_id": "CVE-2024-34064",
@@ -126,7 +126,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-34064) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:01.917455Z"
+      "timestamp": "2026-05-12T11:48:34.154077Z"
     },
     {
       "cve_id": "CVE-2024-35195",
@@ -135,7 +135,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-35195) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:17.635196Z"
+      "timestamp": "2026-05-12T11:48:48.520608Z"
     },
     {
       "cve_id": "CVE-2026-25645",
@@ -144,7 +144,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-25645) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:17.635217Z"
+      "timestamp": "2026-05-12T11:48:48.520632Z"
     },
     {
       "cve_id": "CVE-2020-28493",
@@ -153,7 +153,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2020-28493) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:01.917429Z"
+      "timestamp": "2026-05-12T11:48:34.154039Z"
     },
     {
       "cve_id": "CVE-2024-47081",
@@ -162,7 +162,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-47081) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T11:23:17.635206Z"
+      "timestamp": "2026-05-12T11:48:48.520620Z"
     }
   ]
 }
