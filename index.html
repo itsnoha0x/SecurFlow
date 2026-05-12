@@ -295,25 +295,32 @@
 // ── CHARGEMENT ────────────────────────────────────────────────────
 async function load() {
   const paths = [
-  './shared/3_final_report.json',
-  '../shared/3_final_report.json',
-  './3_final_report.json'
-];
+    './shared/3_final_report.json',
+    './3_final_report.json',
+    '../shared/3_final_report.json'
+  ];
+  
   for (const p of paths) {
-    try { 
-      const r = await fetch(p); 
-      if (r.ok) {
-        console.log('[SecurFlow] Loaded from:', p);
-        return await r.json(); 
-      } 
-    } catch(_) {}
+    try {
+      const res = await fetch(p);
+      if (res.ok) {
+        console.log('[SecurFlow] Chargé depuis:', p);
+        return await res.json();
+      }
+    } catch(e) {}
   }
-  console.error('[SecurFlow] All paths failed, using FALLBACK data');
-  return FALLBACK;
+  
+  // Plus de FALLBACK : on affiche une erreur
+  console.error('[SecurFlow] Aucun fichier JSON trouvé');
+  return null;
 }
 
 // ── RENDER ────────────────────────────────────────────────────────
 function render(data) {
+  if (!data) {
+    document.getElementById('vulnTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;">❌ Erreur : Aucun rapport trouvé. Vérifiez que le pipeline a bien été exécuté.</td></tr>';
+    return;
+  }
   const meta  = data.decision_metadata;
   const vulns = data.vulnerability_decisions;
 
@@ -477,26 +484,6 @@ function doFilter(dec, btn) {
   });
 }
 
-// ── FALLBACK ──────────────────────────────────────────────────────
-const FALLBACK = {
-  "decision_metadata": {
-    "timestamp": "2026-05-06T15:07:24.485366Z",
-    "engine_version": "1.0.0",
-    "total_processed": 4,
-    "decisions": { "BLOQUER": 3, "ALERTER": 0, "PASSER": 1 },
-    "average_srp": 7.8
-  },
-  "vulnerability_decisions": [
-    { "cve_id":"CVE-2023-4911", "package":"glibc", "srp_score":9.8, "decision":"BLOQUER",
-      "ai_explanation":"CRITICAL: CVE-2023-4911 in glibc présente un risque élevé. Activement exploitée selon CISA KEV et OTX.", "ai_fix":"URGENT: Mettre à jour glibc vers 2.35-0ubuntu3.6 et redémarrer les services affectés." },
-    { "cve_id":"CVE-2022-22965", "package":"spring-framework", "srp_score":9.4, "decision":"BLOQUER",
-      "ai_explanation":"CRITICAL: CVE-2022-22965 in spring-framework — Spring4Shell. Activement exploitée.", "ai_fix":"URGENT: Mettre à jour spring-framework vers 5.3.21." },
-    { "cve_id":"CVE-2023-23397", "package":"outlook", "srp_score":8.7, "decision":"BLOQUER",
-      "ai_explanation":"CRITICAL: CVE-2023-23397 in outlook. Exploitée par des groupes APT connus.", "ai_fix":"URGENT: Mettre à jour outlook vers 16.0.5276.1000." },
-    { "cve_id":"CVE-2023-29357", "package":"microsoft-sharepoint", "srp_score":3.3, "decision":"PASSER",
-      "ai_explanation":"FAIBLE: CVE-2023-29357 — faible risque. Pas d'exploitation connue.", "ai_fix":"ROUTINE: Inclure dans le prochain cycle de patch mensuel." }
-  ]
-};
 
 load().then(render);
 </script>
