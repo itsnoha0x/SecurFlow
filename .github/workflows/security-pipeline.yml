@@ -308,7 +308,7 @@ jobs:
         if [ "$BLOQUER" -gt 0 ]; then
           echo ""
           echo "DEPLOIEMENT BLOQUE — $BLOQUER faille(s) critique(s)"
-          echo "Consultez le rapport : https://itsnoha0x.github.io/SecurFlow/security-dashboard/"
+          echo "Consultez le rapport : https://itsnoha0x.github.io/SecurFlow/"
           echo ""
           exit 1
         else
@@ -328,6 +328,15 @@ jobs:
         path: ./
         retention-days: 30
 
+    - name: Download report
+      uses: actions/download-artifact@v4
+      with:
+        name: securflow-final-report
+        path: shared/
+
+    - name: Link report for Dashboard
+      run: cp shared/3_final_report.json ./report.json
+
     - name: Deploy to GitHub Pages
       id: deploy
       if: always() && github.ref == 'refs/heads/main'
@@ -335,7 +344,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./
-        destination_dir: security-dashboard
+        destination_dir: .
 
     - name: Deploy preview (autres branches)
       id: deploy-preview
@@ -350,7 +359,7 @@ jobs:
       id: url
       run: |
         if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-          echo "url=https://itsnoha0x.github.io/SecurFlow/security-dashboard/" >> $GITHUB_OUTPUT
+          echo "url=https://itsnoha0x.github.io/SecurFlow/" >> $GITHUB_OUTPUT
         else
           echo "url=https://itsnoha0x.github.io/SecurFlow/security-dashboard-preview/" >> $GITHUB_OUTPUT
         fi

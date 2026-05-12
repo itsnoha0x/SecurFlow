@@ -345,7 +345,7 @@ class DecisionEngine:
             # Conclusion et affichage du lien pour le jury
             print(f"\n{'='*60}")
             print(" 🔍 ANALYSE SECURFLOW TERMINÉE")
-            print(f" 🌐 Dashboard : https://itsnoha0x.github.io/SecurFlow/security-dashboard/")
+            print(f" 🌐 Dashboard : https://itsnoha0x.github.io/SecurFlow/")
             print(f"{'='*60}\n")
             sys.exit(1)
         
@@ -353,7 +353,7 @@ class DecisionEngine:
         # Conclusion et affichage du lien pour le jury
         print(f"\n{'='*60}")
         print(" 🔍 ANALYSE SECURFLOW TERMINÉE")
-        print(f" 🌐 Dashboard : https://itsnoha0x.github.io/SecurFlow/security-dashboard/")
+        print(f" 🌐 Dashboard : https://itsnoha0x.github.io/SecurFlow/")
         print(f"{'='*60}\n")
         return report_data
 

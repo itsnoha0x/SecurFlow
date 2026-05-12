@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load report data from JSON file
 async function loadReportData() {
     const paths = [
+        'report.json',
         './shared/3_final_report.json',
         '../shared/3_final_report.json',
         './3_final_report.json'
