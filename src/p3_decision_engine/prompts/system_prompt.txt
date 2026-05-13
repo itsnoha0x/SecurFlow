@@ -8,4 +8,3 @@ RÈGLES CRUCIALES:
   "ai_fix": "Action de remédiation exacte (max 2 phrases)"
 }
 3. Ne rajoute aucun texte avant ou après le JSON. Ne duplique pas les guillemets.
-4. Si aucune information spécifique sur les acteurs de menace n'est fournie, concentre-toi sur la probabilité technique d'exploitation basée sur le score SRP et la description.
