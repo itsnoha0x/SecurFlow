@@ -1,13 +1,5 @@
-pyyaml>=6.0
-requests>=2.31.0
-jsonschema>=4.19.0
-safety>=2.3.0
-openai>=1.3.0
-anthropic>=0.7.0
-pandas>=2.1.0
-numpy>=1.21.0
-flask>=2.3.0
-flask-cors>=4.0.0
-pytest>=7.4.0
-black>=23.7.0
-flake8>=6.0.0
+Pillow==9.0.0          # CVE-2023-44271 - DoS via image processing
+PyYAML==5.1            # CVE-2020-14343 - Arbitrary code execution
+requests==2.6.0        # CVE-2023-32681 - Proxy auth leak
+Flask==0.12.2          # CVE-2018-1000656 - DoS vulnerability
+cryptography==38.0.0   # CVE-2023-49083 - NULL pointer dereference
