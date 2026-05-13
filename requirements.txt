@@ -1,4 +1,4 @@
-Pillow==9.0.0          # CVE-2023-44271 - DoS via image processing
+certifi==2022.12.7
 PyYAML==5.1            # CVE-2020-14343 - Arbitrary code execution
 requests==2.6.0        # CVE-2023-32681 - Proxy auth leak
 Flask==0.12.2          # CVE-2018-1000656 - DoS vulnerability
