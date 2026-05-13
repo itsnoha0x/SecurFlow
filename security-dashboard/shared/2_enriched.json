@@ -1,0 +1,25 @@
+{
+  "enrichment_metadata": {
+    "timestamp": "2026-05-11T15:00:00Z",
+    "enricher_version": "1.0.0",
+    "total_vulnerabilities": 0,
+    "sources_used": ["NVD", "OTX", "CISA KEV"]
+  },
+  "enriched_vulnerabilities": [],
+  "enrichment_summary": {
+    "total_vulnerabilities": 0,
+    "exploitable_count": 0,
+    "cisa_kev_count": 0,
+    "known_exploits": 0,
+    "otx_indicators_count": 0,
+    "high_risk_count": 0,
+    "critical_risk_count": 0,
+    "average_enrichment_confidence": 0.0,
+    "source_coverage": {
+      "nvd_coverage": 0.0,
+      "cisa_kev_coverage": 0.0,
+      "osv_coverage": 0.0,
+      "otx_coverage": 0.0
+    }
+  }
+}
