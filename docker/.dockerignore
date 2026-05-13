@@ -1,7 +1,0 @@
-.git/
-.github/
-*.md
-__pycache__/
-*.pyc
-target_app/
-.securflow-results/
