@@ -1,14 +1,14 @@
 {
   "decision_metadata": {
-    "timestamp": "2026-05-12T16:38:51.929001Z",
+    "timestamp": "2026-05-13T05:47:19.766991Z",
     "engine_version": "1.0.0",
     "config_used": {
       "high_context_components": [
-        "mongoose",
         "psycopg2",
+        "mongoose",
+        "sequelize",
         "typeorm",
-        "sqlalchemy",
-        "sequelize"
+        "sqlalchemy"
       ]
     },
     "total_processed": 49,
@@ -27,7 +27,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour langflow.",
-      "timestamp": "2026-05-12T16:37:50.293582Z"
+      "timestamp": "2026-05-13T05:46:18.167995Z"
     },
     {
       "cve_id": "CVE-2026-33017",
@@ -36,7 +36,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour langflow.",
-      "timestamp": "2026-05-12T16:38:21.014213Z"
+      "timestamp": "2026-05-13T05:46:48.950192Z"
     },
     {
       "cve_id": "CVE-2020-14343",
@@ -45,7 +45,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour PyYAML.",
-      "timestamp": "2026-05-12T16:37:19.116898Z"
+      "timestamp": "2026-05-13T05:45:47.126424Z"
     },
     {
       "cve_id": "CVE-2017-18342",
@@ -54,7 +54,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour PyYAML.",
-      "timestamp": "2026-05-12T16:36:46.399561Z"
+      "timestamp": "2026-05-13T05:45:16.327591Z"
     },
     {
       "cve_id": "CVE-2024-37014",
@@ -63,7 +63,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour langflow.",
-      "timestamp": "2026-05-12T16:38:51.928376Z"
+      "timestamp": "2026-05-13T05:47:19.766285Z"
     },
     {
       "cve_id": "CVE-2026-33873",
@@ -72,7 +72,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33873) avec SRP de 4.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:21.014270Z"
+      "timestamp": "2026-05-13T05:46:48.950249Z"
     },
     {
       "cve_id": "CVE-2026-21445",
@@ -81,7 +81,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-21445) avec SRP de 4.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928498Z"
+      "timestamp": "2026-05-13T05:47:19.766419Z"
     },
     {
       "cve_id": "CVE-2025-34291",
@@ -90,7 +90,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-34291) avec SRP de 3.8. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:37:50.293643Z"
+      "timestamp": "2026-05-13T05:46:18.168047Z"
     },
     {
       "cve_id": "CVE-2019-10906",
@@ -99,7 +99,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-10906) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.592011Z"
+      "timestamp": "2026-05-13T05:44:44.974764Z"
     },
     {
       "cve_id": "CVE-2025-27516",
@@ -108,7 +108,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-27516) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.592096Z"
+      "timestamp": "2026-05-13T05:44:44.974871Z"
     },
     {
       "cve_id": "CVE-2026-33053",
@@ -117,7 +117,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33053) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928509Z"
+      "timestamp": "2026-05-13T05:47:19.766431Z"
     },
     {
       "cve_id": "CVE-2026-34046",
@@ -126,7 +126,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-34046) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928530Z"
+      "timestamp": "2026-05-13T05:47:19.766453Z"
     },
     {
       "cve_id": "CVE-2018-1000656",
@@ -135,7 +135,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-1000656) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.591472Z"
+      "timestamp": "2026-05-13T05:44:44.974164Z"
     },
     {
       "cve_id": "CVE-2019-1010083",
@@ -144,7 +144,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-1010083) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.591966Z"
+      "timestamp": "2026-05-13T05:44:44.974689Z"
     },
     {
       "cve_id": "CVE-2023-30861",
@@ -153,7 +153,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-30861) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.591994Z"
+      "timestamp": "2026-05-13T05:44:44.974734Z"
     },
     {
       "cve_id": "CVE-2026-32597",
@@ -162,7 +162,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-32597) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de PyJWT lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.592109Z"
+      "timestamp": "2026-05-13T05:44:44.974887Z"
     },
     {
       "cve_id": "CVE-2026-33497",
@@ -171,7 +171,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33497) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928520Z"
+      "timestamp": "2026-05-13T05:47:19.766443Z"
     },
     {
       "cve_id": "CVE-2026-27888",
@@ -180,7 +180,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27888) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928592Z"
+      "timestamp": "2026-05-13T05:47:19.766546Z"
     },
     {
       "cve_id": "CVE-2026-33699",
@@ -189,7 +189,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33699) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928640Z"
+      "timestamp": "2026-05-13T05:47:19.766597Z"
     },
     {
       "cve_id": "CVE-2018-18074",
@@ -198,7 +198,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-18074) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928698Z"
+      "timestamp": "2026-05-13T05:47:19.766661Z"
     },
     {
       "cve_id": "CVE-2025-68477",
@@ -207,7 +207,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-68477) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928463Z"
+      "timestamp": "2026-05-13T05:47:19.766379Z"
     },
     {
       "cve_id": "CVE-2024-9277",
@@ -216,7 +216,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-9277) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928550Z"
+      "timestamp": "2026-05-13T05:47:19.766480Z"
     },
     {
       "cve_id": "CVE-2026-33123",
@@ -225,7 +225,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33123) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928630Z"
+      "timestamp": "2026-05-13T05:47:19.766587Z"
     },
     {
       "cve_id": "CVE-2026-41312",
@@ -234,7 +234,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-41312) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928669Z"
+      "timestamp": "2026-05-13T05:47:19.766627Z"
     },
     {
       "cve_id": "CVE-2026-41313",
@@ -243,7 +243,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-41313) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928679Z"
+      "timestamp": "2026-05-13T05:47:19.766639Z"
     },
     {
       "cve_id": "CVE-2026-41314",
@@ -252,7 +252,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-41314) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928689Z"
+      "timestamp": "2026-05-13T05:47:19.766650Z"
     },
     {
       "cve_id": "CVE-2023-32681",
@@ -261,7 +261,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-32681) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928708Z"
+      "timestamp": "2026-05-13T05:47:19.766671Z"
     },
     {
       "cve_id": "CVE-2024-56326",
@@ -270,7 +270,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-56326) avec SRP de 2.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.592082Z"
+      "timestamp": "2026-05-13T05:44:44.974853Z"
     },
     {
       "cve_id": "CVE-2024-22195",
@@ -279,7 +279,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-22195) avec SRP de 2.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.592044Z"
+      "timestamp": "2026-05-13T05:44:44.974807Z"
     },
     {
       "cve_id": "CVE-2024-34064",
@@ -288,7 +288,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-34064) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.592057Z"
+      "timestamp": "2026-05-13T05:44:44.974824Z"
     },
     {
       "cve_id": "CVE-2026-27024",
@@ -297,7 +297,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27024) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928560Z"
+      "timestamp": "2026-05-13T05:47:19.766509Z"
     },
     {
       "cve_id": "CVE-2026-27025",
@@ -306,7 +306,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27025) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928571Z"
+      "timestamp": "2026-05-13T05:47:19.766524Z"
     },
     {
       "cve_id": "CVE-2026-27026",
@@ -315,7 +315,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27026) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928581Z"
+      "timestamp": "2026-05-13T05:47:19.766535Z"
     },
     {
       "cve_id": "CVE-2026-31826",
@@ -324,7 +324,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-31826) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928621Z"
+      "timestamp": "2026-05-13T05:47:19.766577Z"
     },
     {
       "cve_id": "CVE-2024-35195",
@@ -333,7 +333,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-35195) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928717Z"
+      "timestamp": "2026-05-13T05:47:19.766681Z"
     },
     {
       "cve_id": "CVE-2026-25645",
@@ -342,7 +342,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-25645) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928736Z"
+      "timestamp": "2026-05-13T05:47:19.766701Z"
     },
     {
       "cve_id": "CVE-2020-28493",
@@ -351,7 +351,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2020-28493) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:36:14.592029Z"
+      "timestamp": "2026-05-13T05:44:44.974786Z"
     },
     {
       "cve_id": "CVE-2026-28351",
@@ -360,7 +360,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-28351) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928601Z"
+      "timestamp": "2026-05-13T05:47:19.766556Z"
     },
     {
       "cve_id": "CVE-2026-28804",
@@ -369,7 +369,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-28804) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928612Z"
+      "timestamp": "2026-05-13T05:47:19.766566Z"
     },
     {
       "cve_id": "CVE-2026-40260",
@@ -378,7 +378,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-40260) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928651Z"
+      "timestamp": "2026-05-13T05:47:19.766607Z"
     },
     {
       "cve_id": "CVE-2026-41168",
@@ -387,7 +387,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-41168) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928660Z"
+      "timestamp": "2026-05-13T05:47:19.766617Z"
     },
     {
       "cve_id": "CVE-2024-47081",
@@ -396,7 +396,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-47081) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928727Z"
+      "timestamp": "2026-05-13T05:47:19.766691Z"
     },
     {
       "cve_id": "CVE-2026-27966",
@@ -405,7 +405,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27966) avec SRP de 1.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:37:50.293658Z"
+      "timestamp": "2026-05-13T05:46:18.168063Z"
     },
     {
       "cve_id": "CVE-2024-42835",
@@ -414,7 +414,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-42835) avec SRP de 0.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928434Z"
+      "timestamp": "2026-05-13T05:47:19.766343Z"
     },
     {
       "cve_id": "CVE-2026-0770",
@@ -423,7 +423,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-0770) avec SRP de 0.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928487Z"
+      "timestamp": "2026-05-13T05:47:19.766408Z"
     },
     {
       "cve_id": "CVE-2024-48061",
@@ -432,7 +432,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-48061) avec SRP de 0.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928540Z"
+      "timestamp": "2026-05-13T05:47:19.766465Z"
     },
     {
       "cve_id": "CVE-2026-42048",
@@ -441,7 +441,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-42048) avec SRP de 0.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:21.014286Z"
+      "timestamp": "2026-05-13T05:46:48.950269Z"
     },
     {
       "cve_id": "CVE-2025-57760",
@@ -450,7 +450,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-57760) avec SRP de 0.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928451Z"
+      "timestamp": "2026-05-13T05:47:19.766363Z"
     },
     {
       "cve_id": "CVE-2025-68478",
@@ -459,7 +459,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-68478) avec SRP de 0.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-12T16:38:51.928475Z"
+      "timestamp": "2026-05-13T05:47:19.766393Z"
     }
   ]
 }
