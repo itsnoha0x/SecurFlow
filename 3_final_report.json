@@ -1,14 +1,14 @@
 {
   "decision_metadata": {
-    "timestamp": "2026-05-14T05:53:44.296292Z",
+    "timestamp": "2026-05-14T08:14:24.114123Z",
     "engine_version": "1.0.0",
     "config_used": {
       "high_context_components": [
-        "psycopg2",
         "sqlalchemy",
         "mongoose",
-        "typeorm",
-        "sequelize"
+        "psycopg2",
+        "sequelize",
+        "typeorm"
       ]
     },
     "total_processed": 49,
@@ -25,45 +25,45 @@
       "package": "langflow",
       "srp_score": 6.7,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité d'injection de code dans l'endpoint /api/v1/validate/code permet à un attaquant distant et non authentifié d'exécuter du code arbitraire. Avec un score SRP de 6.7/10, la probabilité d'exploitation technique est élevée, car l'absence de contrôle d'accès et la criticité de l'exécution facilitent les attaques automatisées. Bien qu'aucun acteur de menace spécifique ne soit identifié, ce vecteur est systématiquement ciblé par des scanners de vulnérabilités en continu.",
-      "ai_fix": "Mettez à jour le package langflow vers la version 1.3.0 ou supérieure pour appliquer le correctif officiel. En attendant, restreignez l'accès réseau à l'endpoint concerné et implémentez une validation stricte des entrées utilisateur.",
-      "timestamp": "2026-05-14T05:50:04.763895Z"
+      "ai_explanation": "Cette vulnérabilité d'injection de code dans l'endpoint /api/v1/validate/code permet à un attaquant distant et non authentifié d'exécuter du code arbitraire. Avec un score SRP de 6.7, la probabilité d'exploitation technique est élevée, car l'absence d'authentification facilite les scans automatisés et les attaques opportunistes. Bien qu'aucun acteur de menace ciblé ne soit identifié, l'exposition publique de ce vecteur le rend critique pour tout déploiement internet-facing.",
+      "ai_fix": "Mettez à jour le package langflow vers la version 1.3.0 ou supérieure pour appliquer le correctif officiel. En attendant, restreignez l'accès à l'endpoint /api/v1/validate/code via un pare-feu applicatif ou une authentification stricte.",
+      "timestamp": "2026-05-14T08:10:36.791262Z"
     },
     {
       "cve_id": "CVE-2026-33017",
       "package": "langflow",
       "srp_score": 5.2,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité expose un endpoint API non authentifié dans Langflow (<1.9.0), permettant à tout attaquant de construire et exécuter des flux publics sans credentials. Avec un score SRP de 5.2, la probabilité d'exploitation technique est modérée mais élevée en pratique, car l'absence d'authentification facilite l'abus automatisé par des scanners ou des acteurs opportunistes. Bien que non listé dans le KEV et sans acteur ciblé, le risque principal réside dans l'exécution non autorisée d'agents IA et la consommation abusive de ressources.",
-      "ai_fix": "Mettez à jour Langflow vers la version 1.9.0 ou supérieure pour rétablir le contrôle d'accès sur l'endpoint concerné. Appliquez par ailleurs une restriction réseau (WAF/IPS) et activez la journalisation des requêtes POST non authentifiées pour détecter les tentatives d'exploitation.",
-      "timestamp": "2026-05-14T05:52:03.076914Z"
+      "ai_explanation": "Cette vulnérabilité expose un endpoint API non authentifié dans Langflow (<1.9.0) permettant de construire et exécuter des flux publics, risquant une exécution de code ou une consommation abusive de ressources. Avec un score SRP de 5.2, la probabilité d'exploitation technique est modérée, principalement due à l'absence de contrôle d'accès sur une route critique. Bien qu'aucun acteur de menace ne la cible spécifiquement, son caractère non authentifié la rend facilement exploitable par des scanners automatisés ou des attaquants opportunistes.",
+      "ai_fix": "Mettez à jour le package langflow vers la version 1.9.0 ou supérieure pour appliquer le correctif d'authentification obligatoire. Restreignez également l'accès réseau à l'endpoint /api/v1/build_public_tmp/ via un pare-feu ou un API gateway en attendant le déploiement.",
+      "timestamp": "2026-05-14T08:12:14.867297Z"
     },
     {
       "cve_id": "CVE-2020-14343",
       "package": "PyYAML",
       "srp_score": 4.3,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet une exécution de code arbitraire si des fichiers YAML non fiables sont traités via full_load ou FullLoader dans PyYAML < 5.4. Avec un score SRP de 4.3/10, la probabilité d'exploitation technique est modérée, mais le risque critique persiste dès que l'application ingère des données externes. Aucun acteur de menace spécifique n'est associé, mais l'impact reste élevé en cas d'exploitation réussie.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou supérieure, et remplacez systématiquement full_load/FullLoader par safe_load/SafeLoader pour tout traitement de données non fiables.",
-      "timestamp": "2026-05-14T05:48:45.084529Z"
+      "ai_explanation": "Cette vulnérabilité permet une exécution arbitraire de code (RCE) si l'application charge des fichiers YAML non fiables via full_load ou FullLoader. Avec un score SRP de 4.3/10, le risque technique d'exploitation est modéré mais réel, car il dépend de la présence d'entrées utilisateur non validées. Bien que non listé dans le KEV et sans acteur de menace connu, l'impact potentiel justifie une correction immédiate.",
+      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou supérieure, et remplacez systématiquement full_load/FullLoader par safe_load/SafeLoader pour tout traitement de données externes.",
+      "timestamp": "2026-05-14T08:09:01.873319Z"
     },
     {
       "cve_id": "CVE-2017-18342",
       "package": "PyYAML",
       "srp_score": 4.1,
       "decision": "ALERTER",
-      "ai_explanation": "L'API yaml.load() désérialise des données YAML non fiables en objets Python, permettant une exécution arbitraire de code. Avec un score SRP de 4.1/10 et aucun acteur de menace ciblé, le risque technique reste modéré et dépend principalement de l'exposition directe à des entrées non contrôlées dans des applications legacy.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.1 ou supérieure et remplacez systématiquement yaml.load() par yaml.safe_load() pour traiter les données non fiables.",
-      "timestamp": "2026-05-14T05:47:15.498011Z"
+      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via yaml.load() sur des données non fiables. Avec un score SRP de 4.1/10, l'exploitation technique est modérée mais critique si l'application traite des fichiers YAML externes. L'absence d'acteurs de menace connus ne réduit pas le risque d'exploitation opportuniste ou d'injection via des pipelines CI/CD.",
+      "ai_fix": "Mettez à jour PyYAML vers la version 5.1 ou supérieure et remplacez systématiquement yaml.load() par yaml.safe_load(). Vérifiez également que UnsafeLoader n'est utilisé que pour des données strictement de confiance.",
+      "timestamp": "2026-05-14T08:07:03.234930Z"
     },
     {
       "cve_id": "CVE-2024-37014",
       "package": "langflow",
       "srp_score": 4.1,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet une exécution de code à distance (RCE) si un utilisateur non fiable atteint l'endpoint POST /api/v1/custom_component et soumet un script Python malveillant. Avec un score SRP de 4.1/10, la probabilité technique d'exploitation est modérée, car elle nécessite un accès direct à cette API spécifique. Aucun acteur de menace n'est actuellement associé, mais l'exposition de cet endpoint sans validation stricte constitue un risque opérationnel concret.",
-      "ai_fix": "Mettez à jour le package langflow vers la version 0.6.20 ou supérieure pour appliquer le correctif officiel. Si la mise à jour n'est pas immédiate, restreignez l'accès à l'endpoint /api/v1/custom_component via des règles de pare-feu ou d'authentification et désactivez l'exécution de scripts non vérifiés.",
-      "timestamp": "2026-05-14T05:53:44.295563Z"
+      "ai_explanation": "Cette vulnérabilité permet une exécution de code à distance (RCE) via l'endpoint POST /api/v1/custom_component lors de la soumission de scripts Python non validés. Avec un score SRP de 4.1/10, la probabilité d'exploitation est modérée et dépend principalement de l'exposition réseau et de l'absence de contrôles d'accès. Bien qu'aucun acteur de menace spécifique ne soit identifié, son caractère RCE en fait une cible à risque pour des attaques opportunistes.",
+      "ai_fix": "Mettez à jour le package langflow vers la version 0.6.20 ou ultérieure pour intégrer le correctif officiel. Appliquez également des règles de pare-feu pour restreindre l'accès à l'endpoint concerné et désactivez l'exécution de code utilisateur si elle n'est pas strictement nécessaire.",
+      "timestamp": "2026-05-14T08:14:24.113364Z"
     },
     {
       "cve_id": "CVE-2026-33873",
@@ -72,7 +72,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33873) avec SRP de 4.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:52:03.076973Z"
+      "timestamp": "2026-05-14T08:12:14.867366Z"
     },
     {
       "cve_id": "CVE-2026-21445",
@@ -81,16 +81,16 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-21445) avec SRP de 4.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295711Z"
+      "timestamp": "2026-05-14T08:14:24.113511Z"
     },
     {
       "cve_id": "CVE-2025-34291",
       "package": "langflow",
-      "srp_score": 3.8,
+      "srp_score": 3.9,
       "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2025-34291) avec SRP de 3.8. Risque faible.",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2025-34291) avec SRP de 3.9. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:50:04.763966Z"
+      "timestamp": "2026-05-14T08:10:36.791330Z"
     },
     {
       "cve_id": "CVE-2019-10906",
@@ -99,7 +99,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-10906) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318585Z"
+      "timestamp": "2026-05-14T08:05:25.292689Z"
     },
     {
       "cve_id": "CVE-2025-27516",
@@ -108,7 +108,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-27516) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318682Z"
+      "timestamp": "2026-05-14T08:05:25.292792Z"
     },
     {
       "cve_id": "CVE-2026-33053",
@@ -117,7 +117,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33053) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295726Z"
+      "timestamp": "2026-05-14T08:14:24.113523Z"
     },
     {
       "cve_id": "CVE-2026-34046",
@@ -126,7 +126,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-34046) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295753Z"
+      "timestamp": "2026-05-14T08:14:24.113545Z"
     },
     {
       "cve_id": "CVE-2018-1000656",
@@ -135,7 +135,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-1000656) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318044Z"
+      "timestamp": "2026-05-14T08:05:25.292074Z"
     },
     {
       "cve_id": "CVE-2019-1010083",
@@ -144,7 +144,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-1010083) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318523Z"
+      "timestamp": "2026-05-14T08:05:25.292612Z"
     },
     {
       "cve_id": "CVE-2023-30861",
@@ -153,7 +153,16 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-30861) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318556Z"
+      "timestamp": "2026-05-14T08:05:25.292658Z"
+    },
+    {
+      "cve_id": "CVE-2022-29217",
+      "package": "PyJWT",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2022-29217) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de PyJWT lors d'un prochain sprint.",
+      "timestamp": "2026-05-14T08:05:25.292808Z"
     },
     {
       "cve_id": "CVE-2026-32597",
@@ -162,7 +171,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-32597) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de PyJWT lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318697Z"
+      "timestamp": "2026-05-14T08:05:25.292821Z"
     },
     {
       "cve_id": "CVE-2026-33497",
@@ -171,7 +180,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33497) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295740Z"
+      "timestamp": "2026-05-14T08:14:24.113534Z"
     },
     {
       "cve_id": "CVE-2026-27888",
@@ -180,7 +189,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27888) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295831Z"
+      "timestamp": "2026-05-14T08:14:24.113615Z"
     },
     {
       "cve_id": "CVE-2026-33699",
@@ -189,16 +198,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33699) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295900Z"
-    },
-    {
-      "cve_id": "CVE-2018-18074",
-      "package": "requests",
-      "srp_score": 3.0,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2018-18074) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295961Z"
+      "timestamp": "2026-05-14T08:14:24.113664Z"
     },
     {
       "cve_id": "CVE-2025-68477",
@@ -207,7 +207,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-68477) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295666Z"
+      "timestamp": "2026-05-14T08:14:24.113474Z"
     },
     {
       "cve_id": "CVE-2024-9277",
@@ -216,7 +216,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-9277) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295779Z"
+      "timestamp": "2026-05-14T08:14:24.113566Z"
     },
     {
       "cve_id": "CVE-2026-33123",
@@ -225,7 +225,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-33123) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295887Z"
+      "timestamp": "2026-05-14T08:14:24.113655Z"
     },
     {
       "cve_id": "CVE-2026-41312",
@@ -234,7 +234,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-41312) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295931Z"
+      "timestamp": "2026-05-14T08:14:24.113695Z"
     },
     {
       "cve_id": "CVE-2026-41313",
@@ -243,7 +243,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-41313) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295940Z"
+      "timestamp": "2026-05-14T08:14:24.113705Z"
     },
     {
       "cve_id": "CVE-2026-41314",
@@ -252,7 +252,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-41314) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295951Z"
+      "timestamp": "2026-05-14T08:14:24.113715Z"
     },
     {
       "cve_id": "CVE-2023-32681",
@@ -261,7 +261,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-32681) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295972Z"
+      "timestamp": "2026-05-14T08:14:24.113726Z"
     },
     {
       "cve_id": "CVE-2024-56326",
@@ -270,7 +270,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-56326) avec SRP de 2.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318664Z"
+      "timestamp": "2026-05-14T08:05:25.292774Z"
     },
     {
       "cve_id": "CVE-2024-22195",
@@ -279,7 +279,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-22195) avec SRP de 2.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318620Z"
+      "timestamp": "2026-05-14T08:05:25.292729Z"
     },
     {
       "cve_id": "CVE-2024-34064",
@@ -288,7 +288,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-34064) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318635Z"
+      "timestamp": "2026-05-14T08:05:25.292746Z"
     },
     {
       "cve_id": "CVE-2026-27024",
@@ -297,7 +297,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27024) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295792Z"
+      "timestamp": "2026-05-14T08:14:24.113578Z"
     },
     {
       "cve_id": "CVE-2026-27025",
@@ -306,7 +306,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27025) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295805Z"
+      "timestamp": "2026-05-14T08:14:24.113588Z"
     },
     {
       "cve_id": "CVE-2026-27026",
@@ -315,7 +315,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27026) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295818Z"
+      "timestamp": "2026-05-14T08:14:24.113599Z"
     },
     {
       "cve_id": "CVE-2026-31826",
@@ -324,7 +324,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-31826) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295873Z"
+      "timestamp": "2026-05-14T08:14:24.113645Z"
     },
     {
       "cve_id": "CVE-2024-35195",
@@ -333,7 +333,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-35195) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295982Z"
+      "timestamp": "2026-05-14T08:14:24.113735Z"
     },
     {
       "cve_id": "CVE-2026-25645",
@@ -342,7 +342,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-25645) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.296005Z"
+      "timestamp": "2026-05-14T08:14:24.113759Z"
     },
     {
       "cve_id": "CVE-2020-28493",
@@ -351,7 +351,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2020-28493) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:45:42.318602Z"
+      "timestamp": "2026-05-14T08:05:25.292710Z"
     },
     {
       "cve_id": "CVE-2026-28351",
@@ -360,7 +360,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-28351) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295846Z"
+      "timestamp": "2026-05-14T08:14:24.113625Z"
     },
     {
       "cve_id": "CVE-2026-28804",
@@ -369,7 +369,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-28804) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295860Z"
+      "timestamp": "2026-05-14T08:14:24.113635Z"
     },
     {
       "cve_id": "CVE-2026-40260",
@@ -378,7 +378,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-40260) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295910Z"
+      "timestamp": "2026-05-14T08:14:24.113675Z"
     },
     {
       "cve_id": "CVE-2026-41168",
@@ -387,7 +387,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-41168) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de pypdf lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295920Z"
+      "timestamp": "2026-05-14T08:14:24.113685Z"
     },
     {
       "cve_id": "CVE-2024-47081",
@@ -396,7 +396,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-47081) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295992Z"
+      "timestamp": "2026-05-14T08:14:24.113745Z"
     },
     {
       "cve_id": "CVE-2026-27966",
@@ -405,7 +405,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-27966) avec SRP de 1.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:50:04.763994Z"
+      "timestamp": "2026-05-14T08:10:36.791354Z"
     },
     {
       "cve_id": "CVE-2024-42835",
@@ -414,7 +414,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-42835) avec SRP de 0.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295625Z"
+      "timestamp": "2026-05-14T08:14:24.113431Z"
     },
     {
       "cve_id": "CVE-2026-0770",
@@ -423,7 +423,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-0770) avec SRP de 0.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295697Z"
+      "timestamp": "2026-05-14T08:14:24.113498Z"
     },
     {
       "cve_id": "CVE-2024-48061",
@@ -432,7 +432,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-48061) avec SRP de 0.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295766Z"
+      "timestamp": "2026-05-14T08:14:24.113556Z"
     },
     {
       "cve_id": "CVE-2026-42048",
@@ -441,7 +441,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-42048) avec SRP de 0.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:52:03.076992Z"
+      "timestamp": "2026-05-14T08:12:14.867396Z"
     },
     {
       "cve_id": "CVE-2025-57760",
@@ -450,7 +450,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-57760) avec SRP de 0.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295649Z"
+      "timestamp": "2026-05-14T08:14:24.113459Z"
     },
     {
       "cve_id": "CVE-2025-68478",
@@ -459,7 +459,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-68478) avec SRP de 0.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de langflow lors d'un prochain sprint.",
-      "timestamp": "2026-05-14T05:53:44.295682Z"
+      "timestamp": "2026-05-14T08:14:24.113487Z"
     }
   ]
 }
