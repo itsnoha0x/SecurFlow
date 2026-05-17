@@ -207,6 +207,8 @@ class DecisionEngine:
                         continue # On tente le retry
 
                 print(f"    [IA] Analyse terminée pour {cve_id}.")
+                # Petit délai de sécurité pour libérer les unités de confluence sur Featherless
+                time.sleep(0.5)
                 return {
                     "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
                     "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")

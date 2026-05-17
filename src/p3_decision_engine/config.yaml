@@ -25,7 +25,7 @@ decision_thresholds:
 
 # Performance Optimization
 performance:
-  max_workers: 4
+  max_workers: 1
   batch_size: 5
   cache_enabled: true
   cache_ttl_hours: 24
