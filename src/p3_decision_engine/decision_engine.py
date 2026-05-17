@@ -34,7 +34,7 @@ class DecisionEngine:
         # Model name from config with fallback
         self.model_name = ai_config.get("model_name", "deepseek-ai/DeepSeek-V4-Flash")
         self.temperature = ai_config.get("temperature", 0.1)
-        self.max_tokens = ai_config.get("max_tokens", 4000)
+        self.max_tokens = ai_config.get("max_tokens", 1000)
         self.timeout_seconds = ai_config.get("timeout_seconds", 30)
         self.retry_attempts = ai_config.get("retry_attempts", 3)
         
@@ -161,6 +161,7 @@ class DecisionEngine:
                 ],
                 response_format={"type": "json_object"},
                 max_tokens=self.max_tokens,
+                timeout=self.timeout_seconds,
                 temperature=self.temperature
             )
             
@@ -256,7 +257,7 @@ class DecisionEngine:
         
         # Get performance config
         perf_config = self.config.get("performance", {})
-        max_workers = perf_config.get("max_workers", 4)
+        max_workers = min(perf_config.get("max_workers", 4), 4)  # Cap at 4 for subscription limits
         
         print(f"[*] Processing {len(enriched_vulns)} vulnerabilities with {max_workers} parallel threads...")
         
