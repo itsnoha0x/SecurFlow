@@ -10,6 +10,7 @@ mathematical risk scoring with AI-powered decision making.
 import json
 import yaml
 import os
+import time
 import sys
 import re
 from datetime import datetime
@@ -151,75 +152,75 @@ class DecisionEngine:
             actors_str=actors_str
         )
 
-        try:
-            print(f"    [IA] Début de l'analyse pour {cve_id}...")
-            response = self.ai_client.chat.completions.create(
-                model=self.model_name,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                response_format={"type": "json_object"},
-                max_tokens=self.max_tokens,
-                timeout=self.timeout_seconds,
-                temperature=self.temperature
-            )
-            
-            raw_content = response.choices[0].message.content.strip()
-            print(f"    [DEBUG RAW] {repr(raw_content)}")
-            
-            # --- LE BLINDAGE ABSOLU ---
-            
-            # 1. Si l'IA a oublié l'accolade ouvrante, on la rajoute !
-            if not raw_content.startswith('{'):
-                # On enlève les guillemets ou apostrophes parasites au tout début
-                raw_content = raw_content.lstrip("'")
-                if raw_content.startswith('"ai_explanation"'):
-                    raw_content = '{' + raw_content
-                else:
-                    raw_content = '{"ai_explanation": "' + raw_content
-                    
-            # 2. Si l'IA a oublié l'accolade fermante
-            if not raw_content.endswith('}'):
-                raw_content = raw_content + '}'
-                
-            # 3. Nettoyage des vieilles hallucinations
-            raw_content = raw_content.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
-            raw_content = raw_content.replace('"ai_fix": ai_fix":', '"ai_fix":')
-
+        for attempt in range(self.retry_attempts):
             try:
-                # On essaie de lire le JSON réparé
-                start_idx = raw_content.find('{')
-                end_idx = raw_content.rfind('}')
-                clean_json = raw_content[start_idx:end_idx+1]
+                print(f"    [IA] Début de l'analyse pour {cve_id} (Tentative {attempt + 1})...")
+                response = self.ai_client.chat.completions.create(
+                    model=self.model_name,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    response_format={"type": "json_object"},
+                    max_tokens=self.max_tokens,
+                    timeout=self.timeout_seconds,
+                    temperature=self.temperature
+                )
                 
-                result = json.loads(clean_json)
+                raw_content = response.choices[0].message.content.strip()
+                
+                # --- LE BLINDAGE ABSOLU ---
+                if not raw_content.startswith('{'):
+                    raw_content = raw_content.lstrip("'")
+                    if raw_content.startswith('"ai_explanation"'):
+                        raw_content = '{' + raw_content
+                    else:
+                        raw_content = '{"ai_explanation": "' + raw_content
+                if not raw_content.endswith('}'):
+                    raw_content = raw_content + '}'
+                
+                raw_content = raw_content.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
+                raw_content = raw_content.replace('"ai_fix": ai_fix":', '"ai_fix":')
+
+                try:
+                    start_idx = raw_content.find('{')
+                    end_idx = raw_content.rfind('}')
+                    clean_json = raw_content[start_idx:end_idx+1]
+                    result = json.loads(clean_json)
+                except Exception:
+                    # Regex fallback
+                    exp_match = re.search(r'"ai_explanation"\s*:\s*"(.*?)"\s*,', raw_content, re.DOTALL)
+                    fix_match = re.search(r'"ai_fix"\s*:\s*"(.*?)"\s*}', raw_content, re.DOTALL)
+                    result = {
+                        "ai_explanation": exp_match.group(1).strip() if exp_match else "Analyse indisponible.",
+                        "ai_fix": fix_match.group(1).strip() if fix_match else "Mise à jour recommandée."
+                    }
+
+                print(f"    [IA] Analyse terminée pour {cve_id}.")
+                # Small cooldown to allow Featherless to reset concurrency units
+                time.sleep(1)
+                return {
+                    "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
+                    "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")
+                }
                 
             except Exception as e:
-                # 4. MODE SURVIE ULTIME : Le Regex
-                print(f"    [!] Le JSON est toujours rebelle, passage au Regex : {e}")
-                import re
-                # On cherche tout ce qui est entre les guillemets après la clé
-                exp_match = re.search(r'"ai_explanation"\s*:\s*"(.*?)"\s*,', raw_content, re.DOTALL)
-                fix_match = re.search(r'"ai_fix"\s*:\s*"(.*?)"\s*}', raw_content, re.DOTALL)
-                
-                result = {
-                    "ai_explanation": exp_match.group(1).strip() if exp_match else "Alerte CTI critique détectée.",
-                    "ai_fix": fix_match.group(1).strip() if fix_match else "Mise à jour immédiate requise."
-                }
+                if "429" in str(e) and attempt < self.retry_attempts - 1:
+                    wait_time = (attempt + 1) * 3
+                    print(f"    [!] Limite de confluence atteinte (429). Pause de {wait_time}s...")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    print(f"    [!] Erreur IA critique pour {cve_id}: {e}")
+                    return {
+                        "ai_explanation": f"Alerte CTI de niveau {decision}. (Erreur API IA).",
+                        "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
+                    }
 
-            print(f"    [IA] Analyse terminée pour {cve_id}.")
-            return {
-                "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
-                "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")
-            }
-            
-        except Exception as e:
-            print(f"    [!] Erreur IA critique pour {cve_id}: {e}")
-            return {
-                "ai_explanation": f"Alerte CTI de niveau {decision}. (Erreur API IA).",
-                "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
-            }
+        return {
+            "ai_explanation": f"Analyse IA échouée après {self.retry_attempts} tentatives.",
+            "ai_fix": "Vérification manuelle requise."
+                }
     
     def _process_single_vuln(self, vuln):
         """Process a single vulnerability with SRP calculation and AI analysis."""
@@ -257,7 +258,7 @@ class DecisionEngine:
         
         # Get performance config
         perf_config = self.config.get("performance", {})
-        max_workers = min(perf_config.get("max_workers", 4), 4)  # Cap at 4 for subscription limits
+        max_workers = 1  # Forced to 1 because model cost (4 units) == plan limit (4 units)
         
         print(f"[*] Processing {len(enriched_vulns)} vulnerabilities with {max_workers} parallel threads...")
         
