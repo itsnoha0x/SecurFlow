@@ -1,8 +1,5 @@
-# --- Cibles Critiques 2026 (Test du Decision Engine) ---
 langflow==0.5.0         # RCE non authentifié (CVE-2026-33017) -> Teste le blocage immédiat
 PyJWT==2.11.0           # Bypass d'authentification (CVE-2026-32597) -> Teste la logique IAM
 pypdf==6.7.0            # DoS (CVE-2026-27024) -> Teste l'ajustement du score pour la disponibilité
-
-# --- Classiques (Vérification CTI & Exploit Public) ---
 PyYAML==3.12            # RCE via Désérialisation -> Teste la remontée d'exploit via OSV/GitHub
 Jinja2==2.9.6           # SSTI (Server Side Template Injection) -> Teste l'analyse contextuelle IA
