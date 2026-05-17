@@ -151,12 +151,17 @@ class DecisionEngine:
         threat_actors = [pulse.get("name") for indicator in otx_data for pulse in indicator.get("pulses", [])]
         actors_str = ", ".join(threat_actors) if threat_actors else "Aucun acteur spécifique identifié"
         
+        # Correction de l'extraction de la description (recherche profonde)
+        description = vulnerability.get("description")
+        if not description:
+            description = vulnerability.get("threat_intelligence", {}).get("nvd", {}).get("description", "Aucune description fournie.")
+        
         user_prompt = self.user_template.format(
             decision=decision,
             srp_score=srp_score,
             cve_id=cve_id,
             package=package,
-            desc=vulnerability.get("description", ""),
+            desc=description,
             cisa_notes=cisa_notes,
             actors_str=actors_str
         )
@@ -178,18 +183,8 @@ class DecisionEngine:
                 
                 raw_content = response.choices[0].message.content.strip()
 
-                # --- RESTAURATION DU BLINDAGE ---
-                if not raw_content.startswith('{'):
-                    raw_content = raw_content.lstrip("'").lstrip("`")
-                    if '"ai_explanation"' in raw_content and not raw_content.startswith('{'):
-                        raw_content = '{' + raw_content
-                if not raw_content.endswith('}'):
-                    raw_content = raw_content.rstrip("`").rstrip() + '}'
-                
-                # Nettoyage des hallucinations de clés
-                raw_content = raw_content.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
-                raw_content = raw_content.replace('"ai_fix": ai_fix":', '"ai_fix":')
-
+                # --- EXTRACTION JSON ROBUSTE ---
+                # On cherche le premier { et le dernier } pour ignorer le texte superflu (Markdown, etc.)
                 try:
                     start = raw_content.find('{')
                     end = raw_content.rfind('}')
@@ -206,7 +201,10 @@ class DecisionEngine:
                     else:
                         continue # On tente le retry
 
-                print(f"    [IA] Analyse terminée pour {cve_id}.")
+                # Affichage d'un aperçu pour confirmer que l'IA a travaillé
+                preview = result.get('ai_explanation', '')[:75] + "..."
+                print(f"    [IA] Analyse terminée pour {cve_id}. Réponse: {preview}")
+                
                 # Petit délai de sécurité pour libérer les unités de confluence sur Featherless
                 time.sleep(0.5)
                 return {
@@ -268,7 +266,7 @@ class DecisionEngine:
         
         # Restauration du parallélisme depuis la config
         perf_config = self.config.get("performance", {})
-        max_workers = perf_config.get("max_workers", 4) 
+        max_workers = perf_config.get("max_workers", 1) # Par défaut 1 pour éviter les 429
         
         print(f"[*] Processing {len(enriched_vulns)} vulnerabilities with {max_workers} parallel threads...")
         
