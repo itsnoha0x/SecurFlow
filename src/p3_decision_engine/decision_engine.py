@@ -117,6 +117,11 @@ class DecisionEngine:
     def get_ai_analysis(self, vulnerability, srp_score, decision):
         """Appelle Featherless AI pour générer une explication DevSecOps."""
         cve_id = vulnerability.get("cve_id", "Unknown")
+        # Check AI cache first
+        cache_key = f"{cve_id}_{decision}"
+        if hasattr(self, 'ai_cache') and cache_key in self.ai_cache:
+            print(f"    [CACHE HIT] AI analysis for {cve_id} — skipping API call")
+            return self.ai_cache[cache_key]
         package = vulnerability.get("package", "Unknown")
         
         if decision == "PASSER" or not self.ai_client:
@@ -208,10 +213,15 @@ class DecisionEngine:
                 }
 
             print(f"    [IA] Analyse terminée pour {cve_id}.")
-            return {
+            # Save to cache
+            result_to_return = {
                 "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
                 "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")
             }
+            if hasattr(self, 'ai_cache'):
+                self.ai_cache[cache_key] = result_to_return
+                self.save_ai_cache()
+            return result_to_return
             
         except Exception as e:
             print(f"    [!] Erreur IA critique pour {cve_id}: {e}")
@@ -220,6 +230,22 @@ class DecisionEngine:
                 "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
             }
     
+    def init_ai_cache(self, cache_path="cache_ai.json"):
+        """Initialize JSON cache for AI analysis results."""
+        self.ai_cache_path = cache_path
+        if os.path.exists(cache_path):
+            with open(cache_path, "r", encoding="utf-8") as f:
+                self.ai_cache = json.load(f)
+            print(f"[*] AI cache loaded: {len(self.ai_cache)} entries")
+        else:
+            self.ai_cache = {}
+            print(f"[*] AI cache initialized (empty)")
+
+    def save_ai_cache(self):
+        """Save AI cache to disk."""
+        with open(self.ai_cache_path, "w", encoding="utf-8") as f:
+            json.dump(self.ai_cache, f, indent=2, ensure_ascii=False)
+
     def _process_single_vuln(self, vuln):
         """Process a single vulnerability with SRP calculation and AI analysis."""
         cve_id = vuln.get('cve_id', 'Unknown')
@@ -317,6 +343,9 @@ class DecisionEngine:
         print("  P3 DECISION ENGINE - AI-POWERED SECURITY ANALYSIS")
         print("=" * 60)
         
+        # Initialize AI cache
+        self.init_ai_cache()
+
         # Load enriched data
         print(f"[*] Loading enriched data from: {input_path}")
         enriched_data = self.load_enriched_data(input_path)

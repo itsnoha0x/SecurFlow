@@ -15,6 +15,8 @@ import time
 import yaml
 from datetime import datetime
 from pathlib import Path
+import sqlite3
+import hashlib
 
 
 class ThreatEnricher:
@@ -49,25 +51,64 @@ class ThreatEnricher:
             print(f"[!] Error parsing JSON file: {e}")
             sys.exit(1)
     
+    def init_cache(self, cache_path="cache.sqlite"):
+        """Initialize SQLite cache for API results."""
+        self.cache_conn = sqlite3.connect(cache_path)
+        self.cache_conn.execute("""
+            CREATE TABLE IF NOT EXISTS cve_cache (
+                cve_id TEXT PRIMARY KEY,
+                data TEXT NOT NULL,
+                cached_at TEXT NOT NULL
+            )
+        """)
+        self.cache_conn.commit()
+        print(f"[*] Cache initialized: {cache_path}")
+
+    def get_from_cache(self, cve_id):
+        """Get enriched data from cache if available."""
+        row = self.cache_conn.execute(
+            "SELECT data FROM cve_cache WHERE cve_id = ?", (cve_id,)
+        ).fetchone()
+        if row:
+            print(f"    [CACHE HIT] {cve_id} — skipping API calls")
+            return json.loads(row[0])
+        return None
+
+    def save_to_cache(self, cve_id, data):
+        """Save enriched data to cache."""
+        self.cache_conn.execute(
+            "INSERT OR REPLACE INTO cve_cache (cve_id, data, cached_at) VALUES (?, ?, ?)",
+            (cve_id, json.dumps(data), datetime.utcnow().isoformat())
+        )
+        self.cache_conn.commit()
+
     def enrich_vulnerability(self, vuln):
         """Enrich a single vulnerability with threat intelligence."""
         cve_id = vuln.get("cve_id", "")
-        
+
+        # Check cache first
+        cached = self.get_from_cache(cve_id)
+        if cached:
+            return cached
+
         enriched = vuln.copy()
         enriched["threat_intelligence"] = {}
-        
+
         # NVD enrichment
         if self.nvd_api_key:
             enriched["threat_intelligence"]["nvd"] = self.get_nvd_data(cve_id)
-        
+
         # OTX enrichment
         if self.otx_api_key:
             enriched["threat_intelligence"]["otx_indicators"] = self.get_otx_data(cve_id)
-        
+
         # CISA KEV enrichment
         if self.cisa_api_key:
             enriched["threat_intelligence"]["cisa_kev"] = self.get_cisa_data(cve_id)
-        
+
+        # Save to cache
+        self.save_to_cache(cve_id, enriched)
+
         return enriched
     
     def get_nvd_data(self, cve_id):
@@ -177,6 +218,9 @@ class ThreatEnricher:
         print("  P2 THREAT INTELLIGENCE ENRICHER")
         print("=" * 60)
         
+        # Initialize cache
+        self.init_cache()
+
         # Load raw data
         print(f"[*] Loading raw data from: {input_path}")
         raw_data = self.load_raw_data(input_path)

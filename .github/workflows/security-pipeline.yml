@@ -157,6 +157,13 @@ jobs:
         name: scan-results
         path: shared/
         
+    - name: Restore P2 SQLite cache
+      uses: actions/cache@v4
+      with:
+        path: src/p2_enricher/cache.sqlite
+        key: p2-cache-${{ hashFiles('shared/1_raw_results.json') }}
+        restore-keys: p2-cache-
+
     - name: Run P2 Enricher
       id: enrich
       run: |
@@ -215,8 +222,27 @@ jobs:
         name: enriched-results
         path: shared/
         
+    - name: Check if enriched data changed
+      id: check-change
+      run: |
+        if git log --oneline -1 --diff-filter=M -- shared/2_enriched.json | grep -q .; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "[P3] Enriched data changed — running AI analysis"
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "[P3] No change detected — checking for cached report"
+        fi
+
+    - name: Restore P3 AI cache
+      uses: actions/cache@v4
+      with:
+        path: src/p3_decision_engine/cache_ai.json
+        key: p3-cache-${{ hashFiles('shared/2_enriched.json') }}
+        restore-keys: p3-cache-
+
     - name: Run P3 Decision Engine
       id: decide
+      if: steps.check-change.outputs.changed == 'true' || !hashFiles('shared/3_final_report.json')
       run: |
         cd src/p3_decision_engine
         python decision_engine.py \
