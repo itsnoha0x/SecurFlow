@@ -313,8 +313,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: decide
     if: |
-      needs.decide.result == 'success' && 
-      (github.ref == 'refs/heads/main' || github.event.inputs.force_full_scan == 'true')
+      (needs.decide.result == 'success' || needs.decide.result == 'skipped') &&
+      github.ref == 'refs/heads/main'
     outputs:
       dashboard-url: ${{ steps.url.outputs.url }}
       
