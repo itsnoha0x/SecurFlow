@@ -11,11 +11,12 @@ import json
 import os
 import sys
 import requests
+import sqlite3
 import time
 import yaml
 from datetime import datetime
 from pathlib import Path
-
+from concurrent.futures import ThreadPoolExecutor
 
 class ThreatEnricher:
     def __init__(self, config_path="config.yaml"):
@@ -24,6 +25,9 @@ class ThreatEnricher:
         self.nvd_api_key = os.environ.get("NVD_API_KEY", "")
         self.otx_api_key = os.environ.get("OTX_API_KEY", "")
         self.cisa_api_key = os.environ.get("CISA_API_KEY", "")
+        self._cisa_cache = None  # Session cache to avoid redundant downloads
+        self.cache_path = Path(__file__).parent / "cache.sqlite"
+        self._init_db()
         
     def load_config(self, config_path):
         """Load configuration from YAML file."""
@@ -49,10 +53,48 @@ class ThreatEnricher:
             print(f"[!] Error parsing JSON file: {e}")
             sys.exit(1)
     
+    def _init_db(self):
+        """Initialize the SQLite cache database."""
+        try:
+            with sqlite3.connect(self.cache_path, timeout=20) as conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS cve_cache (
+                        cve_id TEXT PRIMARY KEY,
+                        enriched_data TEXT,
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+        except sqlite3.Error as e:
+            print(f"[!] Database initialization error: {e}")
+
+    def _get_cached_vuln(self, cve_id):
+        """Retrieve enriched data from cache if it exists."""
+        try:
+            with sqlite3.connect(self.cache_path, timeout=20) as conn:
+                cursor = conn.execute("SELECT enriched_data FROM cve_cache WHERE cve_id = ?", (cve_id,))
+                row = cursor.fetchone()
+                return json.loads(row[0]) if row else None
+        except Exception:
+            return None
+
+    def _save_to_cache(self, cve_id, enriched_data):
+        """Save enriched data to the SQLite cache."""
+        try:
+            with sqlite3.connect(self.cache_path, timeout=20) as conn:
+                conn.execute(
+                    "INSERT OR REPLACE INTO cve_cache (cve_id, enriched_data) VALUES (?, ?)",
+                    (cve_id, json.dumps(enriched_data))
+                )
+        except sqlite3.Error as e:
+            print(f"[!] Error saving to cache: {e}")
+
     def enrich_vulnerability(self, vuln):
         """Enrich a single vulnerability with threat intelligence."""
         cve_id = vuln.get("cve_id", "")
-        
+        cached_data = self._get_cached_vuln(cve_id)
+        if cached_data:
+            return cached_data
+
         enriched = vuln.copy()
         enriched["threat_intelligence"] = {}
         
@@ -62,12 +104,20 @@ class ThreatEnricher:
         
         # OTX enrichment
         if self.otx_api_key:
-            enriched["threat_intelligence"]["otx_indicators"] = self.get_otx_data(cve_id)
+            otx_data = self.get_otx_data(cve_id)
+            enriched["threat_intelligence"]["otx_indicators"] = otx_data
+            # Only expose at root if actual threat pulses were found
+            if "error" not in otx_data and otx_data.get("pulses"):
+                enriched["otx_indicators"] = [otx_data]
         
-        # CISA KEV enrichment
-        if self.cisa_api_key:
-            enriched["threat_intelligence"]["cisa_kev"] = self.get_cisa_data(cve_id)
-        
+        # CISA KEV enrichment (Public feed)
+        cisa_data = self.get_cisa_data(cve_id)
+        enriched["threat_intelligence"]["cisa_kev"] = cisa_data
+        enriched["cisa_kev"] = cisa_data  # Expose at root for P3 AI analysis
+        if cisa_data.get("known_exploited"):
+            enriched["threat_intelligence"]["exploit_available"] = True
+
+        self._save_to_cache(cve_id, enriched)
         return enriched
     
     def get_nvd_data(self, cve_id):
@@ -115,12 +165,14 @@ class ThreatEnricher:
     def get_cisa_data(self, cve_id):
         """Get vulnerability data from CISA KEV catalog."""
         try:
-            url = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
-            response = requests.get(url, timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                for vuln in data.get("vulnerabilities", []):
+            if self._cisa_cache is None:
+                url = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+                response = requests.get(url, timeout=10)
+                if response.status_code == 200:
+                    self._cisa_cache = response.json()
+
+            if self._cisa_cache:
+                for vuln in self._cisa_cache.get("vulnerabilities", []):
                     if vuln.get("cveID") == cve_id:
                         return {
                             "known_exploited": True,
@@ -137,18 +189,13 @@ class ThreatEnricher:
     def process_vulnerabilities(self, raw_data):
         """Process all vulnerabilities with enrichment."""
         vulnerabilities = raw_data.get("vulnerabilities", [])
-        enriched_vulns = []
         
-        print(f"[*] Enriching {len(vulnerabilities)} vulnerabilities...")
-        
-        for i, vuln in enumerate(vulnerabilities, 1):
-            print(f"    [{i}/{len(vulnerabilities)}] Enriching {vuln.get('cve_id', 'Unknown')}")
-            enriched = self.enrich_vulnerability(vuln)
-            enriched_vulns.append(enriched)
-            
-            # Rate limiting
-            time.sleep(0.5)
-        
+        print(f"[*] Enriching {len(vulnerabilities)} vulnerabilities using 5 parallel threads...")
+
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            # Correctly map the class method and use the local list variable
+            enriched_vulns = list(executor.map(self.enrich_vulnerability, vulnerabilities))
+
         return enriched_vulns
     
     def generate_enriched_report(self, enriched_vulns, output_path):

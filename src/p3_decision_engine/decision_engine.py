@@ -10,6 +10,7 @@ mathematical risk scoring with AI-powered decision making.
 import json
 import yaml
 import os
+import time
 import sys
 import re
 from datetime import datetime
@@ -19,9 +20,12 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class DecisionEngine:
-    def __init__(self, config_path="config.yaml"):
+    def __init__(self, config_path=None):
         """Initialize the decision engine with configuration."""
-        self.config = self.load_config(config_path)
+        self.base_dir = Path(__file__).parent
+        # Utilise un chemin absolu pour config.yaml si aucun chemin n'est fourni
+        effective_config = config_path if config_path else self.base_dir / "config.yaml"
+        self.config = self.load_config(effective_config)
         self.high_context_components = set(self.config.get("high_context_components", []))
         
         # AI Configuration from config file
@@ -34,10 +38,24 @@ class DecisionEngine:
         # Model name from config with fallback
         self.model_name = ai_config.get("model_name", "deepseek-ai/DeepSeek-V4-Flash")
         self.temperature = ai_config.get("temperature", 0.1)
-        self.max_tokens = ai_config.get("max_tokens", 4000)
+        self.max_tokens = ai_config.get("max_tokens", 1000)
         self.timeout_seconds = ai_config.get("timeout_seconds", 30)
         self.retry_attempts = ai_config.get("retry_attempts", 3)
         
+        # Pré-chargement des prompts pour de meilleures performances et robustesse
+        self.system_prompt = self._load_prompt_file("prompts/system_prompt.txt")
+        self.user_template = self._load_prompt_file("prompts/user_prompt_template.txt")
+
+    def _load_prompt_file(self, relative_path):
+        """Charge un fichier de prompt de manière sécurisée."""
+        path = self.base_dir / relative_path
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            print(f"[!] Impossible de charger le prompt {path}: {e}")
+            return ""
+
     def load_config(self, config_path):
         """Load configuration from YAML file."""
         try:
@@ -125,108 +143,100 @@ class DecisionEngine:
                 "ai_fix": f"Planifier la mise à jour de {package} lors d'un prochain sprint."
             }
 
-        cisa_notes = vulnerability.get("cisa_kev", {}).get("notes", "Non listé dans le KEV")
+        # Préparation des données CTI
+        cisa_data = vulnerability.get("cisa_kev", {})
+        cisa_notes = cisa_data.get("notes", "Non listé dans le KEV") if isinstance(cisa_data, dict) else "Non listé"
+        
         otx_data = vulnerability.get("otx_indicators", [])
         threat_actors = [pulse.get("name") for indicator in otx_data for pulse in indicator.get("pulses", [])]
         actors_str = ", ".join(threat_actors) if threat_actors else "Aucun acteur spécifique identifié"
-        desc = vulnerability.get("description", "") 
-
-        # --- CHARGEMENT DES PROMPTS DEPUIS LES FICHIERS ---
-        # Charger le system prompt depuis le fichier
-        with open('prompts/system_prompt.txt', 'r', encoding='utf-8') as f:
-            system_prompt = f.read()
         
-        # Charger le template de user prompt depuis le fichier
-        with open('prompts/user_prompt_template.txt', 'r', encoding='utf-8') as f:
-            user_template = f.read()
+        # Correction de l'extraction de la description (recherche profonde)
+        description = vulnerability.get("description")
+        if not description:
+            description = vulnerability.get("threat_intelligence", {}).get("nvd", {}).get("description", "Aucune description fournie.")
         
-        # Formater le user prompt avec les variables
-        user_prompt = user_template.format(
+        user_prompt = self.user_template.format(
             decision=decision,
             srp_score=srp_score,
             cve_id=cve_id,
             package=package,
-            desc=desc,
+            desc=description,
             cisa_notes=cisa_notes,
             actors_str=actors_str
         )
 
-        try:
-            print(f"    [IA] Début de l'analyse pour {cve_id}...")
-            response = self.ai_client.chat.completions.create(
-                model=self.model_name,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                response_format={"type": "json_object"},
-                max_tokens=self.max_tokens,
-                temperature=self.temperature
-            )
-            
-            raw_content = response.choices[0].message.content.strip()
-            print(f"    [DEBUG RAW] {repr(raw_content)}")
-            
-            # --- LE BLINDAGE ABSOLU ---
-            
-            # 1. Si l'IA a oublié l'accolade ouvrante, on la rajoute !
-            if not raw_content.startswith('{'):
-                # On enlève les guillemets ou apostrophes parasites au tout début
-                raw_content = raw_content.lstrip("'")
-                if raw_content.startswith('"ai_explanation"'):
-                    raw_content = '{' + raw_content
-                else:
-                    raw_content = '{"ai_explanation": "' + raw_content
-                    
-            # 2. Si l'IA a oublié l'accolade fermante
-            if not raw_content.endswith('}'):
-                raw_content = raw_content + '}'
-                
-            # 3. Nettoyage des vieilles hallucinations
-            raw_content = raw_content.replace('"ai_explanation": ai_explanation":', '"ai_explanation":')
-            raw_content = raw_content.replace('"ai_fix": ai_fix":', '"ai_fix":')
-
+        for attempt in range(self.retry_attempts):
             try:
-                # On essaie de lire le JSON réparé
-                start_idx = raw_content.find('{')
-                end_idx = raw_content.rfind('}')
-                clean_json = raw_content[start_idx:end_idx+1]
+                print(f"    [IA] Début de l'analyse pour {cve_id} (Tentative {attempt + 1})...")
+                response = self.ai_client.chat.completions.create(
+                    model=self.model_name,
+                    messages=[
+                        {"role": "system", "content": self.system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    response_format={"type": "json_object"},
+                    max_tokens=self.max_tokens,
+                    timeout=self.timeout_seconds,
+                    temperature=self.temperature
+                )
                 
-                result = json.loads(clean_json)
+                raw_content = response.choices[0].message.content.strip()
+
+                # --- EXTRACTION JSON ROBUSTE ---
+                # On cherche le premier { et le dernier } pour ignorer le texte superflu (Markdown, etc.)
+                try:
+                    start = raw_content.find('{')
+                    end = raw_content.rfind('}')
+                    result = json.loads(raw_content[start:end+1])
+                except Exception:
+                    # FALLBACK REGEX (Mode survie)
+                    exp_match = re.search(r'"ai_explanation"\s*:\s*"(.*?)"', raw_content, re.DOTALL)
+                    fix_match = re.search(r'"ai_fix"\s*:\s*"(.*?)"', raw_content, re.DOTALL)
+                    if exp_match:
+                        result = {
+                            "ai_explanation": exp_match.group(1).strip(),
+                            "ai_fix": fix_match.group(1).strip() if fix_match else "Mise à jour recommandée."
+                        }
+                    else:
+                        continue # On tente le retry
+
+                # Affichage d'un aperçu pour confirmer que l'IA a travaillé
+                preview = result.get('ai_explanation', '')[:75] + "..."
+                print(f"    [IA] Analyse terminée pour {cve_id}. Réponse: {preview}")
+                
+                # Petit délai de sécurité pour libérer les unités de confluence sur Featherless
+                time.sleep(0.5)
+                return {
+                    "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
+                    "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")
+                }
                 
             except Exception as e:
-                # 4. MODE SURVIE ULTIME : Le Regex
-                print(f"    [!] Le JSON est toujours rebelle, passage au Regex : {e}")
-                import re
-                # On cherche tout ce qui est entre les guillemets après la clé
-                exp_match = re.search(r'"ai_explanation"\s*:\s*"(.*?)"\s*,', raw_content, re.DOTALL)
-                fix_match = re.search(r'"ai_fix"\s*:\s*"(.*?)"\s*}', raw_content, re.DOTALL)
-                
-                result = {
-                    "ai_explanation": exp_match.group(1).strip() if exp_match else "Alerte CTI critique détectée.",
-                    "ai_fix": fix_match.group(1).strip() if fix_match else "Mise à jour immédiate requise."
-                }
+                if "429" in str(e) and attempt < self.retry_attempts - 1:
+                    wait_time = (attempt + 1) * 3
+                    print(f"    [!] Limite de confluence atteinte (429). Pause de {wait_time}s...")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    print(f"    [!] Erreur IA critique pour {cve_id}: {e}")
+                    return {
+                        "ai_explanation": f"Alerte CTI de niveau {decision}. (Erreur API IA).",
+                        "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
+                    }
 
-            print(f"    [IA] Analyse terminée pour {cve_id}.")
-            return {
-                "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
-                "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")
-            }
-            
-        except Exception as e:
-            print(f"    [!] Erreur IA critique pour {cve_id}: {e}")
-            return {
-                "ai_explanation": f"Alerte CTI de niveau {decision}. (Erreur API IA).",
-                "ai_fix": f"Vérifiez les correctifs de sécurité pour {package}."
-            }
+        return {
+            "ai_explanation": f"Analyse IA échouée après {self.retry_attempts} tentatives.",
+            "ai_fix": "Vérification manuelle requise."
+                }
     
     def _process_single_vuln(self, vuln):
         """Process a single vulnerability with SRP calculation and AI analysis."""
-        cve_id = vuln.get('cve_id', 'Unknown')
+        cve_id = vuln.get('cve_id', 'Inconnu')
         print(f"[*] Processing vulnerability: {cve_id}")
         
-        # Calculate SRP score
-        srp_score = self.calculate_srp(vuln)
+        # Calcul et arrondi immédiat pour la cohérence de la décision
+        srp_score = round(self.calculate_srp(vuln), 1)
         
         # Make decision
         decision = self.make_decision(srp_score)
@@ -238,7 +248,7 @@ class DecisionEngine:
         report_entry = {
             "cve_id": vuln.get("cve_id", ""),
             "package": vuln.get("package", ""),
-            "srp_score": round(srp_score, 1),
+            "srp_score": srp_score,
             "decision": decision,
             "ai_explanation": ai_analysis["ai_explanation"],
             "ai_fix": ai_analysis["ai_fix"],
@@ -254,9 +264,9 @@ class DecisionEngine:
         enriched_vulns = enriched_data.get("enriched_vulnerabilities", [])
         final_report = []
         
-        # Get performance config
+        # Restauration du parallélisme depuis la config
         perf_config = self.config.get("performance", {})
-        max_workers = perf_config.get("max_workers", 4)
+        max_workers = perf_config.get("max_workers", 1) # Par défaut 1 pour éviter les 429
         
         print(f"[*] Processing {len(enriched_vulns)} vulnerabilities with {max_workers} parallel threads...")
         
@@ -311,8 +321,13 @@ class DecisionEngine:
         print(f"[*] Final report saved to: {output_path}")
         return report_data
     
-    def run(self, input_path="../../shared/2_enriched.json", output_path="../../shared/3_final_report.json"):
+    def run(self, input_path=None, output_path=None):
         """Run the complete decision engine process."""
+        # Priorité aux chemins fournis en argument, sinon ceux du config.yaml, sinon les défauts
+        config_paths = self.config.get("paths", {})
+        input_path = input_path or config_paths.get("input_file", "../../shared/2_enriched.json")
+        output_path = output_path or config_paths.get("output_file", "../../shared/3_final_report.json")
+
         print("=" * 60)
         print("  P3 DECISION ENGINE - AI-POWERED SECURITY ANALYSIS")
         print("=" * 60)
