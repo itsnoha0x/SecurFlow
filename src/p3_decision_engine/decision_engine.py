@@ -205,16 +205,17 @@ class DecisionEngine:
                 preview = result.get('ai_explanation', '')[:75] + "..."
                 print(f"    [IA] Analyse terminée pour {cve_id}. Réponse: {preview}")
                 
-                # Petit délai de sécurité pour libérer les unités de confluence sur Featherless
-                time.sleep(0.5)
+                # Délai augmenté pour garantir la libération des unités de confluence sur Featherless
+                time.sleep(2.0)
                 return {
                     "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
                     "ai_fix": result.get("ai_fix", "Mettre à jour le package immédiatement.")
                 }
                 
             except Exception as e:
-                if "429" in str(e) and attempt < self.retry_attempts - 1:
-                    wait_time = (attempt + 1) * 3
+                if any(msg in str(e).lower() for msg in ["429", "concurrency_limit_exceeded"]) and attempt < self.retry_attempts - 1:
+                    # Backoff plus agressif pour les limites de confluence
+                    wait_time = (attempt + 1) * 5
                     print(f"    [!] Limite de confluence atteinte (429). Pause de {wait_time}s...")
                     time.sleep(wait_time)
                     continue
