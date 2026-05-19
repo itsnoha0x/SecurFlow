@@ -312,9 +312,9 @@ jobs:
     name: P4 - Security Dashboard
     runs-on: ubuntu-latest
     needs: decide
-    if: |
-      (needs.decide.result == 'success' || needs.decide.result == 'skipped') &&
-      github.ref == 'refs/heads/main'
+    if: >
+      always() &&
+      (needs.decide.result == 'success' || needs.decide.result == 'skipped')
     outputs:
       dashboard-url: ${{ steps.url.outputs.url }}
       
