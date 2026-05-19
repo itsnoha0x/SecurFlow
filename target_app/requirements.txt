@@ -1,18 +1,13 @@
-# Target App - Vulnerable Dependencies for CTI Pipeline Testing
-# Deliberately vulnerable versions to demonstrate SecurFlow
+# Target App - Minimal vulnerable dependencies for CTI Pipeline Testing
 
-# --- BLOQUER level (Critical CVEs actively exploited) ---
-Flask==0.12.2          # CVE-2018-1000656 - DoS vulnerability
-Werkzeug==0.15.3       # CVE-2019-14806 - Predictable secret key
+# BLOQUER level
+Flask==0.12.2
+PyYAML==3.12
 
-# --- ALERTER level (High CVEs with known exploits) ---
-PyYAML==3.12           # CVE-2017-18342 - RCE via deserialization
-Jinja2==2.9.6          # CVE-2019-10906 - SSTI sandbox escape
-requests==2.18.0       # CVE-2018-18074 - Credentials exposure
-PyJWT==2.11.0          # CVE-2026-32597 - Algorithm confusion bypass
-Pillow==9.0.0          # CVE-2022-22817 - Buffer overflow
+# ALERTER level  
+Jinja2==2.9.6
+requests==2.18.0
+PyJWT==2.11.0
 
-# --- PASSER level (Low/Medium theoretical CVEs) ---
-urllib3==1.24.0        # CVE-2019-11324 - Certificate verification
-cryptography==3.3.0    # CVE-2020-36242 - Buffer overflow low impact
-sqlite3-api==2.0.1     # Low severity informational
+# PASSER level
+urllib3==1.24.0

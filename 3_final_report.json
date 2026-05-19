@@ -1,105 +1,42 @@
 {
   "decision_metadata": {
-    "timestamp": "2026-05-19T22:24:51.413531Z",
+    "timestamp": "2026-05-19T23:04:07.164389Z",
     "engine_version": "1.0.0",
     "config_used": {
       "high_context_components": [
-        "psycopg2",
         "sequelize",
-        "sqlalchemy",
         "typeorm",
+        "sqlalchemy",
+        "psycopg2",
         "mongoose"
       ]
     },
-    "total_processed": 54,
+    "total_processed": 29,
     "decisions": {
       "BLOQUER": 0,
-      "ALERTER": 7,
-      "PASSER": 47
+      "ALERTER": 2,
+      "PASSER": 27
     },
-    "average_srp": 3.0
+    "average_srp": 2.8
   },
   "vulnerability_decisions": [
-    {
-      "cve_id": "CVE-2023-4863",
-      "package": "Pillow",
-      "srp_score": 6.3,
-      "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité est un débordement de tampon heap dans libwebp (intégré à Pillow) permettant une écriture hors limites en mémoire via un fichier WebP malformé. Avec un score SRP de 6.3/10, la probabilité technique d'exploitation est modérée à élevée, car le vecteur repose sur le traitement d'entrées non validées. Bien qu'aucun acteur de menace ne soit identifié, ce type de faille critique est couramment exploité pour l'exécution de code arbitraire ou le déni de service.",
-      "ai_fix": "Mettez à jour Pillow vers une version intégrant libwebp >= 1.3.2 ou patchez directement la dépendance système. Implémentez une validation stricte et une limitation de taille pour tous les fichiers images traités par l'application.",
-      "timestamp": "2026-05-19T22:16:38.928744Z"
-    },
-    {
-      "cve_id": "CVE-2019-14322",
-      "package": "Werkzeug",
-      "srp_score": 5.7,
-      "decision": "ALERTER",
-      "ai_explanation": "This flaw enables path traversal on Windows by mishandling drive letters in Werkzeug's SharedDataMiddleware. With an SRP of 5.7, exploitation is technically feasible but requires a Windows environment and direct middleware interaction. No active threat actors target it, so risk stems mainly from legacy system exposure.",
-      "ai_fix": "Upgrade Werkzeug to version 0.15.5 or newer to apply the official path-handling patch. Additionally, implement strict server-side path validation to prevent unauthorized file access.",
-      "timestamp": "2026-05-19T22:21:45.131191Z"
-    },
-    {
-      "cve_id": "CVE-2023-0286",
-      "package": "cryptography",
-      "srp_score": 5.6,
-      "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité de confusion de type dans le parsing ASN.1 des adresses X.400 présente un risque d'exploitation modéré (SRP 5.6/10), susceptible de provoquer des plantages ou une corruption mémoire lors du traitement de certificats malveillants. Aucun acteur de menace n'est identifié, mais la probabilité technique reste significative en environnement exposé à des entrées non fiables.",
-      "ai_fix": "Mettez à jour le package cryptography vers la version 41.0.1 ou ultérieure pour appliquer le correctif officiel. Validez l'absence de régression via vos tests d'intégration après la mise à jour.",
-      "timestamp": "2026-05-19T22:24:51.412813Z"
-    },
     {
       "cve_id": "CVE-2020-14343",
       "package": "PyYAML",
       "srp_score": 4.3,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet une exécution arbitraire de code si des fichiers YAML non fiables sont traités via full_load ou FullLoader dans PyYAML < 5.4. Avec un score SRP de 4.3/10, la probabilité d'exploitation technique est modérée mais le risque critique persiste en cas d'entrée utilisateur non validée. Aucun acteur de menace spécifique n'est associé, mais l'impact reste élevé pour les applications exposées.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou supérieure et remplacez systématiquement full_load/FullLoader par safe_load/SafeLoader pour tout traitement de données externes.",
-      "timestamp": "2026-05-19T22:20:12.679784Z"
-    },
-    {
-      "cve_id": "CVE-2024-34069",
-      "package": "Werkzeug",
-      "srp_score": 4.2,
-      "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet une exécution de code à distance sur la machine d'un développeur via le débogueur Werkzeug lors d'une interaction avec un domaine malveillant. Avec un score SRP de 4.2/10, l'exploitation repose sur l'ingénierie sociale plutôt que sur une attaque automatisée, ce qui limite la probabilité technique à des scénarios ciblés nécessitant une action utilisateur.",
-      "ai_fix": "Mettez à jour le package Werkzeug vers la dernière version sécurisée et désactivez impérativement le mode débogueur dans tous les environnements non de développement.",
-      "timestamp": "2026-05-19T22:23:16.591461Z"
+      "ai_explanation": "PyYAML < 5.4 permet l'exécution de code arbitraire lors du traitement de fichiers YAML non fiables via full_load ou FullLoader, en exploitant l'instanciation d'objets Python. Avec un score SRP de 4.3/10, la probabilité technique d'exploitation est modérée et nécessite qu'un attaquant injecte ou fournisse un payload YAML malveillant à un point de terminaison vulnérable. Bien que non répertorié dans le KEV CISA et sans acteur de menace identifié, le risque demeure élevé pour toute application traitant des données YAML externes ou contrôlées par l'utilisateur.",
+      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou supérieure, qui restreint par défaut l'instanciation d'objets non sécurisés. Remplacez systématiquement yaml.full_load() ou yaml.FullLoader par yaml.safe_load() pour garantir le parsing exclusif des types YAML standards.",
+      "timestamp": "2026-05-19T23:04:07.163947Z"
     },
     {
       "cve_id": "CVE-2017-18342",
       "package": "PyYAML",
       "srp_score": 4.1,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via yaml.load() sur des données YAML non fiables. Bien que le score SRP modéré (4.1/10) indique une probabilité d'exploitation technique conditionnée par la gestion directe des entrées utilisateur, le risque reste critique en cas de traitement de fichiers externes. Aucun acteur de menace spécifique n'est associé, mais l'usage par défaut de cette API dans les versions antérieures à 5.1 expose largement les applications.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.1 ou supérieure et remplacez systématiquement yaml.load() par yaml.safe_load() pour traiter les données non fiables. Si la compatibilité avec des structures complexes est indispensable, utilisez explicitement yaml.UnsafeLoader uniquement après validation stricte des sources.",
-      "timestamp": "2026-05-19T22:18:37.998437Z"
-    },
-    {
-      "cve_id": "CVE-2022-22817",
-      "package": "Pillow",
-      "srp_score": 4.0,
-      "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via PIL.ImageMath.eval en injectant des expressions Python malveillantes comme exec ou des lambdas. Avec un score SRP de 4.0/10 et aucun acteur de menace identifié, le risque technique est modéré et dépend strictement de l'exposition de cette fonction à des entrées non fiables. La probabilité d'exploitation reste faible en environnement isolé mais critique si des données externes sont traitées sans validation.",
-      "ai_fix": "Mettez à jour le package Pillow vers la version 9.0.0 ou supérieure pour appliquer le correctif officiel. En attendant, évitez d'utiliser PIL.ImageMath.eval sur des données non fiables ou implémentez un strict sandboxing des expressions évaluées.",
-      "timestamp": "2026-05-19T22:14:40.912793Z"
-    },
-    {
-      "cve_id": "CVE-2022-24303",
-      "package": "Pillow",
-      "srp_score": 3.7,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2022-24303) avec SRP de 3.7. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:14:40.912882Z"
-    },
-    {
-      "cve_id": "CVE-2020-36242",
-      "package": "cryptography",
-      "srp_score": 3.7,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2020-36242) avec SRP de 3.7. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de cryptography lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:23:16.591592Z"
+      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via yaml.load() sur des données YAML non fiables. Avec un score SRP de 4.1/10, le risque technique est modéré mais réel, notamment dans les pipelines CI/CD ou les microservices traitant des configurations externes. Bien qu'aucun acteur de menace spécifique ne soit identifié, ce vecteur est fréquemment exploité dans les attaques par désérialisation.",
+      "ai_fix": "Mettez à jour PyYAML vers la version 5.1 ou supérieure et remplacez systématiquement yaml.load() par yaml.safe_load() pour désactiver l'évaluation dynamique. Vérifiez également l'absence d'utilisation de UnsafeLoader dans le codebase.",
+      "timestamp": "2026-05-19T23:02:01.902601Z"
     },
     {
       "cve_id": "CVE-2019-10906",
@@ -108,7 +45,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-10906) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:12:59.471730Z"
+      "timestamp": "2026-05-19T23:00:29.129141Z"
     },
     {
       "cve_id": "CVE-2025-27516",
@@ -117,16 +54,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-27516) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:12:59.471836Z"
-    },
-    {
-      "cve_id": "CVE-2023-50447",
-      "package": "Pillow",
-      "srp_score": 3.3,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2023-50447) avec SRP de 3.3. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:14:40.912863Z"
+      "timestamp": "2026-05-19T23:00:29.129228Z"
     },
     {
       "cve_id": "CVE-2023-43804",
@@ -135,7 +63,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-43804) avec SRP de 3.3. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413091Z"
+      "timestamp": "2026-05-19T23:04:07.164069Z"
     },
     {
       "cve_id": "CVE-2018-1000656",
@@ -144,7 +72,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-1000656) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:12:59.471191Z"
+      "timestamp": "2026-05-19T23:00:29.128746Z"
     },
     {
       "cve_id": "CVE-2019-1010083",
@@ -153,7 +81,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-1010083) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:12:59.471688Z"
+      "timestamp": "2026-05-19T23:00:29.129080Z"
     },
     {
       "cve_id": "CVE-2023-30861",
@@ -162,25 +90,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-30861) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:12:59.471713Z"
-    },
-    {
-      "cve_id": "CVE-2022-45198",
-      "package": "Pillow",
-      "srp_score": 3.0,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2022-45198) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:14:40.912895Z"
-    },
-    {
-      "cve_id": "CVE-2023-44271",
-      "package": "Pillow",
-      "srp_score": 3.0,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2023-44271) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:14:40.912907Z"
+      "timestamp": "2026-05-19T23:00:29.129121Z"
     },
     {
       "cve_id": "CVE-2026-32597",
@@ -189,52 +99,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-32597) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de PyJWT lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:16:38.928856Z"
-    },
-    {
-      "cve_id": "CVE-2023-25577",
-      "package": "Werkzeug",
-      "srp_score": 3.0,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2023-25577) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Werkzeug lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:21:45.131260Z"
-    },
-    {
-      "cve_id": "CVE-2023-46136",
-      "package": "Werkzeug",
-      "srp_score": 3.0,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2023-46136) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Werkzeug lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:23:16.591521Z"
-    },
-    {
-      "cve_id": "CVE-2024-49767",
-      "package": "Werkzeug",
-      "srp_score": 3.0,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2024-49767) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Werkzeug lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:23:16.591549Z"
-    },
-    {
-      "cve_id": "CVE-2023-50782",
-      "package": "cryptography",
-      "srp_score": 3.0,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2023-50782) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de cryptography lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.412908Z"
-    },
-    {
-      "cve_id": "CVE-2023-49083",
-      "package": "cryptography",
-      "srp_score": 3.0,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2023-49083) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de cryptography lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.412967Z"
+      "timestamp": "2026-05-19T23:00:29.129240Z"
     },
     {
       "cve_id": "CVE-2018-18074",
@@ -243,7 +108,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-18074) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.412998Z"
+      "timestamp": "2026-05-19T23:04:07.163998Z"
     },
     {
       "cve_id": "CVE-2019-11324",
@@ -252,7 +117,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-11324) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413077Z"
+      "timestamp": "2026-05-19T23:04:07.164058Z"
     },
     {
       "cve_id": "CVE-2025-66418",
@@ -261,7 +126,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-66418) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413105Z"
+      "timestamp": "2026-05-19T23:04:07.164079Z"
     },
     {
       "cve_id": "CVE-2025-66471",
@@ -270,7 +135,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-66471) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413121Z"
+      "timestamp": "2026-05-19T23:04:07.164089Z"
     },
     {
       "cve_id": "CVE-2026-21441",
@@ -279,25 +144,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-21441) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413138Z"
-    },
-    {
-      "cve_id": "CVE-2026-26007",
-      "package": "cryptography",
-      "srp_score": 2.6,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2026-26007) avec SRP de 2.6. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de cryptography lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.412930Z"
-    },
-    {
-      "cve_id": "CVE-2023-23931",
-      "package": "cryptography",
-      "srp_score": 2.6,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2023-23931) avec SRP de 2.6. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de cryptography lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.412948Z"
+      "timestamp": "2026-05-19T23:04:07.164101Z"
     },
     {
       "cve_id": "CVE-2023-32681",
@@ -306,7 +153,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-32681) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413014Z"
+      "timestamp": "2026-05-19T23:04:07.164014Z"
     },
     {
       "cve_id": "CVE-2020-26137",
@@ -315,7 +162,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2020-26137) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413178Z"
+      "timestamp": "2026-05-19T23:04:07.164142Z"
     },
     {
       "cve_id": "CVE-2024-37891",
@@ -324,7 +171,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-37891) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413204Z"
+      "timestamp": "2026-05-19T23:04:07.164162Z"
     },
     {
       "cve_id": "CVE-2024-56326",
@@ -333,7 +180,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-56326) avec SRP de 2.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:12:59.471819Z"
+      "timestamp": "2026-05-19T23:00:29.129210Z"
     },
     {
       "cve_id": "CVE-2019-11236",
@@ -342,7 +189,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-11236) avec SRP de 2.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413169Z"
+      "timestamp": "2026-05-19T23:04:07.164132Z"
     },
     {
       "cve_id": "CVE-2024-22195",
@@ -351,16 +198,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-22195) avec SRP de 2.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:12:59.471783Z"
-    },
-    {
-      "cve_id": "CVE-2024-28219",
-      "package": "Pillow",
-      "srp_score": 2.4,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2024-28219) avec SRP de 2.4. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:16:38.928815Z"
+      "timestamp": "2026-05-19T23:00:29.129174Z"
     },
     {
       "cve_id": "CVE-2018-25091",
@@ -369,7 +207,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-25091) avec SRP de 2.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413159Z"
+      "timestamp": "2026-05-19T23:04:07.164122Z"
     },
     {
       "cve_id": "CVE-2025-50181",
@@ -378,7 +216,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-50181) avec SRP de 2.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413219Z"
+      "timestamp": "2026-05-19T23:04:07.164172Z"
     },
     {
       "cve_id": "CVE-2024-34064",
@@ -387,43 +225,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-34064) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:12:59.471795Z"
-    },
-    {
-      "cve_id": "CVE-2026-42308",
-      "package": "Pillow",
-      "srp_score": 2.2,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2026-42308) avec SRP de 2.2. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:16:38.928831Z"
-    },
-    {
-      "cve_id": "CVE-2026-42310",
-      "package": "Pillow",
-      "srp_score": 2.2,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2026-42310) avec SRP de 2.2. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:16:38.928843Z"
-    },
-    {
-      "cve_id": "CVE-2024-49766",
-      "package": "Werkzeug",
-      "srp_score": 2.2,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2024-49766) avec SRP de 2.2. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Werkzeug lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:23:16.591536Z"
-    },
-    {
-      "cve_id": "CVE-2024-0727",
-      "package": "cryptography",
-      "srp_score": 2.2,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2024-0727) avec SRP de 2.2. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de cryptography lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.412982Z"
+      "timestamp": "2026-05-19T23:00:29.129187Z"
     },
     {
       "cve_id": "CVE-2024-35195",
@@ -432,7 +234,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-35195) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413029Z"
+      "timestamp": "2026-05-19T23:04:07.164026Z"
     },
     {
       "cve_id": "CVE-2026-25645",
@@ -441,7 +243,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-25645) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413061Z"
+      "timestamp": "2026-05-19T23:04:07.164048Z"
     },
     {
       "cve_id": "CVE-2020-28493",
@@ -450,34 +252,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2020-28493) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:12:59.471749Z"
-    },
-    {
-      "cve_id": "CVE-2025-66221",
-      "package": "Werkzeug",
-      "srp_score": 2.1,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2025-66221) avec SRP de 2.1. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Werkzeug lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:23:16.591560Z"
-    },
-    {
-      "cve_id": "CVE-2026-21860",
-      "package": "Werkzeug",
-      "srp_score": 2.1,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2026-21860) avec SRP de 2.1. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Werkzeug lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:23:16.591570Z"
-    },
-    {
-      "cve_id": "CVE-2026-27199",
-      "package": "Werkzeug",
-      "srp_score": 2.1,
-      "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2026-27199) avec SRP de 2.1. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de Werkzeug lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:23:16.591580Z"
+      "timestamp": "2026-05-19T23:00:29.129158Z"
     },
     {
       "cve_id": "CVE-2024-47081",
@@ -486,7 +261,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-47081) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413046Z"
+      "timestamp": "2026-05-19T23:04:07.164037Z"
     },
     {
       "cve_id": "CVE-2026-44431",
@@ -495,7 +270,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-44431) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413149Z"
+      "timestamp": "2026-05-19T23:04:07.164112Z"
     },
     {
       "cve_id": "CVE-2023-45803",
@@ -504,7 +279,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-45803) avec SRP de 1.7. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T22:24:51.413188Z"
+      "timestamp": "2026-05-19T23:04:07.164152Z"
     }
   ]
 }
