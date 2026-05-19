@@ -36,7 +36,7 @@ class DecisionEngine:
             api_key=featherless_api_key
         ) if featherless_api_key else None
         # Model name from config with fallback
-        self.model_name = ai_config.get("model_name", "deepseek-ai/DeepSeek-V4-Flash")
+        self.model_name = ai_config.get("model_name", "Qwen/Qwen3.6-35B-A3B")
         self.temperature = ai_config.get("temperature", 0.1)
         self.max_tokens = ai_config.get("max_tokens", 1000)
         self.timeout_seconds = ai_config.get("timeout_seconds", 30)
