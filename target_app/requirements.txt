@@ -1,13 +1,14 @@
-# Target App - Minimal vulnerable dependencies for CTI Pipeline Testing
+# Target App - Vulnerable dependencies for SecurFlow demo
 
-# BLOQUER level
-Flask==0.12.2
-PyYAML==3.12
+# BLOQUER level - Critical CVEs actively exploited
+Flask==0.10.1
+PyYAML==5.1
 
-# ALERTER level  
-Jinja2==2.9.6
-requests==2.18.0
-PyJWT==2.11.0
+# ALERTER level - High CVEs with known exploits  
+Jinja2==2.10.0
+requests==2.20.0
+Django==2.0.0
+Pillow==6.2.0
 
-# PASSER level
+# PASSER level - Low severity
 urllib3==1.24.0

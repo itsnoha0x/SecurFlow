@@ -1,42 +1,159 @@
 {
   "decision_metadata": {
-    "timestamp": "2026-05-19T23:04:07.164389Z",
+    "timestamp": "2026-05-19T23:24:32.495496Z",
     "engine_version": "1.0.0",
     "config_used": {
       "high_context_components": [
+        "sqlalchemy",
         "sequelize",
         "typeorm",
-        "sqlalchemy",
         "psycopg2",
         "mongoose"
       ]
     },
-    "total_processed": 29,
+    "total_processed": 84,
     "decisions": {
       "BLOQUER": 0,
-      "ALERTER": 2,
-      "PASSER": 27
+      "ALERTER": 5,
+      "PASSER": 79
     },
-    "average_srp": 2.8
+    "average_srp": 2.9
   },
   "vulnerability_decisions": [
+    {
+      "cve_id": "CVE-2023-4863",
+      "package": "Pillow",
+      "srp_score": 6.3,
+      "decision": "ALERTER",
+      "ai_explanation": "Cette vulnérabilité est un débordement de tampon heap dans libwebp (dépendance de Pillow) permettant une écriture hors limites en mémoire via un fichier WebP malformé. Avec un score SRP de 6.3/10, la probabilité technique d'exploitation est modérée à élevée, particulièrement si votre application traite des images non fiables sans validation. Aucun acteur de menace spécifique n'est signalé, mais l'impact critique en mémoire justifie une correction prioritaire.",
+      "ai_fix": "Mettez à jour Pillow vers une version intégrant libwebp >= 1.3.2 ou appliquez le correctif système correspondant. Validez systématiquement le format et la taille des fichiers images uploadés pour réduire la surface d'attaque.",
+      "timestamp": "2026-05-19T23:22:40.990131Z"
+    },
+    {
+      "cve_id": "CVE-2019-19844",
+      "package": "Django",
+      "srp_score": 4.3,
+      "decision": "ALERTER",
+      "ai_explanation": "Le mécanisme de réinitialisation de mot de passe de Django est vulnérable à un contournement de la normalisation Unicode, permettant à un attaquant de forger une adresse email correspondant à un compte existant pour intercepter le jeton de réinitialisation. Avec un score SRP de 4.3/10, l'exploitation est techniquement réalisable mais nécessite la connaissance préalable d'un email cible, ce qui indique un risque de prise de compte ciblé plutôt qu'une exploitation massive automatisée.",
+      "ai_fix": "Mettez à jour Django vers la version 1.11.27, 2.2.9 ou 3.0.1 (ou la dernière version stable) pour appliquer le correctif officiel de normalisation Unicode.",
+      "timestamp": "2026-05-19T23:17:56.299328Z"
+    },
     {
       "cve_id": "CVE-2020-14343",
       "package": "PyYAML",
       "srp_score": 4.3,
       "decision": "ALERTER",
-      "ai_explanation": "PyYAML < 5.4 permet l'exécution de code arbitraire lors du traitement de fichiers YAML non fiables via full_load ou FullLoader, en exploitant l'instanciation d'objets Python. Avec un score SRP de 4.3/10, la probabilité technique d'exploitation est modérée et nécessite qu'un attaquant injecte ou fournisse un payload YAML malveillant à un point de terminaison vulnérable. Bien que non répertorié dans le KEV CISA et sans acteur de menace identifié, le risque demeure élevé pour toute application traitant des données YAML externes ou contrôlées par l'utilisateur.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou supérieure, qui restreint par défaut l'instanciation d'objets non sécurisés. Remplacez systématiquement yaml.full_load() ou yaml.FullLoader par yaml.safe_load() pour garantir le parsing exclusif des types YAML standards.",
-      "timestamp": "2026-05-19T23:04:07.163947Z"
+      "ai_explanation": "Cette vulnérabilité permet une exécution arbitraire de code si des fichiers YAML non fiables sont traités via full_load ou FullLoader dans PyYAML < 5.4. Avec un score SRP de 4.3/10, la probabilité d'exploitation technique est modérée et dépend strictement de l'exposition de ces méthodes à des entrées externes non validées. L'absence de signalements CTI ou d'acteurs de menace confirme qu'il s'agit d'un risque technique isolé plutôt que d'une campagne active.",
+      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou supérieure et remplacez systématiquement full_load ou FullLoader par safe_load pour tout traitement de données non fiables.",
+      "timestamp": "2026-05-19T23:24:32.494966Z"
     },
     {
-      "cve_id": "CVE-2017-18342",
-      "package": "PyYAML",
-      "srp_score": 4.1,
+      "cve_id": "CVE-2020-7471",
+      "package": "Django",
+      "srp_score": 4.2,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via yaml.load() sur des données YAML non fiables. Avec un score SRP de 4.1/10, le risque technique est modéré mais réel, notamment dans les pipelines CI/CD ou les microservices traitant des configurations externes. Bien qu'aucun acteur de menace spécifique ne soit identifié, ce vecteur est fréquemment exploité dans les attaques par désérialisation.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.1 ou supérieure et remplacez systématiquement yaml.load() par yaml.safe_load() pour désactiver l'évaluation dynamique. Vérifiez également l'absence d'utilisation de UnsafeLoader dans le codebase.",
-      "timestamp": "2026-05-19T23:02:01.902601Z"
+      "ai_explanation": "Cette vulnérabilité permet une injection SQL lorsque des données non fiables sont utilisées comme délimiteur pour StringAgg, un risque technique réel mais de probabilité modérée (SRP 4.2/10) car il nécessite une fonctionnalité spécifique de téléchargement de données avec délimiteur utilisateur. Sans acteur de menace identifié, l'exploitation repose sur des attaques opportunistes ciblant des endpoints exposés. La mise à jour est donc recommandée pour éliminer ce vecteur d'attaque.",
+      "ai_fix": "Mettez à jour Django vers la version 1.11.28, 2.2.10 ou 3.0.3 minimum, et évitez de passer des entrées utilisateur non validées directement comme délimiteur dans StringAgg.",
+      "timestamp": "2026-05-19T23:19:36.178309Z"
+    },
+    {
+      "cve_id": "CVE-2020-5311",
+      "package": "Pillow",
+      "srp_score": 4.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-5311) avec SRP de 4.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178684Z"
+    },
+    {
+      "cve_id": "CVE-2020-5312",
+      "package": "Pillow",
+      "srp_score": 4.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-5312) avec SRP de 4.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178693Z"
+    },
+    {
+      "cve_id": "CVE-2022-22817",
+      "package": "Pillow",
+      "srp_score": 4.0,
+      "decision": "ALERTER",
+      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via PIL.ImageMath.eval lors du traitement de données d'image non fiables, en exploitant exec ou des lambdas. Avec un score SRP de 4.0/10, la probabilité technique d'exploitation est modérée et se concentre sur les applications transmettant directement des entrées utilisateur à cette fonction sans validation. Bien que non listé dans le KEV CISA et sans acteur de menace identifié, le vecteur d'exécution directe justifie une correction prioritaire dans les pipelines de traitement d'images exposés.",
+      "ai_fix": "Mettez à jour le package Pillow vers la version 9.0.0 ou supérieure pour appliquer le correctif officiel restreignant les opérations autorisées. Auditez simultanément votre code pour garantir qu'aucune entrée non fiable n'est transmise aux fonctions de traitement d'image et implémentez une validation stricte.",
+      "timestamp": "2026-05-19T23:21:07.644021Z"
+    },
+    {
+      "cve_id": "CVE-2020-1747",
+      "package": "PyYAML",
+      "srp_score": 4.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-1747) avec SRP de 4.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de PyYAML lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:24:32.495018Z"
+    },
+    {
+      "cve_id": "CVE-2021-25289",
+      "package": "Pillow",
+      "srp_score": 3.9,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-25289) avec SRP de 3.9. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178703Z"
+    },
+    {
+      "cve_id": "CVE-2021-34552",
+      "package": "Pillow",
+      "srp_score": 3.9,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-34552) avec SRP de 3.9. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178713Z"
+    },
+    {
+      "cve_id": "CVE-2019-20477",
+      "package": "PyYAML",
+      "srp_score": 3.9,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2019-20477) avec SRP de 3.9. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de PyYAML lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990378Z"
+    },
+    {
+      "cve_id": "CVE-2021-25287",
+      "package": "Pillow",
+      "srp_score": 3.7,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-25287) avec SRP de 3.7. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644201Z"
+    },
+    {
+      "cve_id": "CVE-2022-24303",
+      "package": "Pillow",
+      "srp_score": 3.7,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2022-24303) avec SRP de 3.7. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644306Z"
+    },
+    {
+      "cve_id": "CVE-2021-25288",
+      "package": "Pillow",
+      "srp_score": 3.6,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-25288) avec SRP de 3.6. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644211Z"
+    },
+    {
+      "cve_id": "CVE-2022-36359",
+      "package": "Django",
+      "srp_score": 3.5,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2022-36359) avec SRP de 3.5. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178453Z"
     },
     {
       "cve_id": "CVE-2019-10906",
@@ -45,7 +162,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-10906) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.129141Z"
+      "timestamp": "2026-05-19T23:19:36.178604Z"
     },
     {
       "cve_id": "CVE-2025-27516",
@@ -54,7 +171,52 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-27516) avec SRP de 3.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.129228Z"
+      "timestamp": "2026-05-19T23:19:36.178655Z"
+    },
+    {
+      "cve_id": "CVE-2020-5310",
+      "package": "Pillow",
+      "srp_score": 3.5,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-5310) avec SRP de 3.5. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178674Z"
+    },
+    {
+      "cve_id": "CVE-2020-35654",
+      "package": "Pillow",
+      "srp_score": 3.5,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-35654) avec SRP de 3.5. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644170Z"
+    },
+    {
+      "cve_id": "CVE-2019-6975",
+      "package": "Django",
+      "srp_score": 3.4,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2019-6975) avec SRP de 3.4. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178435Z"
+    },
+    {
+      "cve_id": "CVE-2025-64459",
+      "package": "Django",
+      "srp_score": 3.3,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2025-64459) avec SRP de 3.3. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178377Z"
+    },
+    {
+      "cve_id": "CVE-2023-50447",
+      "package": "Pillow",
+      "srp_score": 3.3,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2023-50447) avec SRP de 3.3. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644083Z"
     },
     {
       "cve_id": "CVE-2023-43804",
@@ -63,7 +225,52 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-43804) avec SRP de 3.3. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164069Z"
+      "timestamp": "2026-05-19T23:24:32.495093Z"
+    },
+    {
+      "cve_id": "CVE-2025-57833",
+      "package": "Django",
+      "srp_score": 3.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2025-57833) avec SRP de 3.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178477Z"
+    },
+    {
+      "cve_id": "CVE-2020-11538",
+      "package": "Pillow",
+      "srp_score": 3.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-11538) avec SRP de 3.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178664Z"
+    },
+    {
+      "cve_id": "CVE-2020-10379",
+      "package": "Pillow",
+      "srp_score": 3.1,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-10379) avec SRP de 3.1. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644135Z"
+    },
+    {
+      "cve_id": "CVE-2018-6188",
+      "package": "Django",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2018-6188) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178396Z"
+    },
+    {
+      "cve_id": "CVE-2025-64458",
+      "package": "Django",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2025-64458) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178494Z"
     },
     {
       "cve_id": "CVE-2018-1000656",
@@ -72,7 +279,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-1000656) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.128746Z"
+      "timestamp": "2026-05-19T23:19:36.178574Z"
     },
     {
       "cve_id": "CVE-2019-1010083",
@@ -81,7 +288,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-1010083) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.129080Z"
+      "timestamp": "2026-05-19T23:19:36.178584Z"
     },
     {
       "cve_id": "CVE-2023-30861",
@@ -90,25 +297,115 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-30861) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Flask lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.129121Z"
+      "timestamp": "2026-05-19T23:19:36.178594Z"
     },
     {
-      "cve_id": "CVE-2026-32597",
-      "package": "PyJWT",
+      "cve_id": "CVE-2019-19911",
+      "package": "Pillow",
       "srp_score": 3.0,
       "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2026-32597) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de PyJWT lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.129240Z"
+      "ai_explanation": "Vulnérabilité mineure (CVE-2019-19911) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644099Z"
     },
     {
-      "cve_id": "CVE-2018-18074",
-      "package": "requests",
+      "cve_id": "CVE-2021-23437",
+      "package": "Pillow",
       "srp_score": 3.0,
       "decision": "PASSER",
-      "ai_explanation": "Vulnérabilité mineure (CVE-2018-18074) avec SRP de 3.0. Risque faible.",
-      "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.163998Z"
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-23437) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644191Z"
+    },
+    {
+      "cve_id": "CVE-2021-25290",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-25290) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644221Z"
+    },
+    {
+      "cve_id": "CVE-2021-25291",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-25291) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644230Z"
+    },
+    {
+      "cve_id": "CVE-2021-25293",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-25293) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644239Z"
+    },
+    {
+      "cve_id": "CVE-2021-27921",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-27921) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644249Z"
+    },
+    {
+      "cve_id": "CVE-2021-27922",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-27922) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644259Z"
+    },
+    {
+      "cve_id": "CVE-2021-27923",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-27923) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644268Z"
+    },
+    {
+      "cve_id": "CVE-2021-28676",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-28676) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644286Z"
+    },
+    {
+      "cve_id": "CVE-2021-28677",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-28677) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644296Z"
+    },
+    {
+      "cve_id": "CVE-2022-45198",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2022-45198) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644315Z"
+    },
+    {
+      "cve_id": "CVE-2023-44271",
+      "package": "Pillow",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2023-44271) avec SRP de 3.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644325Z"
     },
     {
       "cve_id": "CVE-2019-11324",
@@ -117,7 +414,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-11324) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164058Z"
+      "timestamp": "2026-05-19T23:24:32.495080Z"
     },
     {
       "cve_id": "CVE-2025-66418",
@@ -126,7 +423,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-66418) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164079Z"
+      "timestamp": "2026-05-19T23:24:32.495109Z"
     },
     {
       "cve_id": "CVE-2025-66471",
@@ -135,7 +432,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-66471) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164089Z"
+      "timestamp": "2026-05-19T23:24:32.495119Z"
     },
     {
       "cve_id": "CVE-2026-21441",
@@ -144,7 +441,79 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-21441) avec SRP de 3.0. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164101Z"
+      "timestamp": "2026-05-19T23:24:32.495129Z"
+    },
+    {
+      "cve_id": "CVE-2020-5313",
+      "package": "Pillow",
+      "srp_score": 2.9,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-5313) avec SRP de 2.9. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644181Z"
+    },
+    {
+      "cve_id": "CVE-2018-14574",
+      "package": "Django",
+      "srp_score": 2.8,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2018-14574) avec SRP de 2.8. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178508Z"
+    },
+    {
+      "cve_id": "CVE-2020-35653",
+      "package": "Pillow",
+      "srp_score": 2.8,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-35653) avec SRP de 2.8. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644159Z"
+    },
+    {
+      "cve_id": "CVE-2019-3498",
+      "package": "Django",
+      "srp_score": 2.6,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2019-3498) avec SRP de 2.6. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178415Z"
+    },
+    {
+      "cve_id": "CVE-2019-11358",
+      "package": "Django",
+      "srp_score": 2.6,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2019-11358) avec SRP de 2.6. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178531Z"
+    },
+    {
+      "cve_id": "CVE-2021-25292",
+      "package": "Pillow",
+      "srp_score": 2.6,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-25292) avec SRP de 2.6. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990232Z"
+    },
+    {
+      "cve_id": "CVE-2022-22815",
+      "package": "Pillow",
+      "srp_score": 2.6,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2022-22815) avec SRP de 2.6. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990262Z"
+    },
+    {
+      "cve_id": "CVE-2022-22816",
+      "package": "Pillow",
+      "srp_score": 2.6,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2022-22816) avec SRP de 2.6. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990277Z"
     },
     {
       "cve_id": "CVE-2023-32681",
@@ -153,7 +522,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-32681) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164014Z"
+      "timestamp": "2026-05-19T23:24:32.495033Z"
     },
     {
       "cve_id": "CVE-2020-26137",
@@ -162,7 +531,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2020-26137) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164142Z"
+      "timestamp": "2026-05-19T23:24:32.495170Z"
     },
     {
       "cve_id": "CVE-2024-37891",
@@ -171,7 +540,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-37891) avec SRP de 2.6. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164162Z"
+      "timestamp": "2026-05-19T23:24:32.495191Z"
     },
     {
       "cve_id": "CVE-2024-56326",
@@ -180,7 +549,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-56326) avec SRP de 2.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.129210Z"
+      "timestamp": "2026-05-19T23:19:36.178645Z"
     },
     {
       "cve_id": "CVE-2019-11236",
@@ -189,7 +558,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2019-11236) avec SRP de 2.5. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164132Z"
+      "timestamp": "2026-05-19T23:24:32.495160Z"
     },
     {
       "cve_id": "CVE-2024-22195",
@@ -198,7 +567,16 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-22195) avec SRP de 2.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.129174Z"
+      "timestamp": "2026-05-19T23:19:36.178625Z"
+    },
+    {
+      "cve_id": "CVE-2024-28219",
+      "package": "Pillow",
+      "srp_score": 2.4,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2024-28219) avec SRP de 2.4. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990196Z"
     },
     {
       "cve_id": "CVE-2018-25091",
@@ -207,7 +585,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2018-25091) avec SRP de 2.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164122Z"
+      "timestamp": "2026-05-19T23:24:32.495150Z"
     },
     {
       "cve_id": "CVE-2025-50181",
@@ -216,7 +594,16 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2025-50181) avec SRP de 2.4. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164172Z"
+      "timestamp": "2026-05-19T23:24:32.495201Z"
+    },
+    {
+      "cve_id": "CVE-2018-7536",
+      "package": "Django",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2018-7536) avec SRP de 2.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178520Z"
     },
     {
       "cve_id": "CVE-2024-34064",
@@ -225,7 +612,79 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-34064) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.129187Z"
+      "timestamp": "2026-05-19T23:19:36.178634Z"
+    },
+    {
+      "cve_id": "CVE-2020-10177",
+      "package": "Pillow",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-10177) avec SRP de 2.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644112Z"
+    },
+    {
+      "cve_id": "CVE-2020-10378",
+      "package": "Pillow",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-10378) avec SRP de 2.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644123Z"
+    },
+    {
+      "cve_id": "CVE-2020-10994",
+      "package": "Pillow",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-10994) avec SRP de 2.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644147Z"
+    },
+    {
+      "cve_id": "CVE-2021-28675",
+      "package": "Pillow",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-28675) avec SRP de 2.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:21:07.644277Z"
+    },
+    {
+      "cve_id": "CVE-2020-35655",
+      "package": "Pillow",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2020-35655) avec SRP de 2.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990216Z"
+    },
+    {
+      "cve_id": "CVE-2021-28678",
+      "package": "Pillow",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-28678) avec SRP de 2.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990247Z"
+    },
+    {
+      "cve_id": "CVE-2026-42308",
+      "package": "Pillow",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2026-42308) avec SRP de 2.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990292Z"
+    },
+    {
+      "cve_id": "CVE-2026-42310",
+      "package": "Pillow",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2026-42310) avec SRP de 2.2. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990342Z"
     },
     {
       "cve_id": "CVE-2024-35195",
@@ -234,7 +693,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-35195) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164026Z"
+      "timestamp": "2026-05-19T23:24:32.495045Z"
     },
     {
       "cve_id": "CVE-2026-25645",
@@ -243,7 +702,25 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-25645) avec SRP de 2.2. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164048Z"
+      "timestamp": "2026-05-19T23:24:32.495068Z"
+    },
+    {
+      "cve_id": "CVE-2024-45231",
+      "package": "Django",
+      "srp_score": 2.1,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2024-45231) avec SRP de 2.1. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178553Z"
+    },
+    {
+      "cve_id": "CVE-2025-48432",
+      "package": "Django",
+      "srp_score": 2.1,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2025-48432) avec SRP de 2.1. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178564Z"
     },
     {
       "cve_id": "CVE-2020-28493",
@@ -252,7 +729,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2020-28493) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de Jinja2 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:00:29.129158Z"
+      "timestamp": "2026-05-19T23:19:36.178615Z"
     },
     {
       "cve_id": "CVE-2024-47081",
@@ -261,7 +738,7 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2024-47081) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de requests lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164037Z"
+      "timestamp": "2026-05-19T23:24:32.495057Z"
     },
     {
       "cve_id": "CVE-2026-44431",
@@ -270,7 +747,16 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2026-44431) avec SRP de 2.1. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164112Z"
+      "timestamp": "2026-05-19T23:24:32.495139Z"
+    },
+    {
+      "cve_id": "CVE-2021-33203",
+      "package": "Django",
+      "srp_score": 2.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (CVE-2021-33203) avec SRP de 2.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Django lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:19:36.178542Z"
     },
     {
       "cve_id": "CVE-2023-45803",
@@ -279,7 +765,16 @@
       "decision": "PASSER",
       "ai_explanation": "Vulnérabilité mineure (CVE-2023-45803) avec SRP de 1.7. Risque faible.",
       "ai_fix": "Planifier la mise à jour de urllib3 lors d'un prochain sprint.",
-      "timestamp": "2026-05-19T23:04:07.164152Z"
+      "timestamp": "2026-05-19T23:24:32.495180Z"
+    },
+    {
+      "cve_id": "GHSA-jgpv-4h4c-xhw3",
+      "package": "Pillow",
+      "srp_score": 0.0,
+      "decision": "PASSER",
+      "ai_explanation": "Vulnérabilité mineure (GHSA-jgpv-4h4c-xhw3) avec SRP de 0.0. Risque faible.",
+      "ai_fix": "Planifier la mise à jour de Pillow lors d'un prochain sprint.",
+      "timestamp": "2026-05-19T23:22:40.990362Z"
     }
   ]
 }
