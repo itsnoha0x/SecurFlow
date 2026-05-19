@@ -137,7 +137,7 @@ class DecisionEngine:
         cve_id = vulnerability.get("cve_id", "Unknown")
         package = vulnerability.get("package", "Unknown")
         
-        if decision == "PASSER" or not self.ai_client:
+        if not self.ai_client:
             return {
                 "ai_explanation": f"Vulnérabilité mineure ({cve_id}) avec SRP de {srp_score:.1f}. Risque faible.",
                 "ai_fix": f"Planifier la mise à jour de {package} lors d'un prochain sprint."
