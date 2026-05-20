@@ -110,12 +110,21 @@ class ThreatEnricher:
             if "error" not in otx_data and otx_data.get("pulses"):
                 enriched["otx_indicators"] = [otx_data]
         
-        # CISA KEV enrichment (Public feed)
+        # CISA KEV enrichment
         cisa_data = self.get_cisa_data(cve_id)
         enriched["threat_intelligence"]["cisa_kev"] = cisa_data
-        enriched["cisa_kev"] = cisa_data  # Expose at root for P3 AI analysis
-        if cisa_data.get("known_exploited"):
+        enriched["cisa_kev"] = cisa_data
+
+        # exploit_available = True si CISA KEV OU OTX a des pulses
+        otx_has_pulses = (
+            "error" not in enriched["threat_intelligence"].get("otx_indicators", {})
+            and enriched["threat_intelligence"].get("otx_indicators", {}).get("indicators_count", 0) > 0
+        )
+
+        if cisa_data.get("known_exploited") or otx_has_pulses:
             enriched["threat_intelligence"]["exploit_available"] = True
+        else:
+            enriched["threat_intelligence"]["exploit_available"] = False
 
         self._save_to_cache(cve_id, enriched)
         return enriched
