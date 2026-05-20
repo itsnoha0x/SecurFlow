@@ -49,3 +49,4 @@ reporting:
   include_fix_recommendations: true
   sort_by_srp_desc: true
   generate_summary: true
+  max_workers: 2

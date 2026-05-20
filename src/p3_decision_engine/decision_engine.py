@@ -16,7 +16,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 from openai import OpenAI
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 
 class DecisionEngine:
@@ -262,7 +262,7 @@ class DecisionEngine:
                 print(f"    [IA] Analyse terminée pour {local_cve_id}. Réponse: {preview}...")
 
                 # Délai pour éviter les 429 sur Featherless
-                time.sleep(2.0)
+                time.sleep(0.5)
 
                 return {
                     "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
@@ -274,7 +274,7 @@ class DecisionEngine:
                 is_rate_limit = "429" in err_str or "concurrency_limit_exceeded" in err_str
 
                 if is_rate_limit and attempt < self.retry_attempts - 1:
-                    wait_time = (attempt + 1) * 5
+                    wait_time = (attempt + 1) * 2
                     print(f"    [!] Limite de confluence atteinte (429). Pause de {wait_time}s...")
                     time.sleep(wait_time)
                     continue
@@ -325,22 +325,8 @@ class DecisionEngine:
 
         print(f"[*] Processing {len(enriched_vulns)} vulnerabilities with {max_workers} parallel thread(s)...")
 
-        final_report = []
-
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            future_to_vuln = {
-                executor.submit(self._process_single_vuln, vuln): vuln
-                for vuln in enriched_vulns
-            }
-            for future in as_completed(future_to_vuln):
-                try:
-                    result = future.result()
-                    final_report.append(result)
-                except Exception as e:
-                    vuln = future_to_vuln[future]
-                    print(f"[!] Error processing {vuln.get('cve_id', 'Unknown')}: {e}")
-
-        # Tri par SRP décroissant
+            final_report = list(executor.map(self._process_single_vuln, enriched_vulns))
         final_report.sort(key=lambda x: x["srp_score"], reverse=True)
         return final_report
 
