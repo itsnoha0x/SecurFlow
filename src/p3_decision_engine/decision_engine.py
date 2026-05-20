@@ -166,20 +166,21 @@ class DecisionEngine:
 
     def get_ai_analysis(self, vulnerability, srp_score, decision):
         """Appelle Featherless AI pour générer une explication DevSecOps."""
-        cve_id  = vulnerability.get("cve_id",  "Unknown")
-        package = vulnerability.get("package", "Unknown")
-        version = vulnerability.get("version", "inconnue")
-        cvss    = vulnerability.get("cvss_score", "N/A")
-        epss    = vulnerability.get("epss_score", "N/A")
+        # Capture locale immédiate — immunisé contre le changement entre threads
+        local_cve_id = str(vulnerability.get("cve_id",  "Unknown"))
+        local_package= str(vulnerability.get("package", "Unknown"))
+        local_version= str(vulnerability.get("version", "inconnue"))
+        local_cvss   = vulnerability.get("cvss_score", "N/A")
+        local_epss   = vulnerability.get("epss_score", "N/A")
 
         # Fallback sans client AI
         if not self.ai_client:
             return {
                 "ai_explanation": (
-                    f"Vulnérabilité {cve_id} dans {package} v{version} "
+                    f"Vulnérabilité {local_cve_id} dans {local_package} v{local_version} "
                     f"avec un SRP de {srp_score:.1f}/10. Risque {decision}."
                 ),
-                "ai_fix": f"Planifier la mise à jour de {package} lors d'un prochain sprint."
+                "ai_fix": f"Planifier la mise à jour de {local_package} lors d'un prochain sprint."
             }
 
         # --- Extraction des données CTI ---
@@ -192,32 +193,32 @@ class DecisionEngine:
             else "Non listé"
         )
 
-        otx_data     = vulnerability.get("otx_indicators", [])
+        otx_data      = vulnerability.get("otx_indicators", [])
         threat_actors = [
             pulse.get("name")
             for indicator in otx_data
             for pulse in indicator.get("pulses", [])
         ]
-        actors_str   = ", ".join(threat_actors) if threat_actors else "Aucun acteur spécifique identifié"
+        actors_str    = ", ".join(threat_actors) if threat_actors else "Aucun acteur spécifique identifié"
 
         # --- Construction du prompt ---
         user_prompt = self.user_template.format(
-            decision    = decision,
-            srp_score   = srp_score,
-            cve_id      = cve_id,
-            package     = package,
-            version     = version,
-            cvss        = cvss,
-            epss        = epss,
-            desc        = description,
-            cisa_notes  = cisa_notes,
-            actors_str  = actors_str,
+            decision   = decision,
+            srp_score  = srp_score,
+            cve_id     = local_cve_id,
+            package    = local_package,
+            version    = local_version,
+            cvss       = local_cvss,
+            epss       = local_epss,
+            desc       = description,
+            cisa_notes = cisa_notes,
+            actors_str = actors_str,
         )
 
         # --- Boucle de retry ---
         for attempt in range(self.retry_attempts):
             try:
-                print(f"    [IA] Début de l'analyse pour {cve_id} (Tentative {attempt + 1})...")
+                print(f"    [IA] Début de l'analyse pour {local_cve_id} (Tentative {attempt + 1})...")
 
                 response = self.ai_client.chat.completions.create(
                     model           = self.model_name,
@@ -237,8 +238,8 @@ class DecisionEngine:
                 # --- Extraction JSON robuste ---
                 result = None
                 try:
-                    start  = raw_content.find('{')
-                    end    = raw_content.rfind('}')
+                    start = raw_content.find('{')
+                    end   = raw_content.rfind('}')
                     if start != -1 and end != -1:
                         result = json.loads(raw_content[start:end + 1])
                 except Exception:
@@ -254,11 +255,11 @@ class DecisionEngine:
                             "ai_fix": fix_match.group(1).strip() if fix_match else "Mise à jour recommandée.",
                         }
                     else:
-                        print(f"    [!] JSON non parseable pour {cve_id}, retry...")
+                        print(f"    [!] JSON non parseable pour {local_cve_id}, retry...")
                         continue
 
                 preview = result.get("ai_explanation", "")[:75]
-                print(f"    [IA] Analyse terminée pour {cve_id}. Réponse: {preview}...")
+                print(f"    [IA] Analyse terminée pour {local_cve_id}. Réponse: {preview}...")
 
                 # Délai pour éviter les 429 sur Featherless
                 time.sleep(2.0)
@@ -278,17 +279,16 @@ class DecisionEngine:
                     time.sleep(wait_time)
                     continue
                 else:
-                    print(f"    [!] Erreur IA critique pour {cve_id}: {e}")
+                    print(f"    [!] Erreur IA critique pour {local_cve_id}: {e}")
                     return {
-                        "ai_explanation": f"Alerte CTI de niveau {decision} pour {cve_id}. (Erreur API IA).",
-                        "ai_fix":         f"Vérifiez les correctifs de sécurité pour {package} v{version}.",
+                        "ai_explanation": f"Alerte CTI de niveau {decision} pour {local_cve_id}. (Erreur API IA).",
+                        "ai_fix":         f"Vérifiez les correctifs de sécurité pour {local_package} v{local_version}.",
                     }
 
         return {
-            "ai_explanation": f"Analyse IA échouée après {self.retry_attempts} tentatives pour {cve_id}.",
+            "ai_explanation": f"Analyse IA échouée après {self.retry_attempts} tentatives pour {local_cve_id}.",
             "ai_fix":         "Vérification manuelle requise.",
         }
-
     # ------------------------------------------------------------------
     # Processing
     # ------------------------------------------------------------------
