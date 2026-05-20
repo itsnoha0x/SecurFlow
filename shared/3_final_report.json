@@ -1,14 +1,14 @@
 {
   "decision_metadata": {
-    "timestamp": "2026-05-20T08:23:34.836512Z",
+    "timestamp": "2026-05-20T08:37:42.203520Z",
     "engine_version": "1.0.0",
     "config_used": {
       "high_context_components": [
+        "sqlalchemy",
+        "mongoose",
         "psycopg2",
         "typeorm",
-        "sequelize",
-        "mongoose",
-        "sqlalchemy"
+        "sequelize"
       ],
       "block_threshold": 7.0,
       "alert_threshold": 4.0,
@@ -29,9 +29,9 @@
       "version": "inconnue",
       "srp_score": 4.3,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via des fichiers YAML non fiables, avec un score CVSS de 9.8 indiquant une criticité maximale. Bien qu'aucun acteur de menace spécifique ne soit identifié, la probabilité d'exploitation est significative (EPSS 0.137) et pourrait être utilisée dans des attaques ciblant des applications traitant des entrées non fiables.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou ultérieure. Évitez d'utiliser `full_load` ou `FullLoader` avec des entrées non fiables ; privilégiez `safe_load` ou `SafeLoader`.",
-      "timestamp": "2026-05-20T08:21:20.524319Z"
+      "ai_explanation": "Cette vulnérabilité permet l'exécution de code arbitraire via des fichiers YAML non fiables, avec un score CVSS de 9.8 indiquant une criticité maximale. Bien qu'aucun acteur de menace spécifique ne soit identifié, la probabilité d'exploitation est élevée (EPSS 0.137) et le code malveillant peut être injecté via des entrées utilisateur.",
+      "ai_fix": "Mettez à jour PyYAML vers la version 5.4 ou ultérieure. Évitez d'utiliser full_load ou FullLoader avec des entrées non fiables ; privilégiez safe_load.",
+      "timestamp": "2026-05-20T08:35:19.333250Z"
     },
     {
       "cve_id": "CVE-2017-18342",
@@ -39,9 +39,9 @@
       "version": "inconnue",
       "srp_score": 4.1,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité critique (CVSS 9.8) permet l'exécution de code arbitraire via la fonction yaml.load() avec des données non fiables, exploitée par des attaquants pour compromettre des systèmes. Bien qu'aucun acteur de menace spécifique ne soit identifié, la probabilité d'exploitation est élevée en raison de la simplicité technique et de l'utilisation répandue de PyYAML.",
-      "ai_fix": "Mettez à jour PyYAML vers la version 5.1 ou ultérieure et remplacez yaml.load() par yaml.safe_load() pour les données non fiables. Si la compatibilité avec l'ancien comportement est nécessaire, utilisez explicitement yaml.load(data, Loader=yaml.UnsafeLoader) en limitant strictement l'entrée à des sources de confiance.",
-      "timestamp": "2026-05-20T08:21:11.393557Z"
+      "ai_explanation": "Cette vulnérabilité critique (CVSS 9.8) dans PyYAML permet l'exécution de code arbitraire via la fonction yaml.load() avec des données non fiables, exploitée par des attaquants pour compromettre des applications. Bien que non listée dans le CISA KEV, la probabilité d'exploitation est élevée en raison de la simplicité technique et de l'utilisation massive de PyYAML. Aucun acteur de menace spécifique n'est identifié, mais le risque est immédiat pour toute application exposée à des entrées YAML non sécurisées.",
+      "ai_fix": "Mettez à jour PyYAML vers la version 5.1 ou ultérieure, et remplacez tout appel à yaml.load() par yaml.safe_load() pour les données non fiables. Si la compatibilité avec l'ancien comportement est nécessaire, utilisez explicitement yaml.load(data, Loader=yaml.UnsafeLoader) en limitant strictement son usage à des sources de confiance.",
+      "timestamp": "2026-05-20T08:35:11.159038Z"
     },
     {
       "cve_id": "CVE-2026-32597",
@@ -49,9 +49,9 @@
       "version": "inconnue",
       "srp_score": 3.0,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet à un attaquant de contourner la validation des en-têtes critiques (crit) dans les JWT, ce qui pourrait conduire à l'acceptation de tokens malformés ou contenant des extensions non reconnues. Bien que le score EPSS soit très faible (0.0001), le CVSS de 7.5 indique un impact potentiel élevé sur l'intégrité des tokens. Aucun acteur de menace spécifique n'est actuellement associé à cette CVE.",
+      "ai_explanation": "Cette vulnérabilité permet à un attaquant de contourner la validation des en-têtes critiques (crit) dans les tokens JWS, ce qui pourrait entraîner l'acceptation de tokens malformés ou contenant des extensions non reconnues. Bien que le score EPSS soit très faible (0.0001), le CVSS de 7.5 indique un impact potentiel élevé sur la sécurité des tokens JWT, notamment dans les systèmes d'authentification.",
       "ai_fix": "Mettez à jour PyJWT vers la version 2.12.0 ou ultérieure, qui corrige ce défaut de validation. Si la mise à jour n'est pas possible, implémentez une validation manuelle des en-têtes crit dans votre code pour rejeter les tokens contenant des extensions non reconnues.",
-      "timestamp": "2026-05-20T08:20:58.319371Z"
+      "timestamp": "2026-05-20T08:35:00.300467Z"
     },
     {
       "cve_id": "CVE-2026-27888",
@@ -59,9 +59,9 @@
       "version": "inconnue",
       "srp_score": 3.0,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet un déni de service par épuisement de la RAM via un PDF malveillant compressé avec FlateDecode. Bien qu'aucun acteur de menace ne soit identifié, le score CVSS de 7.5 indique une exploitation technique probable, notamment dans des environnements automatisés traitant des PDF non fiables.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.3 ou ultérieure. Si la mise à jour n'est pas possible, évitez d'accéder à la propriété `xfa` sur des PDF non fiables.",
-      "timestamp": "2026-05-20T08:21:56.384455Z"
+      "ai_explanation": "Cette vulnérabilité permet un déni de service par épuisement de la RAM via un PDF malveillant utilisant la compression `/FlateDecode` sur le flux XFA. Bien que le score EPSS soit très faible (0.0006), l'exploitation est triviale pour un attaquant capable de fournir un PDF à l'application, ce qui est courant dans les services de traitement de documents.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.7.3 ou ultérieure. Si la mise à jour n'est pas possible, désactivez l'accès à la propriété `xfa` ou validez strictement les flux compressés avant décompression.",
+      "timestamp": "2026-05-20T08:36:04.819855Z"
     },
     {
       "cve_id": "CVE-2026-33699",
@@ -69,9 +69,9 @@
       "version": "inconnue",
       "srp_score": 3.0,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité de déni de service (DoS) par boucle infinie dans pypdf peut être exploitée par un attaquant envoyant un fichier PDF malveillant à une application qui le parse en mode non-strict. Bien que le score EPSS soit très bas (0.0002), indiquant une faible probabilité d'exploitation immédiate, le CVSS de 7.5 (High) souligne un impact potentiel élevé sur la disponibilité du service.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.9.2 ou ultérieure. Si la mise à jour est impossible, évitez d'utiliser le mode non-strict lors du parsing de fichiers PDF non fiables.",
-      "timestamp": "2026-05-20T08:22:45.830393Z"
+      "ai_explanation": "Cette vulnérabilité permet un déni de service (DoS) via un fichier PDF malveillant qui provoque une boucle infinie lors de la lecture en mode non strict. Bien que le score EPSS soit très faible (0.0002), indiquant une faible probabilité d'exploitation immédiate, le CVSS de 7.5 (High) souligne un impact potentiel sérieux sur la disponibilité. Aucun acteur de menace spécifique n'est actuellement associé, mais des attaques automatisées pourraient cibler des applications traitant des PDF non fiables.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.9.2 ou ultérieure. Si la mise à jour est impossible, évitez d'utiliser le mode non strict (strict=False) lors de l'ouverture de fichiers PDF provenant de sources non fiables.",
+      "timestamp": "2026-05-20T08:36:54.496376Z"
     },
     {
       "cve_id": "CVE-2026-33123",
@@ -79,9 +79,9 @@
       "version": "inconnue",
       "srp_score": 2.6,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité de déni de service dans pypdf permet à un attaquant de provoquer une consommation excessive de mémoire ou de temps CPU en exploitant un flux basé sur un tableau avec de nombreuses entrées. Bien que le score CVSS soit modéré (6.5), la probabilité d'exploitation est très faible (EPSS 0.0001) et aucun acteur de menace n'est connu pour cibler cette faille.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.9.1 ou ultérieure. Si la mise à jour n'est pas possible, envisagez de limiter la taille des fichiers PDF traités ou d'utiliser une bibliothèque alternative.",
-      "timestamp": "2026-05-20T08:22:36.843111Z"
+      "ai_explanation": "Cette vulnérabilité de type déni de service (DoS) dans pypdf permet à un attaquant de provoquer une consommation excessive de mémoire ou de temps CPU en exploitant un tableau de flux malformé. Bien que le score CVSS soit modéré (6.5), la probabilité d'exploitation est très faible (EPSS 0.01%) et aucun acteur de menace n'est connu pour cibler cette faille.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.9.1 ou ultérieure. Si la mise à jour n'est pas possible, envisagez de valider les entrées PDF avant traitement pour limiter les tableaux de flux volumineux.",
+      "timestamp": "2026-05-20T08:36:44.638817Z"
     },
     {
       "cve_id": "CVE-2026-41312",
@@ -89,9 +89,9 @@
       "version": "inconnue",
       "srp_score": 2.6,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet un déni de service par épuisement de la mémoire (RAM) via un fichier PDF malveillant utilisant un filtre `/FlateDecode` avec un prédicteur spécifique. Bien que le score SRP soit modéré (2.6/10) et l'EPSS très faible (0.0002), l'exploitation est techniquement simple pour un attaquant ciblant des applications traitant des PDF non fiables.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.10.2 ou ultérieure. Si la mise à jour n'est pas possible, implémentez une validation stricte des flux compressés dans les PDF entrants, notamment en limitant la taille mémoire allouée au décompresseur.",
-      "timestamp": "2026-05-20T08:23:14.828470Z"
+      "ai_explanation": "Cette vulnérabilité dans pypdf permet à un attaquant de provoquer un épuisement de la RAM en exploitant un flux compressé `/FlateDecode` avec un prédicteur spécifique. Bien que le score SRP soit faible (2.6/10) et l'EPSS très bas (0.0002), l'absence d'acteurs connus ne réduit pas le risque technique d'exploitation, car un attaquant motivé pourrait facilement créer un PDF malveillant pour un déni de service local.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.10.2 ou ultérieure, qui corrige cette vulnérabilité. Si la mise à jour n'est pas possible, désactivez le support des flux `/FlateDecode` avec prédicteur dans votre code.",
+      "timestamp": "2026-05-20T08:37:24.049963Z"
     },
     {
       "cve_id": "CVE-2026-41313",
@@ -99,9 +99,9 @@
       "version": "inconnue",
       "srp_score": 2.6,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet un déni de service (DoS) en forçant un temps de traitement excessif via un fichier PDF malveillant avec une grande valeur `/Size` en mode incrémental. Bien que le score SRP soit bas (2.6/10) et l'EPSS très faible (0.0002), l'exploitation est techniquement simple pour un attaquant ciblant des applications traitant des PDF non fiables. Aucun acteur de menace connu n'est associé, mais le risque réside dans l'impact potentiel sur la disponibilité des services.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.10.2 ou ultérieure. Si la mise à jour n'est pas possible, désactivez le mode incrémental ou validez les valeurs `/Size` avant le traitement.",
-      "timestamp": "2026-05-20T08:23:24.440583Z"
+      "ai_explanation": "Cette vulnérabilité permet un déni de service (DoS) en forçant pypdf à effectuer des calculs excessifs lors du chargement d'un PDF malveillant avec une valeur `/Size` anormalement élevée en mode incrémental. Bien que le score CVSS soit de 6.5 (moyen), la probabilité d'exploitation est très faible (EPSS 0.02%) et aucun acteur de menace n'est connu pour l'exploiter activement.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.10.2 ou ultérieure. Si la mise à jour n'est pas possible, évitez de charger des PDF non fiables en mode incrémental.",
+      "timestamp": "2026-05-20T08:37:32.814537Z"
     },
     {
       "cve_id": "CVE-2026-41314",
@@ -109,9 +109,9 @@
       "version": "inconnue",
       "srp_score": 2.6,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet un déni de service par épuisement de la mémoire (RAM) via un PDF malveillant utilisant `/FlateDecode` avec des valeurs de taille excessives. Bien que le score SRP soit bas (2.6/10) et l'EPSS très faible (0.0002), l'exploitation est techniquement simple et ne nécessite qu'un accès à un fichier PDF. Aucun acteur de menace spécifique n'est actuellement associé, mais le risque d'attaques ciblées ou de bots automatisés reste présent.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.10.2 ou ultérieure, qui corrige ce problème de validation des tailles d'image. Si la mise à jour immédiate n'est pas possible, implémentez une validation des entrées utilisateur pour limiter la taille des PDF traités.",
-      "timestamp": "2026-05-20T08:23:34.836143Z"
+      "ai_explanation": "Cette vulnérabilité permet un déni de service par épuisement de la mémoire (RAM) via un fichier PDF malveillant utilisant `/FlateDecode` avec des valeurs de taille excessives. Bien que le score SRP soit faible (2.6/10) et l'EPSS très bas (0.0002), l'exploitation est techniquement simple et ne nécessite qu'un accès à un PDF. Aucun acteur de menace n'est actuellement associé, mais le risque d'impact sur la disponibilité des services reste présent.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.10.2 ou ultérieure. Si la mise à jour n'est pas possible, implémentez une validation des tailles d'image avant le décodage FlateDecode.",
+      "timestamp": "2026-05-20T08:37:42.203168Z"
     },
     {
       "cve_id": "CVE-2026-27024",
@@ -119,9 +119,9 @@
       "version": "inconnue",
       "srp_score": 2.2,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet un déni de service par boucle infinie lors du traitement d'un PDF malveillant, exploitant l'accès aux enfants d'un TreeObject. Bien que le score SRP soit faible (2.2/10) et l'EPSS très bas (0.0001), l'absence d'acteurs identifiés ne réduit pas le risque technique d'exploitation par un attaquant ciblant des applications utilisant pypdf pour analyser des fichiers non fiables.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.1 ou ultérieure, qui corrige la boucle infinie. Si la mise à jour n'est pas possible, implémentez une validation stricte des entrées PDF et un timeout pour les opérations de parsing.",
-      "timestamp": "2026-05-20T08:21:29.933224Z"
+      "ai_explanation": "Cette vulnérabilité permet un déni de service (DoS) via un fichier PDF malveillant qui provoque une boucle infinie lors du traitement des TreeObjects. Bien que le score SRP soit faible (2.2/10) et l'EPSS très bas (0.0001), l'exploitation est triviale pour un attaquant capable de fournir un PDF à l'application, ce qui peut impacter la disponibilité du service.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.7.1 ou ultérieure. Si la mise à jour n'est pas possible, implémentez une validation stricte des fichiers PDF entrants et limitez le temps d'exécution des opérations de parsing.",
+      "timestamp": "2026-05-20T08:35:30.519609Z"
     },
     {
       "cve_id": "CVE-2026-27025",
@@ -129,9 +129,9 @@
       "version": "inconnue",
       "srp_score": 2.2,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité dans pypdf permet un déni de service (DoS) via un fichier PDF malveillant exploitant des valeurs anormalement grandes dans l'entrée /ToUnicode d'une police, causant une consommation excessive de mémoire et de temps CPU. Bien que le score SRP soit bas (2.2/10) et l'EPSS très faible (0.0001), l'exploitation est techniquement simple pour un attaquant capable de fournir un PDF à l'application, ce qui représente un risque pour la disponibilité du service.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.1 ou ultérieure, qui corrige ce problème en limitant les valeurs acceptées pour l'entrée /ToUnicode. Si la mise à jour n'est pas possible, implémentez une validation des entrées PDF pour rejeter les fichiers avec des valeurs suspectes dans les polices.",
-      "timestamp": "2026-05-20T08:21:40.244583Z"
+      "ai_explanation": "Cette vulnérabilité dans pypdf permet un déni de service (DoS) via un fichier PDF malveillant exploitant l'entrée /ToUnicode d'une police avec des valeurs anormalement grandes. Bien que le score SRP soit faible (2.2/10) et l'EPSS très bas (0.0001), l'exploitation est techniquement simple et peut entraîner des temps d'exécution excessifs et une consommation mémoire élevée lors du parsing. Aucun acteur de menace spécifique n'est actuellement associé, mais le risque de DoS localisé existe pour les applications traitant des PDF non fiables.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.7.1 ou ultérieure, qui corrige ce problème en limitant les valeurs acceptées pour l'entrée /ToUnicode. Si la mise à jour n'est pas possible, implémentez une validation stricte des fichiers PDF entrants, notamment en limitant la taille des polices et en utilisant un timeout pour les opérations de parsing.",
+      "timestamp": "2026-05-20T08:35:42.565126Z"
     },
     {
       "cve_id": "CVE-2026-27026",
@@ -139,9 +139,9 @@
       "version": "inconnue",
       "srp_score": 2.2,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet un déni de service via un PDF malformé exploitant un flux /FlateDecode, forçant une décompression lente. Bien que le score SRP soit faible (2.2), l'impact sur la disponibilité est réel si l'application traite des PDF non fiables. Aucun acteur de menace connu n'exploite cette CVE, mais la probabilité technique d'exploitation reste possible.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.1 ou ultérieure. Si la mise à jour n'est pas possible, validez et limitez la taille des flux compressés dans les PDF entrants.",
-      "timestamp": "2026-05-20T08:21:48.427438Z"
+      "ai_explanation": "Cette vulnérabilité de déni de service dans pypdf exploite un flux /FlateDecode malformé pour provoquer des temps d'exécution excessifs. Bien qu'aucun acteur de menace spécifique ne soit identifié, la probabilité technique d'exploitation est faible (EPSS 0.01%) et le score CVSS modéré (5.5) indique un risque limité.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.7.1 ou ultérieure, qui corrige le problème de décompression lente. Si la mise à jour n'est pas possible, validez et limitez la taille des flux compressés dans les PDF entrants.",
+      "timestamp": "2026-05-20T08:35:53.137458Z"
     },
     {
       "cve_id": "CVE-2026-31826",
@@ -149,9 +149,9 @@
       "version": "inconnue",
       "srp_score": 2.2,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet à un attaquant de provoquer une consommation excessive de mémoire en fournissant un PDF avec une valeur /Length artificiellement grande dans un flux de contenu. Bien que le score SRP soit faible (2.2/10) et l'EPSS très bas (0.0001), l'exploitation est techniquement simple et pourrait être utilisée dans une attaque par déni de service ciblant des applications traitant des PDF non fiables.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.8.0 ou ultérieure, qui corrige ce problème en validant correctement la valeur /Length par rapport aux données réelles du flux. Si la mise à jour n'est pas possible, implémentez une limite de taille mémoire maximale lors du parsing des PDF.",
-      "timestamp": "2026-05-20T08:22:28.194991Z"
+      "ai_explanation": "Cette vulnérabilité permet à un attaquant de provoquer une consommation excessive de mémoire en créant un PDF avec une valeur /Length artificiellement grande dans un flux de contenu. Bien que le score SRP soit faible (2.2/10) et l'EPSS très bas (0.0001), l'exploitation est techniquement simple et ne nécessite qu'un fichier PDF malveillant. Aucun acteur de menace n'est actuellement associé, mais le risque de déni de service local est réel.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.8.0 ou ultérieure, qui corrige ce problème de validation de la taille des flux. Si la mise à jour n'est pas possible, implémentez une validation manuelle de la valeur /Length avant le parsing des flux de contenu.",
+      "timestamp": "2026-05-20T08:36:36.195627Z"
     },
     {
       "cve_id": "CVE-2026-28351",
@@ -159,9 +159,9 @@
       "version": "inconnue",
       "srp_score": 2.1,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet à un attaquant de provoquer une consommation excessive de mémoire en exploitant le filtre RunLengthDecode lors du parsing d'un PDF malveillant. Bien que le score SRP soit faible (2.1/10), l'impact sur la disponibilité du service peut être significatif si l'application traite des PDF non fiables. Aucun acteur de menace spécifique n'est associé, mais la probabilité d'exploitation technique reste présente.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.4 ou ultérieure pour corriger cette vulnérabilité. Si la mise à jour n'est pas possible, évitez de parser des PDF provenant de sources non fiables ou implémentez des limites de mémoire pour atténuer le risque.",
-      "timestamp": "2026-05-20T08:22:05.618522Z"
+      "ai_explanation": "Cette vulnérabilité permet à un attaquant de provoquer une consommation excessive de mémoire en fournissant un PDF malveillant utilisant le filtre RunLengthDecode. Bien que le score SRP soit faible (2.1/10) et l'EPSS très bas (0.0002), l'exploitation est techniquement simple et peut entraîner un déni de service sur les applications traitant des PDF non fiables.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.7.4 ou ultérieure. Si la mise à jour n'est pas possible, évitez de traiter des PDF provenant de sources non fiables ou implémentez une validation stricte des entrées.",
+      "timestamp": "2026-05-20T08:36:15.231791Z"
     },
     {
       "cve_id": "CVE-2026-28804",
@@ -169,9 +169,9 @@
       "version": "inconnue",
       "srp_score": 2.1,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité de déni de service (DoS) dans pypdf permet à un attaquant de provoquer des temps d'exécution excessivement longs en fournissant un PDF malveillant utilisant le filtre /ASCIIHexDecode. Bien qu'aucun acteur de menace spécifique ne soit identifié, le score EPSS très bas (0.0005) indique une probabilité d'exploitation quasi nulle dans la nature, mais le risque résiduel existe pour les applications exposées à des PDF non fiables.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.5 ou ultérieure. Si la mise à jour n'est pas possible, implémentez un timeout sur le traitement des PDF ou validez les entrées pour bloquer les fichiers utilisant le filtre /ASCIIHexDecode.",
-      "timestamp": "2026-05-20T08:22:18.777626Z"
+      "ai_explanation": "Cette vulnérabilité de déni de service dans pypdf permet à un attaquant de provoquer des temps d'exécution excessifs en exploitant le filtre /ASCIIHexDecode sur un PDF malveillant. Bien que le score SRP soit faible (2.1/10), l'absence d'authentification nécessaire et la simplicité d'exploitation augmentent le risque pour les applications traitant des PDF non fiables.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.7.5 ou ultérieure. Si la mise à jour n'est pas possible, implémentez un timeout strict pour le traitement des PDF et validez les entrées utilisateur.",
+      "timestamp": "2026-05-20T08:36:26.438988Z"
     },
     {
       "cve_id": "CVE-2026-40260",
@@ -179,9 +179,9 @@
       "version": "inconnue",
       "srp_score": 2.1,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité dans pypdf permet à un attaquant de provoquer une consommation excessive de mémoire en manipulant les déclarations d'entités XMP. Bien que le score SRP soit faible (2.1), l'exploitation est possible sans authentification et peut entraîner un déni de service. Aucun acteur de menace spécifique n'est connu, mais la probabilité d'exploitation est faible (EPSS 0.0002).",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.10.0 ou ultérieure pour corriger cette vulnérabilité. Si la mise à jour n'est pas possible, envisagez de désactiver le parsing des métadonnées XMP dans votre code.",
-      "timestamp": "2026-05-20T08:22:54.782881Z"
+      "ai_explanation": "Cette vulnérabilité permet à un attaquant de provoquer un épuisement de la mémoire (RAM) en manipulant les déclarations d'entités XMP dans un fichier PDF malveillant. Bien que le score SRP soit faible (2.1/10) et que l'EPSS soit très bas (0.0002), l'exploitation est techniquement possible et ne nécessite qu'un fichier PDF piégé. Aucun acteur de menace n'a été observé exploitant cette CVE, mais le risque de déni de service local existe.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.10.0 ou ultérieure, qui corrige ce problème de gestion des entités XMP. Si la mise à jour n'est pas possible, envisagez de désactiver l'analyse des métadonnées XMP dans votre code.",
+      "timestamp": "2026-05-20T08:37:04.378834Z"
     },
     {
       "cve_id": "CVE-2026-41168",
@@ -189,9 +189,9 @@
       "version": "inconnue",
       "srp_score": 2.1,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité permet à un attaquant de provoquer un déni de service en forçant pypdf à traiter des PDFs malveillants avec des valeurs `/Size` ou `/N` anormalement grandes, entraînant des temps d'exécution excessifs. Bien que le score SRP soit faible (2.1/10), l'exploitation est triviale et ne nécessite qu'un PDF malformé, ce qui la rend accessible à tout attaquant sans compétence avancée. Aucun acteur de menace spécifique n'est identifié, mais la probabilité d'exploitation dans des contextes non isolés est modérée.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.10.1 ou ultérieure, qui corrige ce problème en limitant les valeurs acceptées pour `/Size` et `/N`. Si la mise à jour n'est pas possible, implémentez une validation stricte des entrées PDF en amont pour rejeter les fichiers avec des métadonnées suspectes.",
-      "timestamp": "2026-05-20T08:23:05.723968Z"
+      "ai_explanation": "Cette vulnérabilité permet à un attaquant de provoquer un déni de service en forçant pypdf à allouer des ressources excessives lors du traitement de fichiers PDF malveillants. Bien que le score SRP soit faible (2.1/10), l'exploitation est triviale via des valeurs `/Size` ou `/N` anormalement grandes dans les flux de référence croisée. Aucun acteur de menace n'est actuellement associé, mais la simplicité de l'attaque augmente le risque d'exploitation opportuniste.",
+      "ai_fix": "Mettez à jour pypdf vers la version 6.10.1 ou ultérieure, qui corrige cette vulnérabilité en validant les valeurs de taille et de nombre dans les flux PDF. Si la mise à jour n'est pas possible, implémentez une validation stricte des entrées PDF côté serveur pour limiter les ressources allouées.",
+      "timestamp": "2026-05-20T08:37:14.411344Z"
     }
   ]
 }
