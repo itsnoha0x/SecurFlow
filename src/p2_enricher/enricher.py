@@ -14,6 +14,7 @@ import requests
 import sqlite3
 import time
 import yaml
+import threading
 from datetime import datetime
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
@@ -26,6 +27,7 @@ class ThreatEnricher:
         self.otx_api_key = os.environ.get("OTX_API_KEY", "")
         self.cisa_api_key = os.environ.get("CISA_API_KEY", "")
         self._cisa_cache = None  # Session cache to avoid redundant downloads
+        self._lock = threading.Lock() # Lock pour la synchronisation des flux
         self.cache_path = Path(__file__).parent / "cache.sqlite"
         self._init_db()
         
@@ -74,6 +76,11 @@ class ThreatEnricher:
                 cursor = conn.execute("SELECT enriched_data FROM cve_cache WHERE cve_id = ?", (cve_id,))
                 row = cursor.fetchone()
                 return json.loads(row[0]) if row else None
+            conn = sqlite3.connect(self.cache_path, timeout=20)
+            cursor = conn.execute("SELECT enriched_data FROM cve_cache WHERE cve_id = ?", (cve_id,))
+            row = cursor.fetchone()
+            conn.close()
+            return json.loads(row[0]) if row else None
         except Exception:
             return None
 
@@ -85,6 +92,7 @@ class ThreatEnricher:
                     "INSERT OR REPLACE INTO cve_cache (cve_id, enriched_data) VALUES (?, ?)",
                     (cve_id, json.dumps(enriched_data))
                 )
+                conn.commit()
         except sqlite3.Error as e:
             print(f"[!] Error saving to cache: {e}")
 
@@ -181,6 +189,12 @@ class ThreatEnricher:
                 response = requests.get(url, timeout=10)
                 if response.status_code == 200:
                     self._cisa_cache = response.json()
+            with self._lock:
+                if self._cisa_cache is None:
+                    url = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+                    response = requests.get(url, timeout=10)
+                    if response.status_code == 200:
+                        self._cisa_cache = response.json()
 
             if self._cisa_cache:
                 for vuln in self._cisa_cache.get("vulnerabilities", []):
