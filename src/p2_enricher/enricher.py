@@ -121,7 +121,9 @@ class ThreatEnricher:
             and enriched["threat_intelligence"].get("otx_indicators", {}).get("indicators_count", 0) > 0
         )
 
-        if cisa_data.get("known_exploited") or otx_has_pulses:
+        epss_high = float(enriched.get("epss_score", 0)) >= 0.5
+
+        if cisa_data.get("known_exploited") or otx_has_pulses or epss_high:
             enriched["threat_intelligence"]["exploit_available"] = True
         else:
             enriched["threat_intelligence"]["exploit_available"] = False
