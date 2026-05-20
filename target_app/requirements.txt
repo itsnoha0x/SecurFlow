@@ -1,4 +1,4 @@
-PyYAML==3.12           # The classic Deserialization RCE
-PyJWT==2.11.0          # Critical Header Bypass (CVE-2026-32597)
-pypdf==6.7.0           # Infinite Loop DoS (CVE-2026-27024)
-pyLoad==0.5.0b3.dev96  # SSRF Cloud Metadata Exfil (CVE-2026-33992)
+PyYAML==3.12          
+PyJWT==2.11.0         
+pypdf==6.7.0           
+pyLoad==0.5.0b3.dev96  

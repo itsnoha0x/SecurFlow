@@ -374,7 +374,7 @@ def main():
     # Code de sortie : 1 si CRITICAL trouvee (utile pour CI/CD)
     if output["summary"]["by_severity"]["CRITICAL"] > 0:
         print("[!] CVE CRITICAL detectee — le pipeline devrait etre bloque.")
-        sys.exit(1)
+        sys.exit(2)
 
 
 # ── Rapport texte lisible ─────────────────────────────────────
