@@ -190,24 +190,27 @@ jobs:
         name: scan-results
         path: shared/
         
+    # P2 — Run P2 Enricher
     - name: Run P2 Enricher
       id: enrich
       run: |
+        set +e
         cd src/p2_enricher
         python enricher.py \
           --input "../../shared/1_raw_results.json" \
           --output "../../shared/2_enriched.json"
+        EXIT_CODE=$?
+        set -e
+        if [ $EXIT_CODE -eq 2 ]; then
+          echo "enrichment-warning=true" >> $GITHUB_OUTPUT
+          echo "[!] Enrichissement partiel — pipeline continue"
+          exit 0
+        fi
+        exit $EXIT_CODE
       env:
         NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         OTX_API_KEY: ${{ secrets.OTX_API_KEY }}
         CISA_API_KEY: ${{ secrets.CISA_API_KEY }}
-        
-    - name: Upload enriched results
-      uses: actions/upload-artifact@v4
-      with:
-        name: enriched-results
-        path: shared/2_enriched.json
-        retention-days: 30
 
   # P3: AI Decision Engine
   decide:
@@ -253,21 +256,33 @@ jobs:
     - name: Run P3 Decision Engine
       id: decide
       run: |
+        set +e
         cd src/p3_decision_engine
         python decision_engine.py \
           --input "../../shared/2_enriched.json" \
           --output "../../shared/3_final_report.json"
+        EXIT_CODE=$?
+        set -e
+        if [ $EXIT_CODE -eq 2 ]; then
+          echo "pipeline-blocked=true" >> $GITHUB_OUTPUT
+          echo "[!] Decisions BLOQUER detectees — gate P4 prendra la decision finale"
+          exit 0
+        fi
+        exit $EXIT_CODE
       env:
         FEATHERLESS_API_KEY: ${{ secrets.FEATHERLESS_API_KEY }}
         
     - name: Extract decision summary
       id: summary
       run: |
-        if [ -f "../../shared/3_final_report.json" ]; then
-          CRITICAL_DECISIONS=$(jq -r '.decision_metadata.decisions.BLOQUER // 0' ../../shared/3_final_report.json)
-          PIPELINE_BLOCKED=$(jq -r '.decision_metadata.decisions.BLOQUER > 0' ../../shared/3_final_report.json)
+        if [ -f "shared/3_final_report.json" ]; then
+          CRITICAL_DECISIONS=$(jq -r '.decision_metadata.decisions.BLOQUER // 0' shared/3_final_report.json)
+          PIPELINE_BLOCKED=$(jq -r 'if .decision_metadata.decisions.BLOQUER > 0 then "true" else "false" end' shared/3_final_report.json)
           echo "critical-decisions=$CRITICAL_DECISIONS" >> $GITHUB_OUTPUT
           echo "pipeline-blocked=$PIPELINE_BLOCKED" >> $GITHUB_OUTPUT
+        else
+          echo "critical-decisions=0" >> $GITHUB_OUTPUT
+          echo "pipeline-blocked=false" >> $GITHUB_OUTPUT
         fi
         
     - name: Upload Final Report
@@ -280,11 +295,11 @@ jobs:
     - name: Generate security summary
       id: security-summary
       run: |
-        if [ -f "../../shared/3_final_report.json" ]; then
-          TOTAL_VULNS=$(jq -r '.decision_metadata.total_processed' ../../shared/3_final_report.json)
-          CRITICAL_COUNT=$(jq -r '.decision_metadata.decisions.BLOQUER // 0' ../../shared/3_final_report.json)
-          HIGH_COUNT=$(jq -r '.decision_metadata.decisions.ALERTER // 0' ../../shared/3_final_report.json)
-          AVG_SRP=$(jq -r '.decision_metadata.average_srp' ../../shared/3_final_report.json)
+        if [ -f "shared/3_final_report.json" ]; then
+          TOTAL_VULNS=$(jq -r '.decision_metadata.total_processed' shared/3_final_report.json)
+          CRITICAL_COUNT=$(jq -r '.decision_metadata.decisions.BLOQUER // 0' shared/3_final_report.json)
+          HIGH_COUNT=$(jq -r '.decision_metadata.decisions.ALERTER // 0' shared/3_final_report.json)
+          AVG_SRP=$(jq -r '.decision_metadata.average_srp' shared/3_final_report.json)
           
           echo "## 🔍 Security Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
