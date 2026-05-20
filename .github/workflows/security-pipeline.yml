@@ -105,14 +105,14 @@ jobs:
     - name: Run P1 Scanner
       id: scan
       run: |
+        set +e   # <-- désactive l'arrêt automatique sur erreur
         cd src/p1_scanner
         python scanner.py \
           --target "../../target_app" \
           --severity "${{ github.event.inputs.severity_filter || 'CRITICAL,HIGH,MEDIUM' }}" \
           --output "../../shared/1_raw_results.json"
         EXIT_CODE=$?
-        # Exit 2 = CRITICAL trouvees (comportement attendu, pas une erreur technique)
-        # Exit 1 = erreur technique reelle
+        set -e   # <-- réactive pour la suite
         if [ $EXIT_CODE -eq 2 ]; then
           echo "critical-found=true" >> $GITHUB_OUTPUT
           echo "[!] CVEs CRITICAL detectees — pipeline continue jusqu'au gate P4"
