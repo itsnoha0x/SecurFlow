@@ -8,7 +8,7 @@ high_context_components:
   - sequelize
   - typeorm
 
-# AI Model Configuration
+# AI Model Configuration .
 ai_config:
   model_name: "Qwen/Qwen3-32B"
   temperature: 0.1
