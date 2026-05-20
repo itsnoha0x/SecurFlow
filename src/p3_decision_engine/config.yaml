@@ -10,7 +10,7 @@ high_context_components:
 
 # AI Model Configuration .
 ai_config:
-  model_name: "Mistral-Small-3.2-24B-Instruct-2506"
+  model_name: "mistralai/Mistral-Small-3.2-24B-Instruct-2506"
   temperature: 0.1
   max_tokens: 4000
   timeout_seconds: 60
