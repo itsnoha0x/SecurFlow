@@ -261,8 +261,6 @@ class DecisionEngine:
                 preview = result.get("ai_explanation", "")[:75]
                 print(f"    [IA] Analyse terminée pour {local_cve_id}. Réponse: {preview}...")
 
-                # Délai pour éviter les 429 sur Featherless
-                time.sleep(0.5)
 
                 return {
                     "ai_explanation": result.get("ai_explanation", "Alerte CTI critique."),
