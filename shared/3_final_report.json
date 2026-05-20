@@ -1,197 +1,717 @@
 {
   "decision_metadata": {
-    "timestamp": "2026-05-20T09:01:50.595893Z",
+    "timestamp": "2026-05-20T09:49:36.913161Z",
     "engine_version": "1.0.0",
     "config_used": {
       "high_context_components": [
-        "mongoose",
-        "psycopg2",
+        "sqlalchemy",
         "typeorm",
         "sequelize",
-        "sqlalchemy"
+        "mongoose",
+        "psycopg2"
       ],
       "block_threshold": 7.0,
       "alert_threshold": 4.0,
       "model": "Qwen/Qwen3-32B"
     },
-    "total_processed": 17,
+    "total_processed": 69,
     "decisions": {
-      "BLOQUER": 0,
-      "ALERTER": 2,
-      "PASSER": 15
+      "BLOQUER": 1,
+      "ALERTER": 4,
+      "PASSER": 64
     },
-    "average_srp": 2.6
+    "average_srp": 2.9
   },
   "vulnerability_decisions": [
     {
-      "cve_id": "CVE-2020-14343",
-      "package": "PyYAML",
+      "cve_id": "CVE-2023-4863",
+      "package": "Pillow",
       "version": "inconnue",
-      "srp_score": 4.3,
+      "srp_score": 8.3,
+      "decision": "BLOQUER",
+      "ai_explanation": "CVE-2023-4863 est un dépassement de tampon en mémoire (heap buffer overflow) dans libwebp, utilisé par Google Chrome. Un attaquant peut forcer une écriture hors limites via une page HTML malveillante, permettant un exécution de code arbitraire. Cela permet à un attaquant distant de compromettre la machine de l'utilisateur.",
+      "ai_fix": "Mettez à jour Google Chrome à la version 116.0.5845.187 ou ultérieure. Assurez-vous également que toutes les dépendances utilisant libwebp sont à jour avec la version 1.3.2 ou plus.",
+      "timestamp": "2026-05-20T09:41:52.921834Z"
+    },
+    {
+      "cve_id": "CVE-2023-0286",
+      "package": "cryptography",
+      "version": "inconnue",
+      "srp_score": 5.6,
       "decision": "ALERTER",
-      "ai_explanation": "PyYAML versions antérieures à 5.4 sont vulnérables à l'exécution de code arbitraire via le traitement de fichiers YAML non fiables avec full_load ou FullLoader. Bien que non listé dans le KEV, le score CVSS élevé (9.8) indique un risque critique. L'absence d'acteurs de menace spécifiques ne réduit pas la probabilité d'exploitation en raison de la nature grave de la vulnérabilité.",
-      "ai_fix": "Mettez à jour PyYAML à la version 5.4 ou ultérieure. Évitez d'utiliser full_load ou FullLoader avec des entrées non fiables.",
-      "timestamp": "2026-05-20T08:59:47.551273Z"
+      "ai_explanation": "CVE-2023-0286 est une vulnérabilité de confusion de type dans la gestion des adresses X.400 dans les noms X.509. L'analyse incorrecte des adresses X.400 comme ASN1_STRING au lieu de leur type réel peut entraîner un comportement imprévisible ou une exécution de code. Bien que non listé dans le KEV, son score EPSS élevé (0.8845) indique une probabilité d'exploitation significative.",
+      "ai_fix": "Mettez à jour la bibliothèque cryptography à une version corrigée. Vérifiez les types de données lors de la gestion des noms X.509 pour éviter les erreurs de conversion.",
+      "timestamp": "2026-05-20T09:44:08.351095Z"
     },
     {
-      "cve_id": "CVE-2017-18342",
-      "package": "PyYAML",
+      "cve_id": "CVE-2020-5311",
+      "package": "Pillow",
       "version": "inconnue",
-      "srp_score": 4.1,
+      "srp_score": 4.0,
       "decision": "ALERTER",
-      "ai_explanation": "CVE-2017-18342 concerne une vulnérabilité de sécurité dans PyYAML versions antérieures à 5.1, où l'utilisation de yaml.load() avec des données non fiables pouvait exécuter du code arbitraire. Bien que le score SRP soit modéré (4.1/10), le CVSS élevé (9.8) indique un risque critique en cas d'attaque réussie. Aucun acteur de menace spécifique n'a été identifié, mais l'exploitation reste probable via des données malveillantes.",
-      "ai_fix": "Remplacez yaml.load() par yaml.safe_load() pour désactiver l'exécution de code. Mettez à jour PyYAML à la version 5.1 ou ultérieure pour utiliser le 'UnsafeLoader' avec des restrictions.",
-      "timestamp": "2026-05-20T08:59:40.018716Z"
+      "ai_explanation": "Cette vulnérabilité concerne un débordement de tampon dans la gestion des fichiers SGI dans Pillow, ce qui pourrait permettre à un attaquant de provoquer un déni de service ou d'exécuter du code arbitraire. Bien que le score EPSS soit modéré, les débordements de tampon sont couramment exploités dans les attaques ciblées. Aucun acteur de menace spécifique n'a été identifié à ce jour.",
+      "ai_fix": "Mettez à jour Pillow à la version 6.2.2 ou ultérieure pour corriger ce problème. Validez les entrées utilisateur et limitez les tailles de fichiers SGI acceptées en tant que mesure de contournement temporaire.",
+      "timestamp": "2026-05-20T09:34:02.376157Z"
     },
     {
-      "cve_id": "CVE-2026-32597",
-      "package": "PyJWT",
+      "cve_id": "CVE-2020-5312",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 4.0,
+      "decision": "ALERTER",
+      "ai_explanation": "Cette vulnérabilité concerne un débordement de tampon dans le gestionnaire d'images Pillow, affectant les versions antérieures à 6.2.2. Elle pourrait permettre à un attaquant de provoquer un comportement non défini ou d'exécuter du code arbitraire via un fichier PCX malveillant. Bien que CISA ne l'ait pas encore ajoutée à sa liste KEV, le score CVSS élevé (9.8) indique un risque significatif.",
+      "ai_fix": "Mettez à jour Pillow à la version 6.2.2 ou ultérieure. Validez les entrées d'images provenant de sources non fiables avant traitement.",
+      "timestamp": "2026-05-20T09:34:13.323170Z"
+    },
+    {
+      "cve_id": "CVE-2022-22817",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 4.0,
+      "decision": "ALERTER",
+      "ai_explanation": "CVE-2022-22817 dans Pillow permet l'exécution de code arbitraire via PIL.ImageMath.eval, ce qui pourrait être exploité pour compromettre le système. Bien que non présent dans le KEV de CISA, le CVSS élevé (9.8) indique un risque critique. L'EPSS de 0.0278 suggère une probabilité modérée d'exploitation.",
+      "ai_fix": "Mettez à jour Pillow à la version 9.0.0 ou ultérieure. Validez toutes les entrées utilisateur avant traitement dans PIL.ImageMath.eval.",
+      "timestamp": "2026-05-20T09:35:07.461185Z"
+    },
+    {
+      "cve_id": "CVE-2021-25289",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.9,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-25289 est un dépassement de tampon basé sur le tas dans Pillow, causé par des conflits d'interprétation avec LibTIFF en mode RGBA lors de la décodage de fichiers YCbCr. Ce problème est lié à un correctif incomplet pour CVE-2020-35654. Bien que le score SRP soit modéré (3.9/10), le CVSS élevé (9.8) indique un potentiel d'exploitation critique si des fichiers malveillants sont traités.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.1 ou ultérieure pour corriger le dépassement de tampon. Validez les entrées TIFF et limitez le traitement des fichiers YCbCr si la mise à jour n'est pas immédiatement possible.",
+      "timestamp": "2026-05-20T09:34:32.900128Z"
+    },
+    {
+      "cve_id": "CVE-2021-34552",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.9,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-34552 est une vulnérabilité de débordement de tampon dans Pillow et PIL, exploitée via la fonction convert avec des paramètres contrôlés. Les versions affectées sont Pillow jusqu'à 8.2.0 et PIL jusqu'à 1.1.7. Bien que le score CVSS soit élevé (9.8), l'EPSS de 0.0034 indique une probabilité d'exploitation modérée.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.2.1 ou ultérieure. Si PIL est utilisé, migrez vers Pillow et appliquez la mise à jour correspondante.",
+      "timestamp": "2026-05-20T09:34:49.980265Z"
+    },
+    {
+      "cve_id": "CVE-2021-25287",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.7,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-25287 est une vulnérabilité d'accès hors limites dans la fonction J2kDecode de Pillow, affectant les versions antérieures à 8.2.0. Elle pourrait permettre à un attaquant de lire des données mémoire non autorisées via un fichier JPEG 2000 malveillant. Bien que le score SRP soit modéré (3.7/10), le CVSS élevé (9.1) indique un risque technique important.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.2.0 ou ultérieure. Validez les entrées JPEG 2000 avant traitement pour limiter les risques d'exploitation.",
+      "timestamp": "2026-05-20T09:38:16.988363Z"
+    },
+    {
+      "cve_id": "CVE-2022-24303",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.7,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans Pillow permet à un attaquant de supprimer des fichiers en exploitant un problème de gestion des espaces dans les noms de fichiers temporaires. Bien que le score SRP soit modéré (3.7/10), le CVSS élevé (9.1) indique un risque significatif si l'application manipule des fichiers d'origine non fiable. L'absence de lien avec des acteurs de menace connus ne réduit pas la probabilité d'exploitation technique.",
+      "ai_fix": "Mettez à jour Pillow à la version 9.0.1 ou ultérieure. Validez et nettoyez toutes les entrées utilisateur impliquées dans la création de fichiers temporaires.",
+      "timestamp": "2026-05-20T09:41:11.410620Z"
+    },
+    {
+      "cve_id": "CVE-2024-6345",
+      "package": "setuptools",
+      "version": "inconnue",
+      "srp_score": 3.7,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité permet l'exécution de code à distance via les fonctions de téléchargement du module package_index de setuptools. Les versions vulnérables (jusqu'à 69.1.1) téléchargent des paquets depuis des URLs fournis par les utilisateurs ou des serveurs d'index, ce qui ouvre la porte à l'injection de code. Bien que non listée dans le KEV de CISA, son score CVSS élevé (8.8) indique un risque technique significatif d'exploitation.",
+      "ai_fix": "Mettez à jour setuptools à une version corrigée (69.1.2 ou ultérieure). Validez les URLs de téléchargement et évitez d'utiliser des sources non fiables pour les paquets Python.",
+      "timestamp": "2026-05-20T09:46:22.024153Z"
+    },
+    {
+      "cve_id": "CVE-2021-25288",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.6,
+      "decision": "PASSER",
+      "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2021-25288. (Erreur API IA).",
+      "ai_fix": "Vérifiez les correctifs de sécurité pour Pillow vinconnue.",
+      "timestamp": "2026-05-20T09:38:36.798168Z"
+    },
+    {
+      "cve_id": "CVE-2020-5310",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.5,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2020-5310 est un dépassement de capacité entier dans la décompression TIFF de Pillow, pouvant entraîner une exécution de code à distance. Bien que le score SRP soit modéré, l'overflow entier est une vulnérabilité courante exploitée par les attaquants pour provoquer des débordements de tampon. Les attaquants peuvent forcer une mauvaise allocation de mémoire via realloc, menant à une compromission du système.",
+      "ai_fix": "Mettez à jour Pillow à la version 6.2.2 ou ultérieure pour corriger l'integer overflow. Validez les entrées TIFF et limitez les tailles de fichiers acceptées pour réduire le risque d'exploitation.",
+      "timestamp": "2026-05-20T09:33:49.052851Z"
+    },
+    {
+      "cve_id": "CVE-2020-35654",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.5,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2020-35654 est un dépassement de tampon basé sur le tas dans Pillow versions antérieures à 8.1.0, causé par des conflits d'interprétation avec LibTIFF lors du décodage de fichiers YCbCr en mode RGBA. Ce type de vulnérabilité peut être exploité pour exécuter du code arbitraire ou provoquer un déni de service. Bien que le score SRP soit modéré (3.5/10), le CVSS élevé (8.8) indique un risque technique significatif d'exploitation.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.0 ou ultérieure pour corriger ce dépassement de tampon. Validez les entrées TIFF dans vos applications pour éviter le traitement de fichiers malveillants.",
+      "timestamp": "2026-05-20T09:37:42.015976Z"
+    },
+    {
+      "cve_id": "CVE-2025-47273",
+      "package": "setuptools",
+      "version": "inconnue",
+      "srp_score": 3.5,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité de traversée de chemin dans setuptools permet à un attaquant d'écrire des fichiers à des emplacements arbitraires sur le système. Bien que le score SRP soit modéré (3.5/10), le CVSS élevé (8.8) indique un risque significatif d'exploitation. Aucun acteur de menace spécifique n'étant identifié, le risque reste techniquement plausible.",
+      "ai_fix": "Mettez à jour setuptools à la version 78.1.1 ou ultérieure pour corriger cette vulnérabilité. Validez que toutes les dépendances utilisent une version sécurisée.",
+      "timestamp": "2026-05-20T09:46:32.950514Z"
+    },
+    {
+      "cve_id": "CVE-2023-50447",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.3,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2023-50447 est une vulnérabilité de type exécution de code arbitraire dans Pillow, affectant les versions jusqu'à 10.1.0. Elle est déclenchée via le paramètre 'environment' de PIL.ImageMath.eval. Bien que le score SRP soit modéré (3.3/10), le CVSS élevé (8.1) indique un risque technique significatif d'exploitation.",
+      "ai_fix": "Mettez à jour Pillow à la version 10.1.1 ou ultérieure. Validez les entrées utilisateur dans les expressions PIL.ImageMath.eval si la mise à jour n'est pas immédiatement possible.",
+      "timestamp": "2026-05-20T09:35:30.236535Z"
+    },
+    {
+      "cve_id": "CVE-2023-43804",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 3.3,
+      "decision": "PASSER",
+      "ai_explanation": "La vulnérabilité CVE-2023-43804 dans urllib3 concerne la gestion inappropriée de l'en-tête `Cookie`, ce qui peut entraîner une fuite de données sensibles. Bien que le score SRP soit modéré (3.3/10), le CVSS élevé (8.1) indique un risque significatif si des cookies contenant des informations sensibles sont envoyés via cet en-tête. Cette vulnérabilité pourrait être exploitée pour obtenir des informations d'identification ou d'autres données sensibles.",
+      "ai_fix": "Mettez à jour urllib3 vers une version corrigée. Vérifiez également que les en-têtes `Cookie` envoyés ne contiennent pas de données sensibles inutiles.",
+      "timestamp": "2026-05-20T09:46:55.728259Z"
+    },
+    {
+      "cve_id": "CVE-2020-11538",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.2,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans Pillow permet des lectures hors limites lors du traitement des fichiers SGI, ce qui pourrait mener à une divulgation de données. Bien que le score SRP soit modéré (3.2/10), le CVSS élevé (8.1) indique un risque significatif si des fichiers malveillants sont traités. Aucun acteur de menace spécifique n'a été identifié, mais l'exploitation reste possible via des attaques ciblées.",
+      "ai_fix": "Mettez à jour Pillow à une version supérieure à 7.0.0. Validez les entrées des fichiers SGI pour éviter le traitement de contenus non fiables.",
+      "timestamp": "2026-05-20T09:33:37.272911Z"
+    },
+    {
+      "cve_id": "CVE-2019-16865",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.1,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2019-16865 concerne une vulnérabilité de déni de service (DoS) dans Pillow, où des fichiers image malveillants peuvent provoquer une allocation excessive de mémoire ou des traitements très longs. Bien que le score SRP soit modéré (3.1/10), le CVSS élevé (7.5) indique un risque potentiel si l'application traite des images non fiables. Cette vulnérabilité pourrait être exploitée par des attaquants pour ralentir ou bloquer le service.",
+      "ai_fix": "Mettez à jour Pillow à la version 6.2.0 ou ultérieure pour corriger cette vulnérabilité. Validez et filtrez les fichiers image entrants pour éviter le traitement de contenus suspects.",
+      "timestamp": "2026-05-20T09:35:42.531983Z"
+    },
+    {
+      "cve_id": "CVE-2020-10379",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.1,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité concerne des débordements de tampon dans la gestion des fichiers TIFF dans Pillow, une bibliothèque Python d'image. Ces débordements pourraient permettre à un attaquant de lancer des attaques par débordement de tampon, potentiellement permettant l'exécution de code arbitraire ou la corruption de données. Bien que le score SRP soit modéré, les débordements de tampon sont couramment exploités dans les attaques logicielles.",
+      "ai_fix": "Mettez à jour Pillow à la version 7.1.0 ou ultérieure pour corriger ces vulnérabilités. Si la mise à jour n'est pas immédiatement possible, limitez l'acceptation des fichiers TIFF à des sources fiables.",
+      "timestamp": "2026-05-20T09:36:52.110663Z"
+    },
+    {
+      "cve_id": "CVE-2019-19911",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 3.0,
       "decision": "PASSER",
-      "ai_explanation": "PyJWT versions before 2.12.0 fail to validate the 'crit' header parameter in JWS tokens, allowing attackers to bypass security checks by including unrecognized critical extensions. This could lead to unauthorized access or token forgery. The vulnerability is less likely to be exploited due to its low EPSS score, but remains a risk in environments using older JWT implementations.",
-      "ai_fix": "Upgrade PyJWT to version 2.12.0 or later to ensure proper validation of the 'crit' header parameter. Validate all JWT tokens with updated libraries to prevent potential bypasses.",
-      "timestamp": "2026-05-20T08:59:36.811336Z"
+      "ai_explanation": "CVE-2019-19911 est une vulnérabilité de déni de service (DoS) dans Pillow avant la version 6.2.2. Elle est causée par une validation insuffisante d'un entier 32 bits dans FpxImagePlugin.py, entraînant une surcharge mémoire ou un dépassement de capacité. Bien que le score SRP soit modéré (3/10), les attaquants pourraient exploiter cela pour bloquer des services sur des systèmes Windows ou Linux.",
+      "ai_fix": "Mettez à jour Pillow à la version 6.2.2 ou ultérieure. Validez les entrées d'images pour limiter le nombre de bandes autorisées.",
+      "timestamp": "2026-05-20T09:36:06.351573Z"
     },
     {
-      "cve_id": "CVE-2026-27888",
-      "package": "pypdf",
+      "cve_id": "CVE-2021-23437",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 3.0,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-27888 est une vulnérabilité dans pypdf qui permet à un attaquant de créer un PDF malveillant exploitant la décompression FlateDecode dans la propriété XFA, entraînant une exhaustion de la mémoire RAM. Bien que le score SRP soit modéré (3/10), l'absence de CISA KEV et la faible probabilité d'exploitation (EPSS 0.0006) suggèrent un risque limité. Cependant, les attaquants peuvent cibler des applications exposées à des fichiers PDF non fiables.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.3 ou ultérieure pour corriger cette vulnérabilité. Validez les entrées PDF et limitez la mémoire allouée lors du traitement des fichiers.",
-      "timestamp": "2026-05-20T09:00:12.683001Z"
+      "ai_explanation": "CVE-2021-23437 est un ReDoS dans la fonction getrgb de Pillow, affectant les versions 5.2.0 à 8.3.2. Un attaquant peut envoyer une entrée malveillante pour bloquer le traitement, entraînant un refus de service. Bien que le score SRP soit modéré, le CVSS élevé (7.5) indique un risque d'impact opérationnel.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.3.2 ou ultérieure pour corriger cette vulnérabilité. Validez les entrées utilisateur avant traitement pour limiter les risques d'exploitation.",
+      "timestamp": "2026-05-20T09:38:04.105622Z"
     },
     {
-      "cve_id": "CVE-2026-33699",
-      "package": "pypdf",
+      "cve_id": "CVE-2021-25290",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 3.0,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-33699 est une vulnérabilité dans pypdf où un attaquant peut créer un PDF malveillant qui provoque une boucle infinie, entraînant une défaillance du service. Bien que le score SRP soit modéré (3.0/10), la vulnérabilité peut être exploitée si les fichiers PDF sont traités en mode non strict. Aucun acteur de menace spécifique n'a été identifié à ce jour.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.9.2 ou ultérieure pour corriger cette vulnérabilité. Si la mise à jour n'est pas immédiatement possible, configurez pypdf pour qu'il utilise le mode strict lors de la lecture des fichiers PDF.",
-      "timestamp": "2026-05-20T09:00:52.907163Z"
+      "ai_explanation": "CVE-2021-25290 est une vulnérabilité de débordement de mémoire dans la bibliothèque Pillow, causée par un memcpy avec une taille invalide dans TiffDecode.c. Cela pourrait permettre à un attaquant de provoquer un crash ou d'exécuter un code arbitraire via un fichier TIFF malveillant. Bien que le score SRP soit modéré (3.0/10), les vulnérabilités de mémoire sont souvent exploitées dans des attaques ciblées.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.1 ou ultérieure. Validez les entrées TIFF et utilisez des outils d'analyse de mémoire pour détecter d'autres problèmes similaires.",
+      "timestamp": "2026-05-20T09:38:50.952438Z"
     },
     {
-      "cve_id": "CVE-2026-33123",
-      "package": "pypdf",
+      "cve_id": "CVE-2021-25291",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-25291 est une vulnérabilité d'accès hors limites dans Pillow, affectant les versions antérieures à 8.1.1. Elle permet la divulgation de données via une lecture hors limites dans TiffreadRGBATile. Bien que le score SRP soit modéré, l'absence de CISA KEV et d'acteurs de menace connus réduit la priorité.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.1 ou ultérieure. Validez les limites des tuiles TIFF dans les applications critiques avant la mise à jour.",
+      "timestamp": "2026-05-20T09:39:01.177061Z"
+    },
+    {
+      "cve_id": "CVE-2021-25293",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-25293 est une vulnérabilité de lecture hors limites dans Pillow, affectant les versions antérieures à 8.1.1. Elle pourrait permettre à un attaquant de provoquer un comportement non défini ou d'obtenir des informations sensibles via un fichier malveillant. Bien que le score SRP soit modéré (3.0/10), la vulnérabilité est exploitée via l'analyse d'images, ce qui est courant.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.1 ou ultérieure. Validez les entrées d'images et limitez les privilèges des processus traitant les fichiers utilisateur.",
+      "timestamp": "2026-05-20T09:39:19.989659Z"
+    },
+    {
+      "cve_id": "CVE-2021-27921",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-27921 est un problème de déni de service (DoS) dans Pillow, où un conteneur BLP malveillant peut provoquer une allocation de mémoire excessive. Les attaquants pourraient exploiter cela pour épuiser les ressources du serveur, entraînant un arrêt de service. Bien que le score SRP soit modéré, l'impact sur la disponibilité est significatif.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.2 ou ultérieure. Validez les tailles d'image BLP avant traitement pour éviter les allocations de mémoire excessives.",
+      "timestamp": "2026-05-20T09:39:50.942535Z"
+    },
+    {
+      "cve_id": "CVE-2021-27922",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-27922 est une vulnérabilité de déni de service (DoS) dans Pillow, où un conteneur ICNS malveillant peut provoquer une allocation de mémoire excessive. Bien que le score SRP soit modéré (3/10), l'attaque est technique et nécessite une connaissance du format ICNS. Aucun acteur de menace spécifique n'a été identifié à ce jour.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.2 ou ultérieure pour corriger la vérification de la taille des images ICNS. Validez les entrées utilisateur et limitez la mémoire allouée pour les fichiers ICNS.",
+      "timestamp": "2026-05-20T09:40:02.506515Z"
+    },
+    {
+      "cve_id": "CVE-2021-27923",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-27923 est une vulnérabilité de déni de service (DoS) dans Pillow, où un fichier ICO malveillant peut provoquer une allocation de mémoire excessive. Bien que le score SRP soit modéré (3/10), l'attaque est technique et pourrait être exploitée via des fichiers ICO manipulés. Aucun acteur de menace spécifique n'a été identifié à ce jour.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.2 ou ultérieure pour corriger la vérification des tailles d'image ICO. Validez les fichiers ICO reçus en entrée pour éviter les allocations de mémoire anormalement grandes.",
+      "timestamp": "2026-05-20T09:40:13.841164Z"
+    },
+    {
+      "cve_id": "CVE-2021-28676",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-28676 est une vulnérabilité dans Pillow (versions antérieures à 8.2.0) où FliDecode ne vérifie pas correctement que le décalage de bloc est non nul, ce qui peut entraîner une boucle infinie lors du chargement de données FLI. Bien que le score SRP soit modéré (3/10), le CVSS de 7.5 indique un impact significatif. Cette vulnérabilité pourrait être exploitée pour provoquer un déni de service (DoS) via un fichier FLI malveillant.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.2.0 ou ultérieure pour corriger ce problème. Validez les fichiers FLI entrants avec une validation de type ou une analyse statique avant le traitement.",
+      "timestamp": "2026-05-20T09:40:41.511157Z"
+    },
+    {
+      "cve_id": "CVE-2021-28677",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-28677 est une vulnérabilité de déni de service (DoS) dans la bibliothèque Pillow, affectant les versions antérieures à 8.2.0. Elle concerne le traitement des fichiers EPS qui utilisent un algorithme inefficace pour gérer les sauts de ligne, ce qui peut entraîner une consommation excessive de ressources. Bien que le score SRP soit modéré (3/10), un attaquant pourrait exploiter cela via un fichier EPS malveillant pour ralentir ou bloquer l'application.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.2.0 ou ultérieure. Validez les entrées EPS et limitez les ressources allouées à leur traitement pour atténuer le risque.",
+      "timestamp": "2026-05-20T09:40:59.657457Z"
+    },
+    {
+      "cve_id": "CVE-2022-45198",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans Pillow avant 9.2.0 concerne un mauvais traitement des données GIF fortement compressées, ce qui peut entraîner une amplification des données. Bien que le score SRP soit modéré (3.0/10), le CVSS élevé (7.5) indique un risque significatif d'exploitation. Aucun acteur de menace spécifique n'a été identifié, mais l'absence de CISA KEV suggère un risque plus limité.",
+      "ai_fix": "Mettez à jour Pillow à la version 9.2.0 ou ultérieure pour corriger le problème d'amplification des données GIF. Validez que toutes les dépendances utilisant Pillow sont compatibles avec cette version.",
+      "timestamp": "2026-05-20T09:41:29.383413Z"
+    },
+    {
+      "cve_id": "CVE-2023-44271",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2023-44271 est un DoS (Denial of Service) dans Pillow versions antérieures à 10.0.0, causé par une allocation de mémoire incontrôlée lors du traitement de polices TrueType. L'attaque pourrait forcer un service à épuiser sa mémoire, entraînant un crash. Bien que le score SRP soit modéré (3.0/10), le CVSS élevé (7.5) indique un risque technique d'exploitation.",
+      "ai_fix": "Mettez à jour Pillow à la version 10.0.0 ou ultérieure pour corriger cette vulnérabilité. Validez les entrées utilisateur liées aux polices TrueType pour limiter l'allocation de mémoire.",
+      "timestamp": "2026-05-20T09:41:41.937311Z"
+    },
+    {
+      "cve_id": "CVE-2018-10903",
+      "package": "cryptography",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2018-10903 est une vulnérabilité dans la bibliothèque python-cryptography où l'API finalize_with_tag ne vérifie pas la longueur minimale des tags d'authentification. Cela permet à un attaquant de fournir un tag tronqué (ex: 1 octet) pour contourner la vérification d'intégrité des données. Bien que le score SRP soit modéré (3/10), la faiblesse de chiffrement pourrait être exploitée dans des contextes de communication sécurisée mal configurés.",
+      "ai_fix": "Mettez à jour la bibliothèque cryptography à une version >=2.3. Validez toujours la longueur des tags d'authentification avant d'appeler finalize_with_tag.",
+      "timestamp": "2026-05-20T09:43:45.271562Z"
+    },
+    {
+      "cve_id": "CVE-2023-50782",
+      "package": "cryptography",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2023-50782 est une vulnérabilité dans le package python-cryptography qui pourrait permettre à un attaquant distant de déchiffrer des messages capturés dans les serveurs TLS utilisant des échanges de clés RSA. Bien que le score SRP soit modéré (3.0/10), la nature de la vulnérabilité (exposition de données sensibles) et le CVSS élevé (7.5) indiquent un risque réel. Cette faille pourrait être exploitée pour accéder à des données confidentielles si l'infrastructure utilise encore des échanges RSA non sécurisés.",
+      "ai_fix": "Mettez à jour le package python-cryptography vers une version corrigée. Vérifiez également que vos serveurs TLS n'utilisent pas d'échanges de clés RSA non sécurisés.",
+      "timestamp": "2026-05-20T09:44:21.029556Z"
+    },
+    {
+      "cve_id": "CVE-2018-18074",
+      "package": "requests",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "La vulnérabilité CVE-2018-18074 dans le package Requests pour Python permet aux attaquants de capturer les en-têtes d'autorisation via des redirections HTTP. Bien que le score SRP soit modéré, les attaquants peuvent exploiter cette faille pour voler des identifiants sur un réseau non sécurisé. Cela est particulièrement risqué dans les environnements où des redirections HTTP sont autorisées.",
+      "ai_fix": "Mettez à jour le package Requests à une version supérieure ou égale à 2.20.0. Validez que toutes les redirections utilisent HTTPS pour éviter les fuites d'informations sensibles.",
+      "timestamp": "2026-05-20T09:45:03.314314Z"
+    },
+    {
+      "cve_id": "CVE-2019-11324",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans urllib3 avant 1.24.2 permet à des certificats CA non approuvés d'être acceptés, ce qui peut entraîner des connexions SSL mal vérifiées. Bien que le score SRP soit modéré (3/10), cela pourrait permettre à un attaquant de contourner la vérification des certificats. Cela pourrait être exploité dans des scénarios d'attaque man-in-the-middle.",
+      "ai_fix": "Mettez à jour urllib3 à la version 1.24.2 ou ultérieure. Validez que les certificats CA sont correctement configurés et ne dépendent pas uniquement du magasin d'OS.",
+      "timestamp": "2026-05-20T09:46:44.154987Z"
+    },
+    {
+      "cve_id": "CVE-2025-66418",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2025-66418 concerne une vulnérabilité de déni de service (DoS) dans urllib3, où un nombre illimité de chaînes de décompression peut être utilisé pour surcharger le CPU et la mémoire. Bien que le score SRP soit modéré (3/10), les attaquants peuvent exploiter cette vulnérabilité pour bloquer des services critiques. Aucun acteur de menace spécifique n'est identifié, mais la vulnérabilité reste technique et exploitable.",
+      "ai_fix": "Mettez à jour urllib3 à la version 2.6.0 ou ultérieure pour limiter le nombre de décompressions. Si la mise à jour n'est pas possible, configurez des limites manuelles sur les étapes de décompression dans votre code.",
+      "timestamp": "2026-05-20T09:47:08.949691Z"
+    },
+    {
+      "cve_id": "CVE-2025-66471",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans urllib3 (CVE-2025-66471) concerne un problème de gestion incorrecte des données fortement compressées dans l'API de streaming. Cela pourrait entraîner une consommation excessive de mémoire ou de CPU, potentiellement permettant un déni de service. Bien que le score SRP soit modéré (3.0/10), les attaques ciblant les API HTTP courantes restent probables.",
+      "ai_fix": "Mettez à jour urllib3 à la version 2.6.0 ou ultérieure pour corriger la gestion des données compressées. Si la mise à jour n'est pas possible, limitez la taille des réponses HTTP ou utilisez un proxy pour décompresser les données à la place.",
+      "timestamp": "2026-05-20T09:47:21.146149Z"
+    },
+    {
+      "cve_id": "CVE-2026-21441",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 3.0,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2026-21441 concerne une vulnérabilité dans urllib3, une bibliothèque HTTP pour Python. Elle permettrait à un attaquant de provoquer une défaillance de mémoire ou un comportement imprévu via l'API de streaming. Bien que le score SRP soit faible (3/10), le CVSS élevé (7.5) indique un risque potentiel si l'API est utilisée pour traiter des réponses HTTP non fiables.",
+      "ai_fix": "Mettez à jour urllib3 vers une version corrigée. Si l'API de streaming est utilisée, validez et filtrez les en-têtes HTTP entrants pour éviter les charges utiles suspectes.",
+      "timestamp": "2026-05-20T09:47:35.869707Z"
+    },
+    {
+      "cve_id": "CVE-2020-5313",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 2.9,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2020-5313 est un dépassement de tampon dans libImaging/FliDecode.c de Pillow, affectant les versions antérieures à 6.2.2. Ce type de vulnérabilité peut être exploité pour exécuter du code arbitraire ou provoquer un déni de service. Bien que le score SRP soit faible, les dépassements de tampon sont couramment exploités par des acteurs malveillants.",
+      "ai_fix": "Mettez à jour Pillow à la version 6.2.2 ou ultérieure pour corriger ce dépassement de tampon. Validez que toutes les dépendances utilisent une version sécurisée.",
+      "timestamp": "2026-05-20T09:37:53.277183Z"
+    },
+    {
+      "cve_id": "CVE-2020-35653",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 2.8,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans Pillow avant 8.1.0 permet un dépassement de tampon lors du décodage de fichiers PCX malveillants, en raison d'une confiance excessive dans la valeur stride fournie par l'utilisateur. Bien que le score SRP soit faible (2.8/10), le CVSS de 7.1 indique un impact modéré. La probabilité d'exploitation (EPSS 0.0029) est faible, mais les attaquants pourraient cibler des applications manipulant des fichiers PCX non fiables.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.0 ou ultérieure pour corriger le problème de dépassement de tampon. Validez et normalisez toutes les valeurs stride provenant des fichiers PCX avant traitement.",
+      "timestamp": "2026-05-20T09:37:22.478311Z"
+    },
+    {
+      "cve_id": "CVE-2021-25292",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 2.6,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-33123 est une vulnérabilité de déni de service (DoS) dans pypdf, affectant les versions antérieures à 6.9.1. Elle permet à un attaquant de créer un PDF malveillant qui consomme une grande quantité de mémoire ou de temps CPU. Bien que le score SRP soit faible (2.6/10), l'impact peut être significatif dans des contextes d'ingestion automatisée de PDF.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.9.1 ou ultérieure. Validez les PDF entrants avec un analyseur fiable avant traitement.",
-      "timestamp": "2026-05-20T09:00:46.167666Z"
+      "ai_explanation": "CVE-2021-25292 est une vulnérabilité ReDoS dans le parseur PDF de Pillow, exploitée via des fichiers PDF malveillants. Elle permet un DoS en forçant une backtracking catastrophique dans une expression régulière. Avec un score CVSS de 6.5 et un EPSS de 0.0019, elle présente un risque modéré.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.1 ou ultérieure. Validez les entrées PDF et utilisez des regex optimisées pour éviter les backtracking excessifs.",
+      "timestamp": "2026-05-20T09:42:27.561078Z"
     },
     {
-      "cve_id": "CVE-2026-41312",
-      "package": "pypdf",
+      "cve_id": "CVE-2022-22815",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 2.6,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-41312 concerne une vulnérabilité de déni de service (DoS) dans pypdf, où un attaquant peut créer un PDF malveillant utilisant FlateDecode avec un prédicteur non égal à 1 et de grande taille, provoquant une exhaustion de la mémoire RAM. Bien que le score SRP soit faible (2.6/10), l'attaque nécessite une compréhension technique de la structure PDF, limitant l'exploitation à des attaquants ciblant spécifiquement des systèmes traitant des PDF non fiables. La vulnérabilité n'est pas actuellement sur la liste KEV de CISA.",
-      "ai_fix": "Mettez à jour pypdf à la version 6.10.2 ou ultérieure pour corriger cette vulnérabilité. Validez les entrées PDF et limitez la taille des fichiers acceptés pour réduire le risque d'exploitation.",
-      "timestamp": "2026-05-20T09:01:24.675689Z"
+      "ai_explanation": "Cette vulnérabilité dans Pillow avant 9.0.0 concerne une mauvaise initialisation de l'objet ImagePath.Path dans path.c. Cela pourrait permettre à un attaquant de provoquer un comportement imprévu ou une violation de la mémoire via un fichier image malveillant. Bien que le score SRP soit faible (2.6/10), la nature de la mémoire non initialisée rend l'exploitation possible dans certains scénarios.",
+      "ai_fix": "Mettez à jour Pillow à la version 9.0.0 ou ultérieure. Validez les entrées d'images provenant de sources non fiables avant traitement.",
+      "timestamp": "2026-05-20T09:42:48.570533Z"
     },
     {
-      "cve_id": "CVE-2026-41313",
-      "package": "pypdf",
+      "cve_id": "CVE-2022-22816",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 2.6,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-41313 concerne une vulnérabilité de déni de service (DoS) dans pypdf versions antérieures à 6.10.2. Un attaquant peut exploiter cette vulnérabilité en créant un PDF avec une grande valeur `/Size` dans le trailer, ce qui entraîne des temps d'exécution longs. Bien que le score SRP soit faible (2.6/10), cette vulnérabilité pourrait être utilisée pour surcharger des systèmes traitant des fichiers PDF non fiables.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.10.2 ou ultérieure pour corriger cette vulnérabilité. Validez les fichiers PDF entrants et limitez les tailles de fichier acceptables pour réduire le risque d'exploitation.",
-      "timestamp": "2026-05-20T09:01:28.828080Z"
+      "ai_explanation": "CVE-2022-22816 est un dépassement de tampon lors de l'initialisation de ImagePath.Path dans Pillow avant 9.0.0. Cela pourrait permettre à un attaquant de provoquer un crash ou d'exécuter du code arbitraire via un fichier image malveillant. Bien que le score SRP soit faible (2.6/10), le CVSS de 6.5 indique un risque modéré.",
+      "ai_fix": "Mettez à jour Pillow à la version 9.0.0 ou ultérieure pour corriger ce problème. Validez les entrées d'images provenant de sources non fiables avant traitement.",
+      "timestamp": "2026-05-20T09:42:59.510735Z"
     },
     {
-      "cve_id": "CVE-2026-41314",
-      "package": "pypdf",
+      "cve_id": "CVE-2026-26007",
+      "package": "cryptography",
       "version": "inconnue",
       "srp_score": 2.6,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-41314 est une vulnérabilité de déni de service (DoS) dans pypdf, où un attaquant peut créer un PDF malveillant utilisant FlateDecode avec des tailles d'image exagérées, provoquant une consommation excessive de mémoire RAM. Bien que le score SRP soit faible (2.6/10), l'exploitation reste possible si l'application traite des PDF non fiables. La vulnérabilité est corrigée depuis la version 6.10.2.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.10.2 ou ultérieure. Si la mise à jour n'est pas immédiatement possible, filtrez ou limitez la taille des PDF entrants, et évitez de traiter des fichiers PDF non fiables.",
-      "timestamp": "2026-05-20T09:01:50.595410Z"
+      "ai_explanation": "Cette vulnérabilité dans la bibliothèque Python cryptography concerne l'importation incorrecte de clés publiques ECC, ce qui pourrait permettre à un attaquant de générer des clés publiques invalides. Bien que le score SRP soit faible (2.6/10), cela reste un risque pour les systèmes utilisant des échanges de clés ECC. Aucun acteur de menace spécifique n'a été identifié à ce jour.",
+      "ai_fix": "Mettez à jour la bibliothèque cryptography à la version 46.0.5 ou ultérieure. Validez les clés publiques importées avec des vérifications supplémentaires si la mise à jour n'est pas immédiatement possible.",
+      "timestamp": "2026-05-20T09:44:32.619890Z"
     },
     {
-      "cve_id": "CVE-2026-27024",
-      "package": "pypdf",
+      "cve_id": "CVE-2023-23931",
+      "package": "cryptography",
+      "version": "inconnue",
+      "srp_score": 2.6,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans le package Python cryptography permet à un attaquant de fournir des objets immutables (comme `bytes`) à la méthode `Cipher.update_into`, ce qui pourrait entraîner un comportement inattendu. Bien que le score SRP soit faible (2.6/10), l'impact potentiel sur la sécurité des opérations cryptographiques reste à considérer. Aucun acteur de menace spécifique n'a été identifié pour l'instant.",
+      "ai_fix": "Mettez à jour le package cryptography à une version corrigée. Vérifiez la documentation officielle pour identifier les versions non vulnérables.",
+      "timestamp": "2026-05-20T09:44:42.924153Z"
+    },
+    {
+      "cve_id": "CVE-2023-32681",
+      "package": "requests",
+      "version": "inconnue",
+      "srp_score": 2.6,
+      "decision": "PASSER",
+      "ai_explanation": "Requests 2.3.0 et versions ultérieures fuient les en-têtes Proxy-Authorization vers les serveurs de destination lors de redirections HTTPS. Cela résulte d'une mauvaise gestion des en-têtes par la fonction `rebuild_proxies`. Bien que le score SRP soit faible (2.6/10), cela pourrait permettre à un attaquant de récupérer des informations d'identification proxy.",
+      "ai_fix": "Mettez à jour la bibliothèque Requests à une version corrigée (>= 2.31.0). Vérifiez les en-têtes envoyés lors des redirections pour éviter la fuite d'informations sensibles.",
+      "timestamp": "2026-05-20T09:45:14.117532Z"
+    },
+    {
+      "cve_id": "CVE-2020-26137",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 2.6,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2020-26137 est une vulnérabilité de type injection CRLF dans urllib3 avant la version 1.25.9. Elle permet à un attaquant de contrôler la méthode de la requête HTTP pour insérer des caractères CR/LF. Cela peut mener à des attaques de type HTTP Request Smuggling ou manipulation de requêtes.",
+      "ai_fix": "Mettez à jour urllib3 à la version 1.25.9 ou ultérieure. Validez les entrées utilisateur pour éviter l'injection de caractères CR/LF.",
+      "timestamp": "2026-05-20T09:48:37.493128Z"
+    },
+    {
+      "cve_id": "CVE-2024-37891",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 2.6,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans urllib3 concerne l'envoi accidentel du header `Proxy-Authorization` à des destinations non proxy. Bien que le score SRP soit faible (2.6/10), le CVSS de 6.5 indique un risque modéré. L'absence de mention dans le KEV et l'EPSS faible (0.0022) suggèrent une probabilité d'exploitation limitée.",
+      "ai_fix": "Mettez à jour urllib3 vers une version corrigée. Vérifiez les configurations de proxy pour éviter l'envoi de headers sensibles à des destinations non proxy.",
+      "timestamp": "2026-05-20T09:49:19.086520Z"
+    },
+    {
+      "cve_id": "CVE-2019-11236",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 2.5,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2019-11236 concerne une vulnérabilité de CRLF injection dans urllib3 versions antérieures à 1.24.2. Un attaquant contrôlant les paramètres de requête pourrait injecter des en-têtes HTTP malveillants. Bien que le score SRP soit faible (2.5/10), le CVSS de 6.1 indique un risque modéré.",
+      "ai_fix": "Mettez à jour urllib3 à la version 1.24.2 ou ultérieure. Validez et nettoyez toutes les entrées utilisateur avant de les utiliser dans les requêtes HTTP.",
+      "timestamp": "2026-05-20T09:48:21.946452Z"
+    },
+    {
+      "cve_id": "CVE-2024-28219",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 2.4,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité est un débordement de tampon dans le module _imagingcms.c de Pillow, causé par l'utilisation de strcpy au lieu de strncpy. Cela pourrait permettre à un attaquant de provoquer un déni de service ou d'exécuter du code arbitraire via un fichier image malveillant. Bien que le score SRP soit faible, les débordements de tampon sont couramment exploités dans les attaques ciblées.",
+      "ai_fix": "Mettez à jour Pillow à la version 10.3.0 ou ultérieure pour corriger cette vulnérabilité. Si la mise à jour n'est pas possible, validez et nettoyez toutes les entrées d'images avant traitement.",
+      "timestamp": "2026-05-20T09:42:04.452594Z"
+    },
+    {
+      "cve_id": "CVE-2020-25659",
+      "package": "cryptography",
+      "version": "inconnue",
+      "srp_score": 2.4,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2020-25659 est une vulnérabilité de type attaque de timing de Bleichenbacher dans l'API de déchiffrement RSA de python-cryptography 3.2. Elle permet à un attaquant de mesurer les temps de traitement pour deviner des clés privées via des requêtes malveillantes. Bien que le score SRP soit faible (2.4/10), les attaques de timing sont souvent exploitables à distance.",
+      "ai_fix": "Mettez à jour le package cryptography à une version corrigée (3.3 ou ultérieure). Validez que toutes les dépendances utilisent une version sécurisée via pip list ou pip-audit.",
+      "timestamp": "2026-05-20T09:43:56.315374Z"
+    },
+    {
+      "cve_id": "CVE-2022-40897",
+      "package": "setuptools",
+      "version": "inconnue",
+      "srp_score": 2.4,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2022-40897 est un ReDoS dans setuptools, où des expressions régulières mal optimisées dans package_index.py peuvent être exploitées avec des entrées HTML malveillantes pour provoquer un DoS. Bien que le score SRP soit faible (2.4/10), les attaques DoS peuvent être utilisées pour perturber les services critiques. Aucun acteur de menace spécifique n'a été identifié, mais les attaquants peuvent exploiter cela via des index de packages personnalisés malveillants.",
+      "ai_fix": "Mettez à jour setuptools à la version 65.5.1 ou ultérieure pour corriger l'expression régulière mal optimisée. Validez et nettoyez les entrées HTML dans les index de packages personnalisés si vous utilisez des versions antérieures.",
+      "timestamp": "2026-05-20T09:46:09.972939Z"
+    },
+    {
+      "cve_id": "CVE-2018-25091",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 2.4,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité affecte les versions d'urllib3 antérieures à 1.24.2 et permet l'exposition des en-têtes d'autorisation lors de redirections cross-origin. Les informations d'identification peuvent ainsi être transmises à des hôtes non intentionnels ou en clair. Bien que peu probable (score SRP 2.4/10), cela reste un risque pour les applications gérant des redirections externes.",
+      "ai_fix": "Mettez à jour urllib3 à la version 1.24.2 ou ultérieure. Validez que les redirections cross-origin sont correctement gérées dans votre code.",
+      "timestamp": "2026-05-20T09:48:06.131193Z"
+    },
+    {
+      "cve_id": "CVE-2025-50181",
+      "package": "urllib3",
+      "version": "inconnue",
+      "srp_score": 2.4,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans urllib3 permet de désactiver les redirections HTTP, ce qui pourrait être exploité pour contourner des vérifications de sécurité. Bien que le score SRP soit faible (2.4/10), des attaquants pourraient en tirer parti dans des scénarios spécifiques impliquant des requêtes malveillantes. Aucun acteur de menace spécifique n'a été identifié à ce jour.",
+      "ai_fix": "Mettez à jour urllib3 à la version 2.5.0 ou ultérieure pour corriger cette vulnérabilité. Vérifiez également que les paramètres de gestion des redirections sont configurés correctement dans votre application.",
+      "timestamp": "2026-05-20T09:49:36.912734Z"
+    },
+    {
+      "cve_id": "CVE-2020-10177",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 2.2,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-27024 est une vulnérabilité dans pypdf qui permet à un attaquant de créer un PDF déclenchant une boucle infinie lors de l'accès aux enfants d'un TreeObject. Bien que le score SRP soit faible (2.2/10), cela pourrait entraîner un DoS si l'application traite des fichiers PDF non fiables. Aucun acteur de menace spécifique n'est identifié pour l'instant.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.1 ou ultérieure pour corriger cette vulnérabilité. Validez les entrées PDF et limitez le temps d'exécution lors du traitement des fichiers.",
-      "timestamp": "2026-05-20T08:59:52.179869Z"
+      "ai_explanation": "Cette vulnérabilité dans Pillow avant 7.1.0 implique des lectures hors limites dans le fichier FliDecode.c, ce qui pourrait permettre à un attaquant de lire des données mémoire non intentionnellement exposées. Bien que le score SRP soit faible (2.2/10), les lectures hors limites sont souvent exploitables pour obtenir des informations sensibles. Cela pourrait être utilisé dans des attaques d'ingénierie inverse ou d'exfiltration de données.",
+      "ai_fix": "Mettez à jour Pillow à la version 7.1.0 ou ultérieure pour corriger ces vulnérabilités. Si la mise à jour n'est pas possible, limitez l'accès aux fichiers traités par Pillow et surveillez les logs pour détecter toute activité suspecte.",
+      "timestamp": "2026-05-20T09:36:19.111384Z"
     },
     {
-      "cve_id": "CVE-2026-27025",
-      "package": "pypdf",
+      "cve_id": "CVE-2020-10378",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 2.2,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-27025 dans pypdf est une vulnérabilité de déni de service (DoS) qui permet à un attaquant de créer un PDF malveillant consommant une grande quantité de mémoire et de temps CPU. Cela se produit lors de l'analyse d'entrées /ToUnicode avec des valeurs anormalement grandes. Bien que le score SRP soit faible (2.2/10), l'impact sur les services traitant des PDFs non fiables reste pertinent.",
-      "ai_fix": "Mettez à jour pypdf à la version 6.7.1 ou ultérieure pour corriger cette vulnérabilité. Validez les entrées PDF et limitez les ressources allouées lors du traitement des fichiers.",
-      "timestamp": "2026-05-20T08:59:59.463024Z"
+      "ai_explanation": "CVE-2020-10378 est une vulnérabilité d'accès hors limites dans la bibliothèque Pillow, affectant les versions antérieures à 7.1.0. Elle survient lors de la lecture de fichiers PCX mal formés, ce qui pourrait permettre à un attaquant de lire des données mémoire non autorisées. Bien que le score SRP soit faible (2.2/10), cette vulnérabilité pourrait être exploitée dans des contextes spécifiques impliquant des fichiers PCX malveillants.",
+      "ai_fix": "Mettez à jour Pillow à la version 7.1.0 ou ultérieure pour corriger cette vulnérabilité. Validez que les fichiers PCX reçus sont bien formés avant traitement.",
+      "timestamp": "2026-05-20T09:36:31.266072Z"
     },
     {
-      "cve_id": "CVE-2026-27026",
-      "package": "pypdf",
+      "cve_id": "CVE-2020-10994",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 2.2,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-27026 est une vulnérabilité dans pypdf qui permet à un attaquant de créer un PDF malveillant utilisant un flux /FlateDecode malformé, entraînant des temps d'exécution prolongés. Bien que le score SRP soit faible (2.2/10), cela pourrait entraîner un déni de service (DoS) en consommant des ressources CPU. Aucun acteur de menace spécifique n'est identifié, mais les attaques de type DoS restent fréquentes.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.1 ou ultérieure pour corriger cette vulnérabilité. Si la mise à jour n'est pas immédiatement possible, limitez les téléchargements de fichiers PDF à des sources fiables et surveillez les ressources système pour détecter les anomalies.",
-      "timestamp": "2026-05-20T09:00:05.508298Z"
+      "ai_explanation": "Cette vulnérabilité dans Pillow avant 7.1.0 permet des lectures hors limites via un fichier JP2 malveillant, ce qui pourrait exposer des données sensibles. Bien que le score SRP soit faible (2.2/10), les out-of-bounds reads sont souvent exploitables pour des fuites d'information. Aucun acteur de menace spécifique n'a été identifié à ce jour.",
+      "ai_fix": "Mettez à jour Pillow à la version 7.1.0 ou ultérieure pour corriger cette vulnérabilité. Validez les versions des dépendances dans votre fichier de configuration (ex: requirements.txt).",
+      "timestamp": "2026-05-20T09:37:09.925619Z"
     },
     {
-      "cve_id": "CVE-2026-31826",
-      "package": "pypdf",
+      "cve_id": "CVE-2021-28675",
+      "package": "Pillow",
       "version": "inconnue",
       "srp_score": 2.2,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-31826 est une vulnérabilité dans pypdf où un attaquant peut créer un PDF malveillant qui consomme une grande quantité de mémoire. Cela se produit lorsque le /Length d'un flux de contenu est anormalement élevé, indépendamment de la taille réelle des données. Bien que le score SRP soit faible (2.2/10), l'impact sur les systèmes traitant des PDF non fiables reste pertinent.",
-      "ai_fix": "Mettez à jour pypdf à la version 6.8.0 ou ultérieure pour corriger cette vulnérabilité. Validez les flux de contenu PDF et limitez la mémoire allouée lors du traitement des fichiers.",
-      "timestamp": "2026-05-20T09:00:36.469095Z"
+      "ai_explanation": "CVE-2021-28675 est une vulnérabilité de déni de service (DoS) dans Pillow versions antérieures à 8.2.0. Elle résulte d'un manque de vérification du nombre de calques PSD par rapport à la taille des données. Un attaquant pourrait exploiter cela pour provoquer un blocage ou une défaillance du service.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.2.0 ou ultérieure. Validez les fichiers PSD avant traitement pour éviter les données malveillantes.",
+      "timestamp": "2026-05-20T09:40:23.471751Z"
     },
     {
-      "cve_id": "CVE-2026-28351",
-      "package": "pypdf",
+      "cve_id": "CVE-2020-35655",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Cette vulnérabilité dans Pillow avant 8.1.0 permet une lecture de tampon de 4 octets lors du décodage de fichiers SGI RLE malveillants, causée par une mauvaise gestion des tables d'offsets et de longueur. Avec un score CVSS de 5.4 et un EPSS de 0.0027, le risque est modéré mais existe si des images non fiables sont traitées. Bien que non listée dans le KEV de CISA, elle pourrait être exploitée dans des contextes spécifiques.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.0 ou ultérieure pour corriger cette vulnérabilité. Validez les entrées d'images SGI RLE et limitez leur traitement aux sources fiables.",
+      "timestamp": "2026-05-20T09:42:16.762374Z"
+    },
+    {
+      "cve_id": "CVE-2021-28678",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2021-28678 est un déni de service (DoS) dans Pillow versions antérieures à 8.2.0. L'exploitation nécessite que l'application traite des fichiers BLP malformés. Bien que le score SRP soit faible (2.2/10), les attaquants pourraient forcer le décodeur à traiter des données vides de manière répétée.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.2.0 ou ultérieure. Validez les fichiers BLP avant traitement pour éviter les offsets invalides.",
+      "timestamp": "2026-05-20T09:42:37.861854Z"
+    },
+    {
+      "cve_id": "CVE-2026-42308",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "Pillow, une bibliothèque d'imagerie Python, présente une vulnérabilité d'entier overflow avant la version 12.2.0. Cela se produit lorsque les polices avancent d'une quantité excessive pour chaque glyphe, ce qui peut provoquer un dépassement de capacité. Bien que le score SRP soit faible (2.2/10), les attaquants pourraient théoriquement exploiter cela pour provoquer un comportement non défini ou une exécution de code.",
+      "ai_fix": "Mettez à jour Pillow à la version 12.2.0 ou ultérieure pour résoudre cette vulnérabilité. Validez que toutes les dépendances utilisent une version corrigée.",
+      "timestamp": "2026-05-20T09:43:10.971076Z"
+    },
+    {
+      "cve_id": "CVE-2026-42310",
+      "package": "Pillow",
+      "version": "inconnue",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2026-42310 est une vulnérabilité dans la bibliothèque Python Pillow, permettant à un attaquant de fournir un PDF malveillant qui bloque le processus, consommant 100% du CPU. Aucun acteur spécifique n'est identifié, mais la vulnérabilité pourrait être exploitée pour provoquer un déni de service. Le score SRP de 2.2/10 indique un risque modéré.",
+      "ai_fix": "Mettez à jour Pillow à la version 12.2.0 ou ultérieure pour corriger cette vulnérabilité. Vérifiez les versions dépendantes dans vos dépendances pour éviter les conflits.",
+      "timestamp": "2026-05-20T09:43:22.278604Z"
+    },
+    {
+      "cve_id": "CVE-2024-0727",
+      "package": "cryptography",
+      "version": "inconnue",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "CVE-2024-0727 est une vulnérabilité de déni de service dans OpenSSL liée au traitement des fichiers PKCS12 malveillants. Elle permet à un attaquant de forcer l'arrêt brutal d'applications utilisant ces fichiers. Bien que peu probables, les attaques sont possibles via des sources non fiables.",
+      "ai_fix": "Mettez à jour la bibliothèque OpenSSL à une version corrigée. Validez les sources des fichiers PKCS12 avant de les charger.",
+      "timestamp": "2026-05-20T09:44:52.414921Z"
+    },
+    {
+      "cve_id": "CVE-2024-35195",
+      "package": "requests",
+      "version": "inconnue",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "La vulnérabilité CVE-2024-35195 dans la bibliothèque Requests affecte les versions antérieures à 2.32.0. Elle permet à un attaquant de contourner la vérification des certificats SSL après une première requête avec `verify=False`. Cela expose les communications suivantes à des attaques de type man-in-the-middle.",
+      "ai_fix": "Mettez à jour la bibliothèque Requests à la version 2.32.0 ou ultérieure. Assurez-vous de toujours utiliser `verify=True` pour les connexions sécurisées.",
+      "timestamp": "2026-05-20T09:45:24.033011Z"
+    },
+    {
+      "cve_id": "CVE-2026-25645",
+      "package": "requests",
+      "version": "inconnue",
+      "srp_score": 2.2,
+      "decision": "PASSER",
+      "ai_explanation": "La vulnérabilité CVE-2026-25645 dans la bibliothèque Requests avant la version 2.33.0 permet à un attaquant local d'exploiter un comportement prévisible des noms de fichiers extraits d'archives ZIP. Lors de l'extraction, si un fichier existe déjà, il est réutilisé sans validation, ce qui pourrait permettre de remplacer des fichiers critiques. Bien que le score SRP soit faible (2.2/10), cette vulnérabilité pourrait être exploitée dans des environnements où des archives ZIP sont manipulées.",
+      "ai_fix": "Mettez à jour la bibliothèque Requests à la version 2.33.0 ou ultérieure. Si la mise à jour n'est pas immédiatement possible, validez les noms de fichiers extraits et vérifiez l'intégrité des fichiers avant extraction.",
+      "timestamp": "2026-05-20T09:45:56.197204Z"
+    },
+    {
+      "cve_id": "CVE-2024-47081",
+      "package": "requests",
       "version": "inconnue",
       "srp_score": 2.1,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-28351 est une vulnérabilité de déni de service (DoS) dans pypdf, une bibliothèque Python pour manipuler les PDF. Elle permet à un attaquant de créer un PDF malveillant qui consomme une grande quantité de mémoire lors de l'utilisation du filtre RunLengthDecode. Bien que le score SRP soit faible (2.1/10), les attaques DoS restent pertinentes pour les services exposés à des PDFs non fiables.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.4 ou ultérieure pour bénéficier de la correction. Si une mise à jour immédiate n'est pas possible, validez et nettoyez les PDF entrants avant traitement pour limiter les risques.",
-      "timestamp": "2026-05-20T09:00:22.935047Z"
+      "ai_explanation": "La vulnérabilité CVE-2024-47081 dans la bibliothèque Requests permet un fuites de credentials .netrc via une mauvaise gestion des URLs malveillantes. Les versions antérieures à 2.32.4 sont affectées. Bien que le score SRP soit faible (2.1/10), les fuites de credentials restent un risque opérationnel courant.",
+      "ai_fix": "Mettez à jour la dépendance Requests vers la version 2.32.4 ou désactivez l'utilisation du fichier .netrc si vous utilisez une version antérieure.",
+      "timestamp": "2026-05-20T09:45:37.360158Z"
     },
     {
-      "cve_id": "CVE-2026-28804",
-      "package": "pypdf",
+      "cve_id": "CVE-2026-44431",
+      "package": "urllib3",
       "version": "inconnue",
       "srp_score": 2.1,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-28804 est une vulnérabilité dans pypdf où un attaquant peut créer un PDF malveillant utilisant le filtre /ASCIIHexDecode pour provoquer des temps d'exécution longs. Bien que le score SRP soit faible (2.1/10), cela pourrait entraîner une dégradation des performances. Aucun acteur de menace spécifique n'est identifié, mais l'impact reste technique.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.7.5 ou ultérieure pour corriger cette vulnérabilité. Surveillez les performances des traitements PDF après la mise à jour.",
-      "timestamp": "2026-05-20T09:00:35.208869Z"
+      "ai_explanation": "Cette vulnérabilité dans urllib3 permet aux attaquants de suivre des redirections cross-origin avec des en-têtes sensibles via l'API bas-niveau. Bien que le score SRP soit faible (2.1/10), cela reste un risque pour les applications exposant des tokens ou des cookies via des requêtes non sécurisées. Aucun acteur de menace spécifique n'est identifié à ce jour.",
+      "ai_fix": "Mettez à jour urllib3 vers la version 2.7.0 ou ultérieure. Vérifiez que les paramètres de redirection sont configurés pour bloquer les en-têtes sensibles lors des redirections cross-origin.",
+      "timestamp": "2026-05-20T09:47:52.531763Z"
     },
     {
-      "cve_id": "CVE-2026-40260",
-      "package": "pypdf",
+      "cve_id": "CVE-2023-45803",
+      "package": "urllib3",
       "version": "inconnue",
-      "srp_score": 2.1,
+      "srp_score": 1.7,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-40260 est une vulnérabilité dans pypdf où les déclarations d'entité XMP manipulées peuvent épuiser la mémoire RAM. Bien que le score SRP soit faible (2.1/10), un attaquant pourrait exploiter cela en créant un PDF malveillant pour provoquer une utilisation excessive de la mémoire. Cela nécessite une analyse de la métadonnée XMP, ce qui limite l'attaque à des scénarios spécifiques.",
-      "ai_fix": "Mettez à jour pypdf à la version 6.10.0 ou ultérieure pour corriger cette vulnérabilité. Validez les entrées PDF et limitez la consommation de mémoire lors du traitement des métadonnées XMP.",
-      "timestamp": "2026-05-20T09:01:03.360832Z"
+      "ai_explanation": "Cette vulnérabilité dans urllib3 concerne le fait que la bibliothèque ne supprime pas correctement le corps de la requête HTTP lors d'une redirection 301, 302 ou 303. Selon les spécifications HTTP, les requêtes GET ne doivent pas inclure de corps, mais cette vulnérabilité pourrait entraîner l'envoi accidentel de données sensibles dans une requête GET. Bien que le score SRP soit faible (1.7/10), cela reste un risque pour les applications transmettant des données sensibles via des requêtes POST redirigées.",
+      "ai_fix": "Mettez à jour la bibliothèque urllib3 vers une version corrigée. Vérifiez les mises à jour recommandées dans la documentation officielle de urllib3.",
+      "timestamp": "2026-05-20T09:48:58.085437Z"
     },
     {
-      "cve_id": "CVE-2026-41168",
-      "package": "pypdf",
+      "cve_id": "GHSA-jgpv-4h4c-xhw3",
+      "package": "Pillow",
       "version": "inconnue",
-      "srp_score": 2.1,
+      "srp_score": 0.0,
       "decision": "PASSER",
-      "ai_explanation": "CVE-2026-41168 concerne une vulnérabilité de déni de service (DoS) dans pypdf versions antérieures à 6.10.1, où un attaquant peut forcer un traitement long en exploitant des valeurs incorrectes dans les streams PDF. Bien que le score SRP soit faible (2.1/10), l'impact reste possible via des PDF malveillants. Aucun acteur de menace spécifique n'est identifié, mais la vulnérabilité est exploitable à distance.",
-      "ai_fix": "Mettez à jour pypdf vers la version 6.10.1 ou ultérieure. Validez les entrées PDF pour éviter les valeurs anormalement grandes dans les cross-reference streams et object streams.",
-      "timestamp": "2026-05-20T09:01:09.113605Z"
+      "ai_explanation": "Cette vulnérabilité dans Pillow avant la version 8.1.1 permet aux attaquers de provoquer un déni de service (consommation de mémoire) en exploitant une vérification incorrecte de la taille d'une image dans un conteneur BLP. Cela peut entraîner une allocation de mémoire excessive, ce qui bloque le service. Bien que le score SRP soit faible, cela reste un risque si l'application traite des images non fiables.",
+      "ai_fix": "Mettez à jour Pillow à la version 8.1.1 ou ultérieure pour corriger cette vulnérabilité. Validez les tailles d'images BLP avant traitement pour éviter les allocations de mémoire excessives.",
+      "timestamp": "2026-05-20T09:43:33.564103Z"
     }
   ]
 }
