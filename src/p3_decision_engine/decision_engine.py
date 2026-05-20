@@ -35,7 +35,10 @@ class DecisionEngine:
             api_key=featherless_api_key
         ) if featherless_api_key else None
 
-        self.model_name     = ai_config.get("model_name",       "Qwen/Qwen3.6-35B-A3B")
+        self.model_name     = ai_config.get("model_name")
+        if not self.model_name:
+            print("[!] ERREUR : 'model_name' manquant dans ai_config du config.yaml")
+            sys.exit(1)
         self.temperature    = ai_config.get("temperature",      0.1)
         self.max_tokens     = ai_config.get("max_tokens",       1000)
         self.timeout_seconds= ai_config.get("timeout_seconds",  30)
@@ -347,29 +350,56 @@ class DecisionEngine:
 
     def generate_final_report(self, final_report, output_path):
         """Generate and save the final report."""
+        reporting = self.config.get("reporting", {})
+        include_ai          = reporting.get("include_ai_explanations",    True)
+        include_fix         = reporting.get("include_fix_recommendations", True)
+        sort_desc           = reporting.get("sort_by_srp_desc",           True)
+        generate_summary    = reporting.get("generate_summary",           True)
+
+        # Apply reporting flags — strip fields if disabled
+        processed = []
+        for r in final_report:
+            entry = dict(r)
+            if not include_ai:
+                entry.pop("ai_explanation", None)
+            if not include_fix:
+                entry.pop("ai_fix", None)
+            processed.append(entry)
+
+        if sort_desc:
+            processed.sort(key=lambda x: x["srp_score"], reverse=True)
+
         decisions_count = {
-            "BLOQUER": sum(1 for r in final_report if r["decision"] == "BLOQUER"),
-            "ALERTER": sum(1 for r in final_report if r["decision"] == "ALERTER"),
-            "PASSER":  sum(1 for r in final_report if r["decision"] == "PASSER"),
+            "BLOQUER": sum(1 for r in processed if r["decision"] == "BLOQUER"),
+            "ALERTER": sum(1 for r in processed if r["decision"] == "ALERTER"),
+            "PASSER":  sum(1 for r in processed if r["decision"] == "PASSER"),
         }
         avg_srp = (
-            round(sum(r["srp_score"] for r in final_report) / len(final_report), 1)
-            if final_report else 0.0
+            round(sum(r["srp_score"] for r in processed) / len(processed), 1)
+            if processed else 0.0
         )
 
         report_data = {
             "decision_metadata": {
-                "timestamp":       datetime.utcnow().isoformat() + "Z",
-                "engine_version":  "1.0.0",
+                "timestamp":      datetime.utcnow().isoformat() + "Z",
+                "engine_version": "1.0.0",
                 "config_used": {
-                    "high_context_components": list(self.high_context_components)
+                    "high_context_components": list(self.high_context_components),
+                    "block_threshold": self.config.get("decision_thresholds", {}).get("block_threshold", 7.0),
+                    "alert_threshold": self.config.get("decision_thresholds", {}).get("alert_threshold", 4.0),
+                    "model":           self.model_name,
                 },
-                "total_processed": len(final_report),
+                "total_processed": len(processed),
                 "decisions":       decisions_count,
                 "average_srp":     avg_srp,
             },
-            "vulnerability_decisions": final_report,
+            "vulnerability_decisions": processed,
         }
+
+        # Log si database.enabled (placeholder pour future intégration)
+        db_config = self.config.get("database", {})
+        if db_config.get("enabled", False):
+            print("[DB] Database export enabled — not yet implemented, skipping.")
 
         os.makedirs(
             os.path.dirname(output_path) if os.path.dirname(output_path) else ".",
@@ -379,6 +409,21 @@ class DecisionEngine:
             json.dump(report_data, f, indent=2, ensure_ascii=False)
 
         print(f"[*] Final report saved to: {output_path}")
+
+        if generate_summary:
+            meta = report_data["decision_metadata"]
+            print(f"\n{'='*60}")
+            print("  DECISION ENGINE SUMMARY")
+            print(f"{'='*60}")
+            print(f"  Total vulnerabilities processed : {meta['total_processed']}")
+            print(f"  BLOQUER (critical)              : {meta['decisions']['BLOQUER']}")
+            print(f"  ALERTER (moderate)              : {meta['decisions']['ALERTER']}")
+            print(f"  PASSER  (low)                   : {meta['decisions']['PASSER']}")
+            print(f"  Average SRP score               : {meta['average_srp']}")
+            print(f"  Model used                      : {meta['config_used']['model']}")
+            print(f"  Final report                    : {output_path}")
+            print(f"{'='*60}\n")
+
         return report_data
 
     # ------------------------------------------------------------------
@@ -401,25 +446,12 @@ class DecisionEngine:
         final_report = self.process_vulnerabilities(enriched_data)
         report_data  = self.generate_final_report(final_report, output_path)
 
-        # --- Résumé ---
-        meta = report_data["decision_metadata"]
-        print(f"\n{'='*60}")
-        print("  DECISION ENGINE SUMMARY")
-        print(f"{'='*60}")
-        print(f"  Total vulnerabilities processed: {meta['total_processed']}")
-        print(f"  BLOQUER (critical): {meta['decisions']['BLOQUER']}")
-        print(f"  ALERTER (moderate): {meta['decisions']['ALERTER']}")
-        print(f"  PASSER  (low):      {meta['decisions']['PASSER']}")
-        print(f"  Average SRP score:  {meta['average_srp']}")
-        print(f"  Final report:       {output_path}")
-        print(f"{'='*60}\n")
-
         print(f"\n{'='*60}")
         print("  🔍 ANALYSE SECURFLOW TERMINÉE")
         print(f"  🌐 Dashboard : https://itsnoha0x.github.io/SecurFlow/")
         print(f"{'='*60}\n")
 
-        if meta["decisions"]["BLOQUER"] > 0:
+        if report_data["decision_metadata"]["decisions"]["BLOQUER"] > 0:
             print("[!] Critical vulnerabilities detected - pipeline should be blocked!")
             sys.exit(1)
 
