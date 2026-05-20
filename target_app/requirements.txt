@@ -5,3 +5,4 @@ paramiko==2.9.0         # CVE-2023-48795 — CVSS 9.8, CISA KEV, Terrapin attack
 Django==2.2.0           # CVE-2021-35042 — CISA KEV, RCE, CVSS 9.8
 urllib3==1.24.1         # CVE-2021-33503 — CVSS 7.5, exploit dispo
 Werkzeug==0.11.0        # CVE-2023-25577 — CVSS 7.5, DoS exploit public
+SQLAlchemy==2.0.49  
