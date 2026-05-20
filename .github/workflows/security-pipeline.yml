@@ -65,9 +65,9 @@ jobs:
     # TRIVY — action officielle (cache binaire + DB gérés nativement)
     # ----------------------------------------------------------------
     - name: Install Trivy via action officielle
-      uses: aquasecurity/setup-trivy@v0.2.1
+      uses: aquasecurity/setup-trivy@v0.2.6
       with:
-        version: latest
+        version: v0.70.0
         cache: true
 
     # ----------------------------------------------------------------
