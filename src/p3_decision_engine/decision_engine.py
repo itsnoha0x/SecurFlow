@@ -439,7 +439,7 @@ class DecisionEngine:
 
         if report_data["decision_metadata"]["decisions"]["BLOQUER"] > 0:
             print("[!] Critical vulnerabilities detected - pipeline should be blocked!")
-            sys.exit(1)
+            sys.exit(2)
 
         print("[✓] No critical decisions - pipeline can continue")
         return report_data
