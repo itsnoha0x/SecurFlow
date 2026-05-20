@@ -211,6 +211,25 @@ jobs:
         NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         OTX_API_KEY: ${{ secrets.OTX_API_KEY }}
         CISA_API_KEY: ${{ secrets.CISA_API_KEY }}
+        # --- AJOUT : vérifie que le fichier existe avant upload ---
+    - name: Verify enriched output exists
+      run: |
+        if [ ! -f "shared/2_enriched.json" ]; then
+          echo "❌ 2_enriched.json introuvable — P2 n'a pas produit de sortie"
+          exit 1
+        fi
+        if [ ! -s "shared/2_enriched.json" ]; then
+          echo "❌ 2_enriched.json est vide"
+          exit 1
+        fi
+        echo "✅ 2_enriched.json trouvé ($(wc -c < shared/2_enriched.json) bytes)"
+
+    - name: Upload enriched results
+      uses: actions/upload-artifact@v4
+      with:
+        name: enriched-results
+        path: shared/2_enriched.json
+        retention-days: 30
 
   # P3: AI Decision Engine
   decide:
