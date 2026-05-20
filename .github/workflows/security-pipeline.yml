@@ -32,7 +32,6 @@ permissions:
 env:
   PYTHON_VERSION: '3.11'
   NODE_VERSION: '18'
-  TRIVY_VERSION: '0.51.1'
   GRYPE_VERSION: '0.77.4'
 
 jobs:
@@ -63,23 +62,13 @@ jobs:
           ${{ runner.os }}-pip-
 
     # ----------------------------------------------------------------
-    # CACHE TRIVY : binaire + base de données de vulnérabilités
+    # TRIVY — action officielle (cache binaire + DB gérés nativement)
     # ----------------------------------------------------------------
-    - name: Cache Trivy binary
-      uses: actions/cache@v3
-      id: cache-trivy-bin
+    - name: Install Trivy via action officielle
+      uses: aquasecurity/setup-trivy@v0.2.1
       with:
-        path: /usr/local/bin/trivy
-        key: trivy-bin-${{ env.TRIVY_VERSION }}-${{ runner.os }}
-
-    - name: Cache Trivy vulnerability DB
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/trivy
-        # La DB se renouvelle toutes les 24h — on invalide le cache quotidiennement
-        key: trivy-db-${{ runner.os }}-${{ github.run_id }}
-        restore-keys: |
-          trivy-db-${{ runner.os }}-
+        version: latest
+        cache: true
 
     # ----------------------------------------------------------------
     # CACHE GRYPE : binaire + base de données de vulnérabilités
@@ -103,24 +92,15 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        
-    - name: Install Trivy (si absent du cache)
-      if: steps.cache-trivy-bin.outputs.cache-hit != 'true'
-      run: |
-        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
-          | sh -s -- -b /usr/local/bin v${{ env.TRIVY_VERSION }}
 
     - name: Install Grype (si absent du cache)
       if: steps.cache-grype-bin.outputs.cache-hit != 'true'
       run: |
         curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh \
-          | sh -s -- -b /usr/local/bin v${{ env.GRYPE_VERSION }}
+          | sh -s -- -b /usr/local/bin
 
-    - name: Update vulnerability databases
-      run: |
-        # Met à jour uniquement si la DB n'est pas déjà en cache (restore-keys match)
-        trivy image --download-db-only --cache-dir ~/.cache/trivy
-        grype db update
+    - name: Update Grype vulnerability DB
+      run: grype db update
         
     - name: Run P1 Scanner
       id: scan
