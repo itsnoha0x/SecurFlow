@@ -104,7 +104,7 @@ class DecisionEngine:
         threat_intel   = vulnerability.get("threat_intelligence", {})
         exploit_public = 10 if threat_intel.get("exploit_available", False) else 0
 
-        otx_indicators = vulnerability.get("otx_indicators", [])
+        otx_indicators = threat_intel.get("otx_indicators", [])
         threat_actor   = 10 if len(otx_indicators) > 0 else 0
 
         package_name      = vulnerability.get("package", "")
