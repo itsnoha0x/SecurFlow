@@ -1,8 +1,7 @@
-Pillow==9.0.0           # CVE-2023-44271 — CISA KEV, CVSS 7.5
-requests==2.6.0         # CVE-2023-32681 — CVSS 6.1  
-PyYAML==5.3.1           # CVE-2020-14343 — CVSS 9.8, exploit public
-paramiko==2.9.0         # CVE-2023-48795 — CVSS 9.8, CISA KEV, Terrapin attack
-Django==2.2.0           # CVE-2021-35042 — CISA KEV, RCE, CVSS 9.8
-urllib3==1.24.1         # CVE-2021-33503 — CVSS 7.5, exploit dispo
-Werkzeug==0.11.0        # CVE-2023-25577 — CVSS 7.5, DoS exploit public
-SQLAlchemy==2.0.49  
+
+twisted==20.3.0        # CVE-2022-21712 — CVSS 6.5, EPSS 0.97, exploit massif
+httplib2==0.19.0       # CVE-2021-21240 — CVSS 6.5, ReDoS exploit public
+Pygments==2.7.3        # CVE-2021-20270 — CVSS 6.5, EPSS élevé
+lxml==4.6.2            # CVE-2021-43818 — CVSS 6.3, exploit public Metasploit
+Jinja2==2.11.3         # CVE-2020-28493 — CVSS 5.3, EPSS 0.8+, très exploité
+Markdown==3.3.3        # CVE-2021-34553 — CVSS 5.0, exploit actif
