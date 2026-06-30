@@ -2,6 +2,8 @@
 
 A comprehensive Cyber Threat Intelligence (CTI) pipeline with AI integration for security vulnerability scanning, enrichment, and decision making.
 
+![dashboard](securflowdashboard.png)
+
 ## Project Structure
 
 ```
