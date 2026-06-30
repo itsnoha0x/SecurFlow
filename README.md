@@ -5,11 +5,11 @@ A comprehensive Cyber Threat Intelligence (CTI) pipeline with AI integration for
 ## Project Structure
 
 ```
-CTI-CICD/
+SecurFlow/
 ├── .github/
 │   └── workflows/
 │       └── security-pipeline.yml      # CI/CD pipeline configuration
-├── target_app/                         # Vulnerable test application
+├── target_app/                        # Vulnerable test application
 │   └── package.json
 ├── src/
 │   ├── p1_scanner/                    # Phase 1: Security Scanner
@@ -19,17 +19,21 @@ CTI-CICD/
 │   ├── p2_enricher/                   # Phase 2: Threat Intelligence Enrichment
 │   │   ├── enricher.py                # Enrichment logic
 │   │   └── cache.sqlite               # Local cache for enrichment data
-│   ├── p3_decision_engine/             # Phase 3: AI Decision Engine
+│   ├── p3_decision_engine/            # Phase 3: AI Decision Engine
 │   │   ├── decision_engine.py         # AI-powered decision making
 │   │   ├── config.yaml                # Decision engine configuration
 │   │   └── prompts/                   # AI prompt templates
-│   └── p4_dashboard/                  # Phase 4: Security Dashboard
-├── shared/                             # Data transition files
+│   └── p4_dashboard/                  # Phase 4: Security Dashboard (Backend/Config)
+├── shared/                            # Data transition files
 │   ├── 1_raw_results.json             # Output from P1
 │   ├── 2_enriched.json                # Output from P2
 │   └── 3_final_report.json            # Output from P3
-├── requirements.txt                    # Python dependencies
-└── README.md                           # This file
+├── index.html                         # Dashboard / UI entry point
+├── main.js                            # Dashboard / UI logic
+├── logo.png                           # Project logo
+├── .gitignore                         # Git ignore rules
+├── requirements.txt                   # Python dependencies
+└── README.md                          # This file
 ```
 
 ## Setup
