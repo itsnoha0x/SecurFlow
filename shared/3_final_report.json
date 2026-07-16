@@ -1,14 +1,14 @@
 {
   "decision_metadata": {
-    "timestamp": "2026-07-15T04:48:10.703998Z",
+    "timestamp": "2026-07-16T04:58:19.373927Z",
     "engine_version": "1.0.0",
     "config_used": {
       "high_context_components": [
-        "sequelize",
-        "typeorm",
         "mongoose",
         "sqlalchemy",
-        "psycopg2"
+        "psycopg2",
+        "sequelize",
+        "typeorm"
       ],
       "block_threshold": 7.0,
       "alert_threshold": 4.0,
@@ -17,21 +17,61 @@
     "total_processed": 19,
     "decisions": {
       "BLOQUER": 0,
-      "ALERTER": 8,
-      "PASSER": 11
+      "ALERTER": 11,
+      "PASSER": 8
     },
-    "average_srp": 3.6
+    "average_srp": 4.0
   },
   "vulnerability_decisions": [
+    {
+      "cve_id": "CVE-2026-42304",
+      "package": "twisted",
+      "version": "inconnue",
+      "srp_score": 6.0,
+      "decision": "ALERTER",
+      "ai_explanation": "Twisted versions before 26.4.0rc2 are vulnerable to DNS decompression DoS attacks, allowing remote attackers to exhaust server resources. Multiple threat actors have actively exploited this vulnerability in May 2026. The moderate SRP score indicates a significant risk for exposed DNS services.",
+      "ai_fix": "Immediately upgrade Twisted to version 26.4.0rc2 or later. If immediate upgrade isn't possible, implement network-level protections to filter malicious DNS queries.",
+      "timestamp": "2026-07-16T04:57:52.386779Z"
+    },
+    {
+      "cve_id": "CVE-2021-28957",
+      "package": "lxml",
+      "version": "inconnue",
+      "srp_score": 5.6,
+      "decision": "ALERTER",
+      "ai_explanation": "This XSS in lxml's cleaner allows JS injection via formaction when safe_attrs_only is disabled. Attackers could exploit this to execute malicious scripts in victim browsers. While not in CISA KEV, the moderate CVSS indicates a credible risk for apps using unsafe configurations.",
+      "ai_fix": "Upgrade to lxml 4.6.3 or later. If disabling safe_attrs_only is necessary, implement additional output encoding or use a modern sanitizer library.",
+      "timestamp": "2026-07-16T04:57:22.257299Z"
+    },
+    {
+      "cve_id": "CVE-2024-41810",
+      "package": "twisted",
+      "version": "inconnue",
+      "srp_score": 5.5,
+      "decision": "ALERTER",
+      "ai_explanation": "La vulnérabilité dans `twisted.web.util.redirectTo` permet une injection HTML via l'URL de redirection, exposant à des attaques XSS réfléchies. Des acteurs comme ACTUALIZACION pourraient exploiter ce vecteur pour voler des sessions ou diffuser du malware.",
+      "ai_fix": "Valider et échapper strictement toute entrée utilisateur passée à `redirectTo`. Mettre à jour vers la dernière version de Twisted corrigeant cette vulnérabilité.",
+      "timestamp": "2026-07-16T04:58:19.373622Z"
+    },
+    {
+      "cve_id": "CVE-2024-34064",
+      "package": "Jinja2",
+      "version": "inconnue",
+      "srp_score": 5.2,
+      "decision": "ALERTER",
+      "ai_explanation": "Le filtre `xmlattr` de Jinja2 permet des clés contenant des caractères non valides pour les attributs XML/HTML, ce qui peut entraîner une injection de balises ou une corruption de structure. Bien que le score EPSS soit bas, des acteurs comme Oracle ont identifié ce risque dans leurs bulletins critiques.",
+      "ai_fix": "Mettre à jour Jinja2 vers une version corrigée qui valide strictement les noms d'attributs XML. Échapper ou rejeter les clés contenant des espaces, `/`, `>` ou `=` avant traitement.",
+      "timestamp": "2026-07-16T04:56:33.439350Z"
+    },
     {
       "cve_id": "CVE-2025-27516",
       "package": "Jinja2",
       "version": "inconnue",
       "srp_score": 4.5,
       "decision": "ALERTER",
-      "ai_explanation": "This Jinja2 vulnerability allows template injection leading to RCE when attackers control template content. While not actively exploited (low EPSS), the high CVSS reflects critical impact potential.",
-      "ai_fix": "Upgrade Jinja2 to version 3.1.6 or later immediately to patch the sandbox escape via |attr filter.",
-      "timestamp": "2026-07-15T04:46:19.452973Z"
+      "ai_explanation": "Cette vulnérabilité dans Jinja2 permet une exécution de code arbitraire via le filtre |attr dans des templates contrôlés par un attaquant. Bien que le score EPSS soit bas, le CVSS élevé indique un impact potentiellement sévère.",
+      "ai_fix": "Mettre à jour Jinja2 vers la version 3.1.6 ou ultérieure pour corriger la faille de sandboxing.",
+      "timestamp": "2026-07-16T04:56:43.502425Z"
     },
     {
       "cve_id": "CVE-2022-24801",
@@ -39,9 +79,9 @@
       "version": "inconnue",
       "srp_score": 4.3,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité dans Twisted permet un parsing non conforme des requêtes HTTP, ouvrant potentiellement la porte à des attaques par injection ou déni de service. Bien que le score EPSS soit bas, le CVSS élevé indique un impact important si exploité.",
-      "ai_fix": "Mettre à jour Twisted vers la version 22.4.0rc1 ou ultérieure pour corriger le parsing HTTP non conforme.",
-      "timestamp": "2026-07-15T04:47:24.704075Z"
+      "ai_explanation": "La vulnérabilité dans Twisted permet des attaques de contournement de règles via un parsing HTTP non conforme, exploitant des requêtes malformées. Bien que le score EPSS soit bas, le CVSS élevé indique un impact potentiel important sur la confidentialité/intégrité.",
+      "ai_fix": "Mettre à jour Twisted vers la version 22.4.0rc1 ou ultérieure pour corriger le parsing HTTP non conforme. Valider aussi les entrées HTTP avec des règles strictes.",
+      "timestamp": "2026-07-16T04:57:39.371353Z"
     },
     {
       "cve_id": "CVE-2021-20270",
@@ -49,9 +89,9 @@
       "version": "inconnue",
       "srp_score": 4.1,
       "decision": "ALERTER",
-      "ai_explanation": "Un attaquant peut provoquer un déni de service en soumettant un fichier SML contenant juste le mot-clé 'exception', faisant entrer le lexer dans une boucle infinie. Bien que le score SRP soit modéré (4.1/10), cela impacte la disponibilité du service.",
-      "ai_fix": "Mettre à jour Pygments vers la version 2.7.4 ou ultérieure qui corrige cette vulnérabilité. Vérifier aussi les dépendances transitives utilisant Pygments.",
-      "timestamp": "2026-07-15T04:46:40.724428Z"
+      "ai_explanation": "Un attaquant peut provoquer un déni de service en soumettant un fichier SML contenant uniquement le mot-clé 'exception', ce qui déclenche une boucle infinie dans le lexer. Bien que le score SRP soit modéré (4.1/10), cette vulnérabilité pourrait être exploitée pour perturber des services utilisant Pygments pour la coloration syntaxique.",
+      "ai_fix": "Mettre à jour Pygments vers la version 2.7.4 ou ultérieure qui corrige cette vulnérabilité.",
+      "timestamp": "2026-07-16T04:56:55.221832Z"
     },
     {
       "cve_id": "CVE-2021-27291",
@@ -59,9 +99,9 @@
       "version": "inconnue",
       "srp_score": 4.1,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité (ReDoS) dans Pygments permet à un attaquant de provoquer un déni de service en exploitant des expressions régulières mal optimisées. Bien que le score EPSS soit faible, le risque existe pour les applications traitant des entrées non fiables.",
+      "ai_explanation": "Cette vulnérabilité de type ReDoS dans Pygments permet à un attaquant de provoquer un déni de service en exploitant des expressions régulières mal optimisées. Bien que le score SRP soit modéré (4.1/10), l'impact potentiel est significatif (CVSS 7.5) car il peut rendre le service indisponible.",
       "ai_fix": "Mettre à jour Pygments vers la version 2.7.4 ou ultérieure qui corrige les expressions régulières vulnérables.",
-      "timestamp": "2026-07-15T04:46:45.816295Z"
+      "timestamp": "2026-07-16T04:57:03.482108Z"
     },
     {
       "cve_id": "CVE-2022-2309",
@@ -69,9 +109,9 @@
       "version": "inconnue",
       "srp_score": 4.1,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité de déréférencement de pointeur NULL dans lxml avec libxml2 2.9.10-2.9.14 permet un crash applicatif via des données malveillantes. Bien que le score SRP soit modéré (4.1/10), le CVSS 7.5 indique un impact significatif sur la disponibilité.",
-      "ai_fix": "Mettre à jour libxml2 vers la version 2.9.15 ou supérieure pour corriger la vulnérabilité.",
-      "timestamp": "2026-07-15T04:47:19.765829Z"
+      "ai_explanation": "Cette vulnérabilité de déréférencement NULL dans lxml+libxml2 peut crasher l'application via des données malveillantes. Bien que le score SRP soit modéré (4.1/10), le CVSS élevé (7.5) indique un impact sérieux sur la disponibilité.",
+      "ai_fix": "Mettre à jour libxml2 vers la version 2.9.15 ou supérieure. Vérifier aussi la version de lxml et la mettre à jour si nécessaire.",
+      "timestamp": "2026-07-16T04:57:33.570562Z"
     },
     {
       "cve_id": "CVE-2025-69534",
@@ -79,9 +119,9 @@
       "version": "inconnue",
       "srp_score": 4.0,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité permet un DoS via un crash de l'application lorsqu'elle parse du Markdown malveillant contenant des séquences HTML malformées. Bien que le score SRP soit modéré (4.0), l'impact est significatif (CVSS 7.5) car exploitable à distance sans authentification.",
-      "ai_fix": "Mettre à jour Python-Markdown vers la version 3.8.1 ou supérieure qui inclut un gestionnaire d'exceptions pour ce cas. Valider/sanitizer en entrée tout Markdown utilisateur.",
-      "timestamp": "2026-07-15T04:46:30.261795Z"
+      "ai_explanation": "Cette vulnérabilité permet un DoS via un parsing Markdown malveillant. Bien que peu probable (EPSS bas), elle pourrait cibler des plateformes de documentation ou blogs. Aucun acteur de menace connu ne l'exploite actuellement.",
+      "ai_fix": "Mettre à jour Python-Markdown vers la version 3.8.1 ou supérieure qui corrige la gestion d'exception. Implémenter un sanitizer HTML côté serveur pour les entrées Markdown.",
+      "timestamp": "2026-07-16T04:56:49.160555Z"
     },
     {
       "cve_id": "CVE-2022-21712",
@@ -89,19 +129,9 @@
       "version": "inconnue",
       "srp_score": 4.0,
       "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité dans Twisted expose des cookies et en-têtes d'autorisation lors de redirections cross-origin, permettant potentiellement des attaques de vol de session. Le risque est modéré (SRP 4.0) car l'exploitation nécessite des conditions spécifiques de redirection.",
-      "ai_fix": "Mettre à jour Twisted vers une version corrigée qui ne transmet pas ces informations sensibles lors des redirections cross-origin. Vérifier également les dépendances utilisant ces agents de redirection.",
-      "timestamp": "2026-07-15T04:47:30.884223Z"
-    },
-    {
-      "cve_id": "CVE-2026-42304",
-      "package": "twisted",
-      "version": "inconnue",
-      "srp_score": 4.0,
-      "decision": "ALERTER",
-      "ai_explanation": "Cette vulnérabilité dans Twisted permet un DoS via épuisement des ressources lors de la décompression DNS. Bien que le score CVSS soit modéré (7.5), l'EPSS très bas (0.0043%) suggère une exploitation peu probable actuellement.",
-      "ai_fix": "Mettre à jour Twisted vers la version 26.4.0rc2 ou ultérieure pour corriger la vulnérabilité de décompression DNS.",
-      "timestamp": "2026-07-15T04:47:44.313513Z"
+      "ai_explanation": "Cette vulnérabilité dans Twisted expose des données sensibles (cookies, headers d'autorisation) lors de redirections cross-origin, permettant potentiellement des attaques de type credential stealing. Le risque est modéré (SRP 4.0) car nécessite une interaction utilisateur spécifique.",
+      "ai_fix": "Mettre à jour Twisted vers une version corrigée qui ne transmet pas ces headers sensibles lors des redirections cross-origin. Vérifier aussi les dépendances transitives utilisant ces agents.",
+      "timestamp": "2026-07-16T04:57:46.604352Z"
     },
     {
       "cve_id": "CVE-2021-43818",
@@ -109,19 +139,9 @@
       "version": "inconnue",
       "srp_score": 3.9,
       "decision": "PASSER",
-      "ai_explanation": "L'HTML Cleaner de lxml avant 4.6.5 ne filtre pas correctement certains scripts malveillants dans le contenu HTML/SVG, permettant des attaques XSS. Bien que le risque soit modéré (SRP 3.9), cette vulnérabilité est exploitable si l'application traite des entrées non fiables.",
-      "ai_fix": "Mettre à jour lxml vers la version 4.6.5 ou ultérieure pour corriger le filtre HTML. Valider aussi toutes les entrées utilisateur traitant du HTML/SVG.",
-      "timestamp": "2026-07-15T04:47:12.098954Z"
-    },
-    {
-      "cve_id": "CVE-2021-28957",
-      "package": "lxml",
-      "version": "inconnue",
-      "srp_score": 3.6,
-      "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité XSS dans lxml permet d'exécuter du JavaScript malveillant lorsque les protections safe_attrs_only et forms sont désactivées. Le risque est modéré (SRP 3.6) car elle nécessite une configuration spécifique pour être exploitée.",
-      "ai_fix": "Mettre à jour lxml vers la version 4.6.3 ou supérieure. Si impossible, ne jamais désactiver simultanément safe_attrs_only et forms dans le Cleaner.",
-      "timestamp": "2026-07-15T04:47:05.877882Z"
+      "ai_explanation": "L'HTML Cleaner de lxml avant 4.6.5 ne filtre pas correctement certains scripts malveillants dans le HTML/SVG, permettant des attaques XSS. Le risque est modéré (SRP 3.9) car nécessite un contexte d'utilisation spécifique.",
+      "ai_fix": "Mettre à jour lxml vers la version 4.6.5 ou supérieure pour corriger le filtre HTML/SVG.",
+      "timestamp": "2026-07-16T04:57:27.650217Z"
     },
     {
       "cve_id": "CVE-2024-22195",
@@ -129,9 +149,9 @@
       "version": "inconnue",
       "srp_score": 3.5,
       "decision": "PASSER",
-      "ai_explanation": "Le filtre `xmlattr` de Jinja2 permet une injection d'attributs HTML non sécurisée, exposant à des attaques XSS. Bien que le risque soit modéré (SRP 3.5), cela reste exploitable si des entrées utilisateur non nettoyées sont utilisées dans des templates.",
-      "ai_fix": "Sanitisez systématiquement les entrées utilisateur avec `escape()` avant de les passer au filtre `xmlattr`, ou utilisez des bibliothèques comme MarkupSafe pour le rendu sécurisé.",
-      "timestamp": "2026-07-15T04:45:45.500516Z"
+      "ai_explanation": "Cette vulnérabilité dans Jinja2 permet l'injection d'attributs HTML malveillants via le filtre xmlattr, pouvant conduire à des attaques XSS. Bien que le score SRP soit modéré (3.5/10), toute faille XSS doit être prise au sérieux car elle peut compromettre les utilisateurs finaux.",
+      "ai_fix": "Mettre à jour Jinja2 vers une version corrigée et toujours échapper proprement les entrées utilisateur avec le filtre |escape avant de les utiliser dans des templates.",
+      "timestamp": "2026-07-16T04:56:23.776072Z"
     },
     {
       "cve_id": "CVE-2024-56326",
@@ -139,19 +159,9 @@
       "version": "inconnue",
       "srp_score": 3.5,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité dans Jinja2 permet l'exécution de code arbitraire via des templates malveillants. Le risque est modéré (SRP 3.5) car elle nécessite un contrôle préalable du template. Aucun acteur de menace connu ne l'exploite actuellement.",
-      "ai_fix": "Mettre à jour Jinja2 vers la version 3.1.5 ou supérieure pour corriger la faille de sandbox.",
-      "timestamp": "2026-07-15T04:46:00.433833Z"
-    },
-    {
-      "cve_id": "CVE-2024-41810",
-      "package": "twisted",
-      "version": "inconnue",
-      "srp_score": 3.5,
-      "decision": "PASSER",
-      "ai_explanation": "La vulnérabilité dans twisted.web.util.redirectTo permet une injection HTML via l'URL de redirection, pouvant mener à une attaque XSS réfléchie. Le risque est modéré (SRP 3.5/10) car nécessite un contrôle préalable de l'URL par l'attaquant.",
-      "ai_fix": "Valider et échapper strictement toute entrée utilisateur passée à redirectTo(). Mettre à jour vers une version patchée de Twisted si disponible.",
-      "timestamp": "2026-07-15T04:48:10.703728Z"
+      "ai_explanation": "Cette vulnérabilité dans Jinja2 permet une exécution de code arbitraire via des templates malveillants. Le risque est modéré (SRP 3.5) car elle nécessite un contrôle préalable du template.",
+      "ai_fix": "Mettre à jour Jinja2 vers la version 3.1.5 ou supérieure pour corriger la faille de sandboxing.",
+      "timestamp": "2026-07-16T04:56:38.408745Z"
     },
     {
       "cve_id": "CVE-2026-41066",
@@ -159,19 +169,9 @@
       "version": "inconnue",
       "srp_score": 3.4,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité dans lxml permet à des entités XML malveillantes de lire des fichiers locaux lorsque resolve_entities=True. Bien que le score SRP soit modéré (3.4/10), cela pourrait exposer des données sensibles si l'application traite du XML non fiable.",
-      "ai_fix": "Mettez à jour lxml vers la version 6.1.0 ou ultérieure, ou désactivez explicitement resolve_entities avec resolve_entities=False dans la configuration du parseur.",
-      "timestamp": "2026-07-15T04:47:00.299917Z"
-    },
-    {
-      "cve_id": "CVE-2024-34064",
-      "package": "Jinja2",
-      "version": "inconnue",
-      "srp_score": 3.2,
-      "decision": "PASSER",
-      "ai_explanation": "La vulnérabilité dans le filtre `xmlattr` de Jinja2 permet l'injection de caractères non valides dans des attributs XML/HTML, ce qui pourrait mener à une altération du DOM ou une injection XSS indirecte. Le risque est modéré car nécessite une configuration spécifique de l'application.",
-      "ai_fix": "Mettre à jour Jinja2 vers une version corrigée qui valide strictement les noms d'attributs. Sanitize également les entrées utilisateur avant traitement par le filtre xmlattr.",
-      "timestamp": "2026-07-15T04:45:54.809764Z"
+      "ai_explanation": "Cette vulnérabilité dans lxml permet une exfiltration de fichiers locaux via des entités XML malveillantes. Bien que le score SRP soit modéré (3.4/10), l'exploitation pourrait permettre la lecture de données sensibles sur le système.",
+      "ai_fix": "Mettre à jour lxml vers la version 6.1.0 ou supérieure, ou configurer explicitement resolve_entities=False dans les analyseurs XML.",
+      "timestamp": "2026-07-16T04:57:16.300571Z"
     },
     {
       "cve_id": "CVE-2022-40896",
@@ -179,9 +179,9 @@
       "version": "inconnue",
       "srp_score": 3.2,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité de type ReDoS dans Pygments permet à un attaquant de provoquer un déni de service via une expression régulière malveillante dans SmithyLexer. Le risque est modéré (score SRP 3.2) et aucune exploitation active n'est documentée.",
-      "ai_fix": "Mettre à jour Pygments vers la version 2.15.1 ou ultérieure pour corriger la vulnérabilité de ReDoS.",
-      "timestamp": "2026-07-15T04:46:54.234091Z"
+      "ai_explanation": "Cette vulnérabilité de type ReDoS dans Pygments permet à un attaquant de provoquer un déni de service via une expression régulière malveillante dans SmithyLexer. Bien que le risque soit modéré (CVSS 5.5), l'absence d'acteurs connus exploitant cette faille réduit son urgence.",
+      "ai_fix": "Mettre à jour Pygments vers la version 2.15.1 ou ultérieure qui corrige cette vulnérabilité.",
+      "timestamp": "2026-07-16T04:57:10.032541Z"
     },
     {
       "cve_id": "CVE-2022-39348",
@@ -189,9 +189,9 @@
       "version": "inconnue",
       "srp_score": 3.2,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité XSS dans Twisted permet l'injection de code via l'en-tête Host non échappé dans les réponses 404. Bien que le risque soit modéré (SRP 3.2), elle pourrait être exploitée pour voler des sessions ou rediriger les utilisateurs.",
-      "ai_fix": "Mettre à jour Twisted vers une version corrigée qui échappe correctement l'en-tête Host dans les réponses d'erreur. Configurez également des en-têtes de sécurité CSP pour atténuer les risques XSS résiduels.",
-      "timestamp": "2026-07-15T04:47:52.841024Z"
+      "ai_explanation": "Cette vulnérabilité XSS dans Twisted permet l'injection de code via l'en-tête Host non échappé dans les pages d'erreur 404. Bien que le risque soit modéré (SRP 3.2), elle pourrait être exploitée pour voler des sessions ou rediriger les utilisateurs.",
+      "ai_fix": "Mettre à jour Twisted vers une version corrigée qui échappe correctement l'en-tête Host dans les réponses d'erreur. Configurez également des règles de validation strictes pour l'en-tête Host.",
+      "timestamp": "2026-07-16T04:58:01.559217Z"
     },
     {
       "cve_id": "CVE-2023-46137",
@@ -199,9 +199,9 @@
       "version": "inconnue",
       "srp_score": 3.1,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité dans Twisted permet un désordre des réponses HTTP lorsque plusieurs requêtes sont envoyées dans un seul paquet TCP. Un attaquant contrôlant un endpoint pourrait exploiter ceci pour intercepter ou manipuler des réponses. Le risque est modéré (SRP 3.1) car nécessite des conditions spécifiques.",
-      "ai_fix": "Mettre à jour Twisted vers la version 23.10.0rc1 ou ultérieure qui corrige ce problème. Éviter de traiter plusieurs requêtes HTTP dans un seul paquet TCP si possible.",
-      "timestamp": "2026-07-15T04:47:59.052831Z"
+      "ai_explanation": "Cette vulnérabilité dans Twisted permet un désordre des réponses HTTP lors de requêtes multiples dans un même paquet TCP, ce qui pourrait être exploité pour des attaques de type 'mixing' si un endpoint est compromis. Le risque est modéré (SRP 3.1) car nécessite un endpoint malveillant.",
+      "ai_fix": "Mettre à jour Twisted vers la version 23.10.0rc1 ou ultérieure qui corrige ce problème de séquencement des réponses HTTP.",
+      "timestamp": "2026-07-16T04:58:07.415968Z"
     },
     {
       "cve_id": "CVE-2024-41671",
@@ -209,9 +209,9 @@
       "version": "inconnue",
       "srp_score": 1.0,
       "decision": "PASSER",
-      "ai_explanation": "Cette vulnérabilité dans Twisted permet un traitement désordonné des requêtes HTTP pipelinées, pouvant entraîner une fuite d'information entre sessions. Le risque est faible (SRP 1.0) car nécessite des conditions réseau spécifiques.",
-      "ai_fix": "Mettre à jour Twisted vers la version 24.7.0rc1 ou supérieure pour corriger le traitement des requêtes pipelinées.",
-      "timestamp": "2026-07-15T04:48:05.099259Z"
+      "ai_explanation": "Cette vulnérabilité dans Twisted permet un traitement désordonné des requêtes HTTP pipelinées, pouvant entraîner une fuite d'information. Le risque est faible (SRP 1.0/10) et aucun acteur de menace n'a été identifié exploitant cette faille.",
+      "ai_fix": "Mettre à jour Twisted vers la version 24.7.0rc1 ou supérieure pour corriger le problème de traitement des requêtes pipelinées.",
+      "timestamp": "2026-07-16T04:58:13.013822Z"
     }
   ]
 }
