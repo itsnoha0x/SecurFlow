@@ -1,13 +1,13 @@
 {
   "decision_metadata": {
-    "timestamp": "2026-08-26T03:01:12.708656Z",
+    "timestamp": "2026-08-27T12:14:16.553521Z",
     "engine_version": "1.0.0",
     "config_used": {
       "high_context_components": [
-        "typeorm",
+        "mongoose",
         "sqlalchemy",
         "sequelize",
-        "mongoose",
+        "typeorm",
         "psycopg2"
       ],
       "block_threshold": 7.0,
@@ -31,7 +31,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER pour CVE-2025-27516. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour Jinja2 vinconnue.",
-      "timestamp": "2026-08-26T03:01:08.434540Z"
+      "timestamp": "2026-08-27T12:14:11.372149Z"
     },
     {
       "cve_id": "CVE-2022-24801",
@@ -41,7 +41,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER pour CVE-2022-24801. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour twisted vinconnue.",
-      "timestamp": "2026-08-26T03:01:11.256623Z"
+      "timestamp": "2026-08-27T12:14:14.686502Z"
     },
     {
       "cve_id": "CVE-2021-20270",
@@ -51,7 +51,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER pour CVE-2021-20270. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour Pygments vinconnue.",
-      "timestamp": "2026-08-26T03:01:08.901646Z"
+      "timestamp": "2026-08-27T12:14:11.857009Z"
     },
     {
       "cve_id": "CVE-2021-27291",
@@ -61,7 +61,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER pour CVE-2021-27291. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour Pygments vinconnue.",
-      "timestamp": "2026-08-26T03:01:09.626374Z"
+      "timestamp": "2026-08-27T12:14:12.080724Z"
     },
     {
       "cve_id": "CVE-2022-2309",
@@ -71,7 +71,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER pour CVE-2022-2309. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour lxml vinconnue.",
-      "timestamp": "2026-08-26T03:01:11.037366Z"
+      "timestamp": "2026-08-27T12:14:14.465321Z"
     },
     {
       "cve_id": "CVE-2025-69534",
@@ -81,7 +81,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER pour CVE-2025-69534. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour Markdown vinconnue.",
-      "timestamp": "2026-08-26T03:01:08.661311Z"
+      "timestamp": "2026-08-27T12:14:11.633763Z"
     },
     {
       "cve_id": "CVE-2026-59939",
@@ -91,7 +91,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER pour CVE-2026-59939. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour httplib2 vinconnue.",
-      "timestamp": "2026-08-26T03:01:10.073615Z"
+      "timestamp": "2026-08-27T12:14:12.540302Z"
     },
     {
       "cve_id": "CVE-2022-21712",
@@ -101,7 +101,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER pour CVE-2022-21712. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour twisted vinconnue.",
-      "timestamp": "2026-08-26T03:01:11.494862Z"
+      "timestamp": "2026-08-27T12:14:14.915921Z"
     },
     {
       "cve_id": "CVE-2026-42304",
@@ -111,7 +111,7 @@
       "decision": "ALERTER",
       "ai_explanation": "Alerte CTI de niveau ALERTER pour CVE-2026-42304. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour twisted vinconnue.",
-      "timestamp": "2026-08-26T03:01:11.722145Z"
+      "timestamp": "2026-08-27T12:14:15.673245Z"
     },
     {
       "cve_id": "CVE-2021-43818",
@@ -121,7 +121,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2021-43818. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour lxml vinconnue.",
-      "timestamp": "2026-08-26T03:01:10.803643Z"
+      "timestamp": "2026-08-27T12:14:14.244074Z"
     },
     {
       "cve_id": "CVE-2021-28957",
@@ -131,7 +131,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2021-28957. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour lxml vinconnue.",
-      "timestamp": "2026-08-26T03:01:10.552849Z"
+      "timestamp": "2026-08-27T12:14:13.822497Z"
     },
     {
       "cve_id": "CVE-2024-22195",
@@ -141,7 +141,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2024-22195. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour Jinja2 vinconnue.",
-      "timestamp": "2026-08-26T03:01:07.719629Z"
+      "timestamp": "2026-08-27T12:14:10.692518Z"
     },
     {
       "cve_id": "CVE-2024-56326",
@@ -151,7 +151,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2024-56326. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour Jinja2 vinconnue.",
-      "timestamp": "2026-08-26T03:01:08.203906Z"
+      "timestamp": "2026-08-27T12:14:11.149506Z"
     },
     {
       "cve_id": "CVE-2024-41810",
@@ -161,7 +161,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2024-41810. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour twisted vinconnue.",
-      "timestamp": "2026-08-26T03:01:12.708356Z"
+      "timestamp": "2026-08-27T12:14:16.553285Z"
     },
     {
       "cve_id": "CVE-2026-41066",
@@ -171,7 +171,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2026-41066. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour lxml vinconnue.",
-      "timestamp": "2026-08-26T03:01:10.295772Z"
+      "timestamp": "2026-08-27T12:14:12.775477Z"
     },
     {
       "cve_id": "CVE-2024-34064",
@@ -181,7 +181,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2024-34064. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour Jinja2 vinconnue.",
-      "timestamp": "2026-08-26T03:01:07.971774Z"
+      "timestamp": "2026-08-27T12:14:10.927114Z"
     },
     {
       "cve_id": "CVE-2022-40896",
@@ -191,7 +191,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2022-40896. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour Pygments vinconnue.",
-      "timestamp": "2026-08-26T03:01:09.851435Z"
+      "timestamp": "2026-08-27T12:14:12.308583Z"
     },
     {
       "cve_id": "CVE-2022-39348",
@@ -201,7 +201,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2022-39348. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour twisted vinconnue.",
-      "timestamp": "2026-08-26T03:01:11.974347Z"
+      "timestamp": "2026-08-27T12:14:15.903412Z"
     },
     {
       "cve_id": "CVE-2023-46137",
@@ -211,7 +211,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2023-46137. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour twisted vinconnue.",
-      "timestamp": "2026-08-26T03:01:12.237575Z"
+      "timestamp": "2026-08-27T12:14:16.117843Z"
     },
     {
       "cve_id": "CVE-2024-41671",
@@ -221,7 +221,7 @@
       "decision": "PASSER",
       "ai_explanation": "Alerte CTI de niveau PASSER pour CVE-2024-41671. (Erreur API IA).",
       "ai_fix": "Vérifiez les correctifs de sécurité pour twisted vinconnue.",
-      "timestamp": "2026-08-26T03:01:12.485181Z"
+      "timestamp": "2026-08-27T12:14:16.333366Z"
     }
   ]
 }
